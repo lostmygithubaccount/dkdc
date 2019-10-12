@@ -1,5 +1,5 @@
 {
-    "subscription_id": "60582a10-b9fd-49f1-a546-c4194134bba8",
-    "resource_group": "copetersRG",
-    "workspace_name": "driftDemoWS1"
+    "subscription_id": "a1770de1-0a31-4e00-ba37-53e7cc432a83",
+    "resource_group": "azuremlRG",
+    "workspace_name": "Azure-ML"
 }
