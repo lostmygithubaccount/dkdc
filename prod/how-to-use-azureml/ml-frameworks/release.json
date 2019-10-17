@@ -1,0 +1,128 @@
+{ 
+  "channels": {
+    "master": [
+      "train-hyperparameter-tune-deploy-with-chainer",
+      "distributed-chainer",
+      "distributed-pytorch-with-horovod",
+      "distributed-pytorch-with-nccl-gloo",
+      "train-hyperparameter-tune-deploy-with-pytorch",
+      "train-hyperparameter-tune-deploy-with-sklearn",
+      "train-hyperparameter-tune-deploy-with-tensorflow",
+      "distributed-tensorflow-with-horovod",
+      "distributed-tensorflow-with-parameter-server",
+      "train-tensorflow-resume-training"
+    ],
+     "candidate": [
+      "train-hyperparameter-tune-deploy-with-chainer",
+      "distributed-chainer",
+      "distributed-pytorch-with-horovod",
+      "distributed-pytorch-with-nccl-gloo",
+      "train-hyperparameter-tune-deploy-with-pytorch",
+      "train-hyperparameter-tune-deploy-with-sklearn",
+      "train-hyperparameter-tune-deploy-with-tensorflow",
+      "distributed-tensorflow-with-horovod",
+      "distributed-tensorflow-with-parameter-server",
+      "train-tensorflow-resume-training"
+     ],
+    "preview": [
+      "train-hyperparameter-tune-deploy-with-chainer",
+      "distributed-chainer",
+      "distributed-pytorch-with-horovod",
+      "distributed-pytorch-with-nccl-gloo",
+      "train-hyperparameter-tune-deploy-with-pytorch",
+      "train-hyperparameter-tune-deploy-with-sklearn",
+      "train-hyperparameter-tune-deploy-with-tensorflow",
+      "distributed-tensorflow-with-horovod",
+      "distributed-tensorflow-with-parameter-server",
+      "train-tensorflow-resume-training"
+    ]
+  },
+  "notebooks": {
+    "train-hyperparameter-tune-deploy-with-chainer": {
+        "path": "chainer/deployment/train-hyperparameter-tune-deploy-with-chainer",
+        "name": "train-hyperparameter-tune-deploy-with-chainer.ipynb",
+        "widgets": [ "azureml.widgets" ],
+        "dependencies": ["chainer_score.py", "chainer_mnist.py"],
+        "requirements": ["azureml-widgets", "numpy", "matplotlib",
+        "json", "urllib", "gzip", "struct", "requests"],
+        "celltimeout": 2700
+    },
+    "distributed-chainer": {
+        "path": "chainer/training/distributed-chainer",
+        "name": "distributed-chainer.ipynb",
+        "widgets": [ "azureml.widgets" ],
+        "dependencies": ["train_mnist.py"],
+        "requirements": ["azureml-widgets"],
+        "celltimeout": 2700
+    },
+    "distributed-pytorch-with-horovod": {
+      "path": "pytorch/training/distributed-pytorch-with-horovod",
+      "name": "distributed-pytorch-with-horovod.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["pytorch_horovod_mnist.py"],
+      "requirements": [ "azureml-widgets" ],
+      "celltimeout": 2700
+    },
+    "distributed-pytorch-with-nccl-gloo": {
+      "path": "pytorch/training/distributed-pytorch-with-nccl-gloo",
+      "name":  "distributed-pytorch-with-nccl-gloo.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["pytorch_mnist.py"],
+      "requirements": [ "azureml-widgets" ],
+      "celltimeout": 2700
+    },
+    "train-hyperparameter-tune-deploy-with-pytorch": {
+      "path": "pytorch/deployment/train-hyperparameter-tune-deploy-with-pytorch",
+      "name": "train-hyperparameter-tune-deploy-with-pytorch.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["pytorch_train.py", "pytorch_score.py","test_img.jpg"],
+      "requirements": [ "azureml-widgets", "pillow==5.4.1", "matplotlib", "https://download.pytorch.org/whl/cpu/torch-1.1.0-cp35-cp35m-win_amd64.whl", "https://download.pytorch.org/whl/cpu/torchvision-0.3.0-cp35-cp35m-win_amd64.whl" ],
+      "celltimeout": 2700
+    },
+    "train-hyperparameter-tune-deploy-with-sklearn": {
+      "path": "scikit-learn/training/train-hyperparameter-tune-deploy-with-sklearn",
+      "name": "train-hyperparameter-tune-deploy-with-sklearn.ipynb",
+      "widgets": ["azureml.widgets"],
+      "dependencies": ["train_iris.py"],
+      "requirements": ["azureml-widgets", "numpy"]
+    },
+    "train-hyperparameter-tune-deploy-with-tensorflow": {
+        "path": "tensorflow/deployment/train-hyperparameter-tune-deploy-with-tensorflow",
+        "name": "train-hyperparameter-tune-deploy-with-tensorflow.ipynb",
+        "widgets": [ "azureml.widgets" ],
+        "dependencies": ["tf_mnist.py", "utils.py", "nn.png"],
+        "requirements": ["azureml-widgets", "pandas", "keras", "matplotlib", "azureml-dataprep", "fuse"],
+        "conda": ["numpy", "tensorflow==1.10.0", "matplotlib"],
+        "celltimeout": 2700
+    },
+    "distributed-tensorflow-with-horovod": {
+      "path": "tensorflow/training/distributed-tensorflow-with-horovod",
+      "name": "distributed-tensorflow-with-horovod.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["tf_horovod_word2vec.py"],
+      "requirements": [ "azureml-widgets" ],
+      "celltimeout": 2700
+    },
+    "distributed-tensorflow-with-parameter-server": {
+      "path": "tensorflow/training/distributed-tensorflow-with-parameter-server",
+      "name": "distributed-tensorflow-with-parameter-server.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["tf_mnist_replica.py"],
+      "requirements": [ "azureml-widgets" ],
+      "celltimeout": 2700
+    },
+    "train-tensorflow-resume-training": {
+        "path": "tensorflow/training/train-tensorflow-resume-training",
+        "name": "train-tensorflow-resume-training.ipynb",
+        "widgets": [ "azureml.widgets" ],
+        "dependencies": ["tf_mnist_with_checkpoint.py", "utils.py"],
+        "requirements": ["azureml-widgets", "pandas", "keras", "tensorflow==1.14.0", "matplotlib", "azureml-dataprep", "fuse"],
+        "celltimeout": 2700
+    }           
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "channels": {
+    "databricks-preview": [
+      "sample-01",
+      "sample-02",
+      "sample-03",
+      "sample-04",
+      "sample-05"
+    ]
+  },
+  "notebooks": {
+    "sample-01": {
+      "name": "installation-and-configuration-01.ipynb",
+      "pylint": "all"
+    },
+    "sample-02": {
+      "name": "ingest-data-02.ipynb",
+      "pylint": "all"
+    },
+    "sample-03": {
+      "name": "build-model-run-history-03.ipynb",
+      "pylint": "all"
+    },
+    "sample-04": {
+      "name": "deploy-to-aci-04.ipynb",
+      "pylint": "all"
+    },
+    "sample-05": {
+      "name": "deploy-to-aks-05.ipynb",
+      "pylint": "all"
+    }
+  }
+}

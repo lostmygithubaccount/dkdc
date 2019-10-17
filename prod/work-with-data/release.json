@@ -1,0 +1,21 @@
+{
+  "channels": {
+    "preview-notest": [
+      "datasets-training",
+      "dataset-timeseries"
+    ]
+  },
+  "notebooks": {
+    "datasets-training": {
+      "path": "datasets-tutorial",
+      "name": "train-with-datasets.ipynb",
+      "dependencies": ["train-dataset"],
+      "requirements": ["azureml-widgets", "sklearn" ]
+    },
+    "dataset-timeseries": {
+      "path": "datasets-tutorial",
+      "name": "tabular-timeseries-dataset-filtering.ipynb"
+    }
+  },
+  "uploads": ["README.md", "dataset-api-change-notice.md"]
+}

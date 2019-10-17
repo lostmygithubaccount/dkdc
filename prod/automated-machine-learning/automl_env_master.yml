@@ -1,0 +1,29 @@
+name: automl_env_master
+dependencies:
+  # The python interpreter version.
+  # Currently Azure ML only supports 3.5.2 and later.
+- pip
+- python>=3.5.2,<3.6.8
+- nb_conda
+- matplotlib==2.1.0
+- numpy>=1.16.0,<=1.16.2
+- cython
+- urllib3<1.24
+- scipy>=1.0.0,<=1.1.0
+- scikit-learn>=0.19.0,<=0.20.3
+- pandas>=0.22.0,<=0.23.4
+- testpath=0.3.1
+- py-xgboost<=0.80
+- pyarrow>=0.11.0
+- conda-forge::fbprophet==0.5
+
+- pip:
+  # Required packages for AzureML execution, history, and data preparation.
+  - --extra-index-url https://azuremlsdktestpypi.azureedge.net/sdk-release/master/588E708E0DF342C4A80BD954289657CF
+  - --extra-index-url https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/
+  - azureml-defaults<0.1.50
+  - azureml-train-automl<0.1.50
+  - azureml-widgets<0.1.50
+  - azureml-explain-model<0.1.50
+  - azureml-contrib-interpret<0.1.50
+  - pandas_ml

@@ -1,0 +1,15 @@
+# auto ml config folder
+aml_config/
+
+# sample projects folder
+sample_projects/
+
+# model explanation folder
+explanation/
+download_explanation/
+
+# log files
+*.log
+
+# model files
+model.pkl

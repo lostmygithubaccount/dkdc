@@ -1,0 +1,10 @@
+{
+  "pep8":{
+    "exclude": [
+      "neural_style.py"
+    ],
+    "justifications": [
+	    "manually edited file from pytorch examples"
+    ]
+  }
+}

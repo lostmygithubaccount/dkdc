@@ -1,0 +1,28 @@
+{
+  "include": {
+    "training": "training",
+    "training-with-deep-learning": "training-with-deep-learning",
+    "deployment": "deployment",
+    "explain-model": "explain-model",
+    "machine-learning-pipelines": "machine-learning-pipelines",
+    "automated-machine-learning": "automated-machine-learning",
+    "azure-databricks": "azure-databricks",
+    "manage-azureml-service": "manage-azureml-service",
+    "track-and-monitor-experiments": "track-and-monitor-experiments",
+    "monitor-models": "monitor-models",
+    "work-with-data": "work-with-data",
+    "ml-frameworks": "ml-frameworks"
+  },
+
+  "channels": {
+    "master": [],
+    "candidate": [],
+    "preview": [],
+    "automl-test": [],
+    "notebook-automation": []
+  },
+
+  "notebooks": {},
+
+  "uploads": ["README.md"]
+}

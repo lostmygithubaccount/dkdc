@@ -1,0 +1,52 @@
+{
+  "channels": {
+    "master": [
+      "distributed-cntk-with-custom-docker",
+      "export-run-history-to-tensorboard",
+      "how-to-use-estimator",
+      "train-hyperparameter-tune-deploy-with-keras"
+    ],
+    "preview": [
+      "distributed-cntk-with-custom-docker",
+      "export-run-history-to-tensorboard",
+      "how-to-use-estimator",
+      "train-hyperparameter-tune-deploy-with-keras"
+    ]
+  },
+  "notebooks": {
+    "distributed-cntk-with-custom-docker": {
+      "path": "distributed-cntk-with-custom-docker",
+      "name": "distributed-cntk-with-custom-docker.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["cntk_distr_mnist.py", "install_mnist.py"],
+      "requirements": [ "azureml-widgets", "numpy" ],
+      "celltimeout": 2700
+    },
+    "export-run-history-to-tensorboard": {
+      "path": "export-run-history-to-tensorboard",
+      "name": "export-run-history-to-tensorboard.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "dependencies": [],
+      "requirements": [ "azureml-tensorboard", "tensorflow<2.0.0", "tqdm", "scipy", "sklearn" ],
+      "celltimeout": 2700
+    },
+	"how-to-use-estimator": {
+      "path": "how-to-use-estimator",
+      "name": "how-to-use-estimator.ipynb",
+      "widgets": [ "azureml.widgets" ],
+      "dependencies": ["dummy_train.py", "notebook_example.ipynb"],
+      "requirements": ["azureml-widgets", "azureml-contrib-notebook"],
+      "celltimeout": 2700
+    },
+    "train-hyperparameter-tune-deploy-with-keras": {
+        "path": "train-hyperparameter-tune-deploy-with-keras",
+        "name": "train-hyperparameter-tune-deploy-with-keras.ipynb",
+        "widgets": [ "azureml.widgets" ],
+        "dependencies": ["keras_mnist.py", "utils.py", "nn.png"],
+        "conda": ["matplotlib"],
+        "requirements": ["azureml-widgets","tensorflow==1.13.1", "keras==2.2.5", "pandas", "numpy==1.16.2"],
+        "celltimeout": 2700
+    }
+  }
+}

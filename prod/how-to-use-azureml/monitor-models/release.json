@@ -1,0 +1,36 @@
+{
+  "channels": {
+    "master": [
+      "drift-on-aks"
+    ],
+    "candidate": [],
+    "preview": ["drift-on-aks"],
+    "preview-notest": [],
+    "automl-test": [],
+    "notebook-automation": []
+  },
+  "notebooks": {
+    "drift-on-aks": {
+      "path": "data-drift",
+      "name": "drift-on-aks.ipynb",
+      "widgets": [
+        "azureml.widgets"
+      ],
+      "dependencies": [
+        "score.py",
+        "myenv.yml",
+        "setup.py",
+        "elevation-regression-model.pkl",
+        "training-dataset"
+      ],
+      "requirements": [
+        "azureml-datadrift",
+        "azureml-monitoring",
+        "azureml-opendatasets",
+        "azureml-widgets"
+      ],
+      "celltimeout":2400
+    }
+  },
+  "uploads": []
+}

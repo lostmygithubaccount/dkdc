@@ -1,0 +1,23 @@
+{
+  "channels": {
+    "preview-notest": [
+      "register-model-deploy-local",
+      "register-model-deploy-local-advanced"
+    ]
+  },
+
+  "notebooks": {
+    "register-model-deploy-local": {
+      "name": "register-model-deploy-local.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl" ],
+      "requirements": [],
+      "celltimeout": 1200
+    },
+    "register-model-deploy-local-advanced": {
+      "name": "register-model-deploy-local-advanced.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl", "score.py", "myenv.yml", "helloworld.txt" ],
+      "requirements": [],
+      "celltimeout": 1200
+    }
+  }
+}

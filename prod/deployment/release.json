@@ -1,0 +1,67 @@
+{
+  "include": {
+    "onnx": "onnx",
+    "accelerated-models": "accelerated-models",
+    "deplot-to-local": "deploy-to-local",
+    "deploy-to-cloud": "deploy-to-cloud"
+  },
+
+  "channels": {
+    "master": [
+      "register-model-create-image-deploy-service",
+      "production-deploy-to-aks",
+      "enable-data-collection-for-models-in-aks",
+      "enable-app-insights-in-production-service"
+    ],
+    "preview": [
+      "register-model-create-image-deploy-service",
+      "production-deploy-to-aks",
+      "enable-data-collection-for-models-in-aks",
+      "enable-app-insights-in-production-service"
+    ],
+    "notebook-automation": [
+      "register-model-create-image-deploy-service",
+      "production-deploy-to-aks",
+      "enable-data-collection-for-models-in-aks",
+      "enable-app-insights-in-production-service"
+    ]
+  },
+
+  "notebooks": {
+    "register-model-create-image-deploy-service": {
+      "path": "register-model-create-image-deploy-service",
+      "name": "register-model-create-image-deploy-service.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl" ],
+      "requirements": [ "matplotlib", "tqdm", "scipy", "sklearn" ]
+    },
+    "production-deploy-to-aks": {
+      "path": "production-deploy-to-aks",
+      "name": "production-deploy-to-aks.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl" ],
+      "requirements": [ "matplotlib", "tqdm", "scipy", "sklearn" ],
+      "celltimeout": 1200
+    },
+    "enable-data-collection-for-models-in-aks": {
+      "path": "enable-data-collection-for-models-in-aks",
+      "name": "enable-data-collection-for-models-in-aks.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl" ],
+      "requirements": [],
+      "celltimeout": 1200
+    },
+     "enable-app-insights-in-production-service": {
+      "path": "enable-app-insights-in-production-service",
+      "name": "enable-app-insights-in-production-service.ipynb",
+      "dependencies": [ "sklearn_regression_model.pkl" ],
+      "requirements": [],
+      "celltimeout": 1200
+    },
+    "production-deploy-to-aks-gpu": {
+      "path": "production-deploy-to-aks-gpu",
+      "name": "production-deploy-to-aks-gpu.ipynb",
+      "dependencies": ["snowleopardgaze.jpg"],
+      "requirements": [ "tensorflow"],
+      "preexec": "save.py",
+      "celltimeout": 1200
+    }
+  }
+}

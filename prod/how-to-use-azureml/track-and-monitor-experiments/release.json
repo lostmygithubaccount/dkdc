@@ -1,0 +1,81 @@
+{
+  "channels": {
+    "master": [
+      "train-local",
+      "train-remote",
+      "logging-api",
+      "manage-runs",
+      "deploy-model",
+      "tensorboard",
+      "train-deploy-pytorch"
+    ],
+    "preview": [
+      "train-local",
+      "train-remote",
+      "logging-api",
+      "manage-runs",
+      "deploy-model",
+      "tensorboard",
+      "train-deploy-pytorch"
+    ]
+  },
+
+  "notebooks": {
+    "train-local": {
+      "path": "using-mlflow/train-local",
+      "name": "train-local.ipynb",
+      "dependencies": [],
+      "conda": [ "scikit-learn", "matplotlib" ],
+      "requirements": [ "azureml-mlflow" ]
+    },
+    "train-remote": {
+      "path": "using-mlflow/train-remote",
+      "name": "train-remote.ipynb",
+      "dependencies": [ "train_diabetes.py" ],
+      "conda": [],
+      "requirements": []
+    },
+    "logging-api": {
+      "path": "logging-api",
+      "name": "logging-api.ipynb",
+      "dependencies": ["img" ],
+      "conda": [ "numpy","matplotlib", "tqdm" ],
+      "requirements": [ "azureml-widgets" ]
+    },
+    "manage-runs": {
+      "path": "manage-runs",
+      "name": "manage-runs.ipynb",
+      "dependencies": ["hello.py","hello_with_children.py","hello_with_delay.py"],
+      "conda": [],
+      "requirements": [ ]
+    },
+    "deploy-model": {
+      "path": "using-mlflow/deploy-model",
+      "name": "deploy-model.ipynb",
+      "preexec": "train-local.ipynb",
+      "dependencies": [],
+      "conda": [ "scikit-learn", "matplotlib" ],
+      "requirements": [ "azureml-mlflow", "pandas" ]
+    },
+    "tensorboard": {
+      "path": "tensorboard",
+      "name": "tensorboard.ipynb",
+      "pylint": "C,undefined-variable,import-error",
+      "dependencies": [],
+      "requirements": [ "azureml-tensorboard", "tensorflow<2.0.0" ],
+      "celltimeout": 2700
+    },
+    "train-deploy-pytorch": {
+      "path": "using-mlflow/train-deploy-pytorch",
+      "name": "train-and-deploy-pytorch.ipynb",
+      "dependencies": [ "scripts" ],
+      "conda": [ "matplotlib" ],
+      "requirements": [
+        "azureml-mlflow",
+        "https://download.pytorch.org/whl/cpu/torch-1.1.0-cp35-cp35m-win_amd64.whl",
+        "https://download.pytorch.org/whl/cpu/torchvision-0.3.0-cp35-cp35m-win_amd64.whl"
+      ]
+    }
+  },
+  "uploads": [ "README.md" ]
+}
