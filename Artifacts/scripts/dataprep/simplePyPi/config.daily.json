@@ -1,0 +1,6 @@
+{
+    "subscription": "4a0f8d7f-c197-476b-95e1-fafcd77f12e4",
+    "wheelsRepo": "https://dataprepdownloads.blob.core.windows.net/install/wheels/daily-001996AEA44B4B4CA18D726613/{version}",
+    "cdnBaseUrl": "https://dataprepdownloads.azureedge.net/install/",
+    "uploadTarget": "https://dataprepdownloads.blob.core.windows.net/pypi/daily-001996AEA44B4B4CA18D726613/{version}"
+}

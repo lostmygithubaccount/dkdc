@@ -1,0 +1,10 @@
+channels:
+- conda-forge
+name: project_environment
+dependencies:
+- python=3.6.2
+- pip:
+  - azureml-train-automl==1.0.53.*
+- numpy
+- py-xgboost<=0.80
+- scikit-learn
