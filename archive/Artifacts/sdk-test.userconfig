@@ -1,0 +1,469 @@
+{
+  "source": {
+    "packages": {
+      "automl-client-core-nativeclient": "automl-client-core-nativeclient",
+      "azureml-explain-model": "azureml-explain-model",
+      "azureml-interpret": "azureml-interpret",
+      "azureml-datadrift": "azureml-datadrift",
+      "azureml-contrib-datadrift": "azureml-contrib-datadrift",
+      "azureml-contrib-dataset": "azureml-contrib-dataset",
+      "azureml-contrib-featureengineering": "azureml-contrib-featureengineering",
+      "azureml-contrib-featurestore": "azureml-contrib-featurestore",
+      "azureml-contrib-explain-model": "azureml-contrib-explain-model",
+      "azureml-contrib-reinforcementlearning": "azureml-contrib-reinforcementlearning",
+      "azureml-contrib-interpret": "azureml-contrib-interpret",
+      "azureml-contrib-gbdt": "azureml-contrib-gbdt",
+      "azureml-opendatasets": "azureml-opendatasets",
+      "azureml-contrib-pipeline-steps": "azureml-contrib-pipeline-steps",
+      "azureml-contrib-reports": "azureml-contrib-reports",
+      "azureml-contrib-run": "azureml-contrib-run",
+      "azureml-contrib-iot": "azureml-contrib-iot",
+      "azureml-contrib-mir": "azureml-contrib-mir",
+      "azureml-contrib-server": "azureml-contrib-server",
+      "azureml-contrib-services": "azureml-contrib-services",
+      "azureml-contrib-jupyterrun": "azureml-contrib-jupyterrun",
+      "azureml-contrib-functions": "azureml-contrib-functions",
+      "azureml-tensorboard": "azureml-tensorboard",
+      "azureml-contrib-notebook": "azureml-contrib-notebook",
+      "azureml-core": "azureml-core",
+      "azureml-defaults": "azureml-defaults",
+      "azureml-pipeline": "azureml-pipeline",
+      "azureml-pipeline-internal": "azureml-pipeline-internal",
+      "azureml-pipeline-core": "azureml-pipeline-core",
+      "azureml-pipeline-steps": "azureml-pipeline-steps",
+      "azureml-sdk": "azureml-sdk",
+      "azureml-telemetry": "azureml-telemetry",
+      "azureml-train": "azureml-train",
+      "azureml-automl-core": "azureml-automl-core",
+      "azureml-contrib-automl-dnn-forecasting": "azureml-contrib-automl-dnn-forecasting",
+      "azureml-contrib-automl-dnn-vision": "azureml-contrib-automl-dnn-vision",
+      "azureml-train-automl": "azureml-train-automl",
+      "azureml-train-core": "azureml-train-core",
+      "azureml-train-restclients-hyperdrive": "azureml-train-restclients-hyperdrive",
+      "azureml-widgets": "azureml-widgets",
+      "azureml-cli-common": "azureml-cli-common",
+      "azureml-accel-models": "azureml-accel-models",
+      "azureml-mlflow": "azureml-mlflow"
+    },
+    "extensions": {
+      "azure-cli-ml": "azure-cli-ml/ml_cli_extension",
+      "azure-cli-ml-preview": "azure-cli-ml/ml_cli_preview_extension"
+    }
+  },
+  "releases": {
+    "pypi": {
+      "packages": [
+        "azureml-core",
+        "azureml-train",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-train-core",
+        "azureml-automl-core",
+        "azureml-train-automl",
+        "azureml-contrib-automl-dnn-forecasting",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-telemetry",
+        "azureml-tensorboard",
+        "azureml-contrib-notebook",
+        "azureml-explain-model",
+        "azureml-interpret",
+        "azureml-contrib-interpret",
+        "azureml-contrib-gbdt",
+        "azureml-contrib-server",
+        "azureml-contrib-services",
+        "azureml-contrib-iot",
+        "azureml-contrib-run",
+        "azureml-datadrift",
+        "azureml-contrib-datadrift",
+        "azureml-widgets",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps",
+        "azureml-contrib-pipeline-steps",
+        "azureml-cli-common",
+        "azureml-opendatasets",
+        "azureml-accel-models",
+        "azureml-mlflow"
+      ],
+      "extensions": [
+      ]
+    },
+    "clipypi": {
+      "packages": [
+      ],
+      "extensions": [
+        "azure-cli-ml"
+      ],
+      "extensions_repo": "cli-release",
+      "package_repo": "cli-release"
+    },
+    "rc": {
+      "packages": [
+        "azureml-core",
+        "azureml-train",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-train-core",
+        "azureml-automl-core",
+        "azureml-train-automl",
+        "azureml-contrib-automl-dnn-forecasting",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-telemetry",
+        "azureml-tensorboard",
+        "azureml-contrib-reports",
+        "azureml-contrib-notebook",
+        "azureml-explain-model",
+        "azureml-interpret",
+        "azureml-contrib-interpret",
+        "azureml-contrib-gbdt",
+        "azureml-contrib-server",
+        "azureml-contrib-services",
+        "azureml-contrib-run",
+        "azureml-contrib-iot",
+        "azureml-datadrift",
+        "azureml-contrib-datadrift",
+        "azureml-widgets",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps",
+        "azureml-contrib-pipeline-steps",
+        "azureml-cli-common",
+        "azureml-opendatasets",
+        "azureml-accel-models",
+        "azureml-mlflow",
+        "azureml-contrib-mir",
+        "azureml-contrib-functions"
+      ],
+      "extensions": [
+        "azure-cli-ml",
+        "azure-cli-ml-preview"
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "daily": {
+      "packages": [
+        "azureml-core",
+        "azureml-train",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-train-core",
+        "azureml-automl-core",
+        "azureml-train-automl",
+        "azureml-contrib-automl-dnn-forecasting",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-telemetry",
+        "azureml-tensorboard",
+        "azureml-contrib-reports",
+        "azureml-contrib-notebook",
+        "azureml-explain-model",
+        "azureml-interpret",
+        "azureml-contrib-interpret",
+        "azureml-contrib-gbdt",
+        "azureml-contrib-server",
+        "azureml-contrib-services",
+        "azureml-contrib-iot",
+        "azureml-contrib-run",
+        "azureml-datadrift",
+        "azureml-contrib-datadrift",
+        "azureml-widgets",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps",
+        "azureml-contrib-pipeline-steps",
+        "azureml-cli-common",
+        "azureml-opendatasets",
+        "azureml-accel-models",
+        "azureml-mlflow",
+        "azureml-contrib-mir",
+        "azureml-contrib-functions"
+      ],
+      "extensions": [
+        "azure-cli-ml",
+        "azure-cli-ml-preview"
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "master": {
+      "packages": [
+        "azureml-core",
+        "azureml-train",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-telemetry",
+        "azureml-train-core",
+        "azureml-automl-core",
+        "azureml-contrib-automl-dnn-forecasting",
+        "azureml-contrib-automl-dnn-vision",
+        "azureml-train-automl",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-tensorboard",
+        "azureml-datadrift",
+        "azureml-contrib-datadrift",
+        "azureml-contrib-featureengineering",
+        "azureml-contrib-featurestore",
+        "azureml-opendatasets",
+        "azureml-contrib-pipeline-steps",
+        "azureml-contrib-reports",
+        "azureml-contrib-notebook",
+        "azureml-explain-model",
+        "azureml-interpret",
+        "azureml-contrib-interpret",
+        "azureml-contrib-gbdt",
+        "azureml-contrib-server",
+        "azureml-contrib-services",
+        "azureml-contrib-iot",
+        "azureml-contrib-run",
+        "azureml-contrib-jupyterrun",
+        "azureml-widgets",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps",
+        "azureml-cli-common",
+        "azureml-accel-models",
+        "azureml-mlflow",
+        "azureml-contrib-mir",
+        "azureml-contrib-functions",
+        "azureml-contrib-reinforcementlearning"
+      ],
+      "extensions": [
+        "azure-cli-ml",
+        "azure-cli-ml-preview"
+      ],
+      "external": {
+        "azureml-dataprep": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/azureml-dataprep/",
+        "azureml-dataprep-native": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/azureml-dataprep-native/",
+        "dotnetcore2": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/dotnetcore2/"
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "pipeline-test": {
+      "packages": [
+        "azureml-core",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-train-core",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-telemetry",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "test": {
+      "packages": [
+        "azureml-core",
+        "azureml-train",
+        "azureml-sdk",
+        "azureml-defaults",
+        "azureml-telemetry",
+        "azureml-train-core",
+        "azureml-automl-core",
+        "azureml-contrib-automl-dnn-forecasting",
+        "azureml-contrib-automl-dnn-vision",
+        "azureml-train-automl",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-tensorboard",
+        "azureml-contrib-pipeline-steps",
+        "azureml-datadrift",
+        "azureml-contrib-datadrift",
+        "azureml-contrib-featureengineering",
+        "azureml-contrib-featurestore",
+        "azureml-opendatasets",
+        "azureml-contrib-reports",
+        "azureml-contrib-notebook",
+        "azureml-explain-model",
+        "azureml-interpret",
+        "azureml-contrib-interpret",
+        "azureml-contrib-gbdt",
+        "azureml-contrib-server",
+        "azureml-contrib-iot",
+        "azureml-contrib-run",
+        "azureml-contrib-jupyterrun",
+        "azureml-widgets",
+        "azureml-pipeline",
+        "azureml-pipeline-core",
+        "azureml-pipeline-steps",
+        "azureml-cli-common",
+        "azureml-accel-models",
+        "azureml-mlflow",
+        "azureml-contrib-mir",
+        "azureml-contrib-functions"
+      ],
+      "extensions": [
+        "azure-cli-ml",
+        "azure-cli-ml-preview"
+      ],
+      "external": {
+        "azureml-dataprep": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/azureml-dataprep/",
+        "azureml-dataprep-native": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/azureml-dataprep-native/",
+        "dotnetcore2": "https://dataprepdownloads.azureedge.net/pypi/weekly-rc-932B96D048E011E8B56608/latest/dotnetcore2/"
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "packages-default",
+      "index": "index-default"
+    },
+    "core-test": {
+      "packages": [
+        "azureml-core"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "packages-default",
+      "index": "index-default"
+    },
+    "cli-test": {
+      "packages": [
+        "azureml-core",
+        "azureml-pipeline-core",
+        "azureml-cli-common",
+        "azureml-train-restclients-hyperdrive",
+        "azureml-telemetry",
+        "azureml-train-core"
+      ],
+      "extensions": [
+        "azure-cli-ml"
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "pipeline-release": {
+      "packages": [
+        "azureml-pipeline-internal"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-internal",
+      "extensions_repo": "index-internal",
+      "index": "index-internal"
+    },
+    "nativeclient-release": {
+      "packages": [
+        "automl-client-core-nativeclient",
+        "azureml-automl-core",
+        "azureml-explain-model",
+        "azureml-interpret"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-internal",
+      "extensions_repo": "index-internal",
+      "index": "index-internal"
+    },
+    "reinforcement-learning": {
+      "packages" : [
+        "azureml-contrib-reinforcementlearning"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "index-default",
+      "index": "index-default"
+    },
+    "automl-dnn-vision": {
+      "packages": [
+        "azureml-contrib-automl-dnn-vision"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "packages-default",
+      "index": "index-default"
+    },
+    "automl-dnn-vision-test": {
+      "packages": [
+        "azureml-contrib-automl-dnn-vision",
+        "azureml-core"
+      ],
+      "extensions": [
+      ],
+      "external": {
+      },
+      "package_repo": "packages-default",
+      "extensions_repo": "packages-default",
+      "index": "index-default"
+    }
+  },
+  "targets": {
+    "packages-default": {
+      "type": "arm",
+      "generatetoken": "true",
+      "account": "azuremlsdktestpypi",
+      "resource": "azuremlsdktestpypi",
+      "subscription": "Project Vienna Int",
+      "container": "repo",
+      "prefix": "Validate-Example-Notebooks/6188706/"
+    },
+    "index-default": {
+      "type": "arm",
+      "endpoint": "azuremlsdktestpypi.azureedge.net",
+      "generatetoken": "false",
+      "account": "azuremlsdktestpypi",
+      "resource": "azuremlsdktestpypi",
+      "subscription": "Project Vienna Int",
+      "container": "wheels",
+      "prefix": "Validate-Example-Notebooks/6188706/",
+      "makesnapshots": "false"
+    },
+    "packages-internal": {
+      "type": "arm",
+      "generatetoken": "true",
+      "account": "msftinternalpypi",
+      "resource": "msft-internal-pypi",
+      "subscription": "Project Vienna Int",
+      "container": "repo",
+      "prefix": "Validate-Example-Notebooks/6188706/"
+    },
+    "index-internal": {
+      "type": "arm",
+      "endpoint": "msft-internal-pypi.azureedge.net",
+      "generatetoken": "false",
+      "account": "msftinternalpypi",
+      "resource": "msft-internal-pypi",
+      "subscription": "Project Vienna Int",
+      "container": "index",
+      "prefix": "Validate-Example-Notebooks/6188706/",
+      "makesnapshots": "false"
+    },
+    "cli-release": {
+      "type": "arm",
+      "generatetoken": "false",
+      "account": "azurecliext",
+      "resource": "azureml-cli",
+      "subscription": "Project Vienna Int",
+      "container": "release",
+      "prefix": ""
+    }
+  }
+}
+

@@ -1,6 +1,0 @@
-{
-  "globalDependencies": {
-    "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts",
-    "yargs": "github:DefinitelyTyped/DefinitelyTyped/yargs/yargs.d.ts"
-  }
-}
