@@ -18,7 +18,7 @@ need more context
 
 Yes.
 
-### D) Model Deployment to higher environments
+### D) Model deployment to higher environments
 
 Yes.
 
@@ -28,12 +28,14 @@ Depends.
 
 ## 3. How does the access control managed in one workspace, considering development and devops is managed by different team and developers do not get access in production environment to change the models or code 
 
-## 4. How do we make sure Compute is pre-defined while providing the environment and data science users are only allowed to scale up or down
+## 4. How do we make sure compute is pre-defined while providing the environment and data science users are only allowed to scale up or down
 
 RBAC. 
 
-## 5. How to make sure compute (Vms) are domain joined?
+## 5. How to make sure compute (VMs) are domain joined?
 
 See the [examples](https://github.com/microsoft/MLOps/tree/master/infra-as-code). 
 
 ## 6. What would be the interim approach as custom roles to control the access is not available.
+
+Two workspaces - dev and prod. Data scientsts/others have access to the sandbox, while only some individuals have access to the prod workspace. Either by manual communication, with tags, or otherwise assets from the dev workspace can be copied to the prod workspace and deployed when ready.  
