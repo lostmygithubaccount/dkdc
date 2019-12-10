@@ -8,9 +8,10 @@ Details and examples can be found at [aka.ms/mlops](https://aka.ms/MLOps).
 
 ### A) For component creation with pre-defined compute
 
-
+Component creation with pre-defined compute can be handled by the [Azure ML CLI](https://docs.microsoft.com/en-us/azure/machine-learning/service/reference-azure-machine-learning-cli), an extension to the Azure CLI for working with the ML service. In the MLOps repo, you can find [examples](https://github.com/microsoft/MLOps/tree/master/infra-as-code) of creating a workspace, vnet, and default compute which can be customized for your situation. 
 
 ### B) Access management
+
 
 ### C) Code/model check-in
 
