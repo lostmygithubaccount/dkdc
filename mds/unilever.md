@@ -16,7 +16,7 @@ need more context
 
 ### C) Code/model check-in
 
-Yes.
+Yes. Code can be stored and tracked in any git repository. Models can be stored and tracked in the model repository. 
 
 ### D) Model deployment to higher environments
 
@@ -26,7 +26,9 @@ Yes.
 
 Depends.
 
-## 3. How does the access control managed in one workspace, considering development and devops is managed by different team and developers do not get access in production environment to change the models or code 
+## 3. How does the access control managed in one workspace? 
+
+RBAC. We would recommend a two workspace approach outlined below. 
 
 ## 4. How do we make sure compute is pre-defined while providing the environment and data science users are only allowed to scale up or down
 
