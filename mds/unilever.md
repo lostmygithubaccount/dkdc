@@ -12,17 +12,28 @@ Component creation with pre-defined compute can be handled by the [Azure ML CLI]
 
 ### B) Access management
 
+need more context
 
 ### C) Code/model check-in
 
-### D) Model Deployment to higher environment.
+Yes.
 
-## Do we need one workspace of multiple as we follow for databricks
+### D) Model Deployment to higher environments
 
-## How does the access control managed if one workspace, considering development and devops is managed by different team and developers do not get access in production environment to change the models or code 
+Yes.
 
-## How do we make sure Compute is pre-defined while providing the environment and data science users are only allowed to scale up or down
+## 2. Do we need one workspace or multiple as we follow for databricks
 
-## How to make sure compute (Vms) are domain joined?
+Depends.
 
-## What would be the interim approach as custom roles to control the access is not available.
+## 3. How does the access control managed in one workspace, considering development and devops is managed by different team and developers do not get access in production environment to change the models or code 
+
+## 4. How do we make sure Compute is pre-defined while providing the environment and data science users are only allowed to scale up or down
+
+RBAC. 
+
+## 5. How to make sure compute (Vms) are domain joined?
+
+See the [examples](https://github.com/microsoft/MLOps/tree/master/infra-as-code). 
+
+## 6. What would be the interim approach as custom roles to control the access is not available.
