@@ -58,6 +58,16 @@ tabular = Dataset.get_by_name(ws, 'my-tabular')
 df = tabular.to_dask_dataframe()
 ```
 
+Estimate:
+* 3-4 dev hours
+
 ## Fix ADLFS for Python
 
+Links:
+
+* [ADLFS Dask Github](https://github.com/dask/adlfs)
+* [GCFS Dask Github](https://github.com/dask/gcsfs)
+* [GCFS Docs](https://gcsfs.readthedocs.io/en/latest/)
+* [S3FS Dask Github](https://github.com/dask/s3fs)
+* [S3FS Docs](https://s3fs.readthedocs.io/en/latest/)
 
