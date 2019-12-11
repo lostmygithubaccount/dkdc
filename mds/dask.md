@@ -27,6 +27,9 @@ client.restart()
 print(client)
 ```
 
+Estimate:
+* unknown
+
 Open questions:
 
 * exact arguments (aml objects vs strings)
@@ -61,12 +64,18 @@ ctx.stop()
 tabular = Dataset.get_by_name(ws, 'my-tabular')
 
 df = tabular.to_dask_dataframe()
+df = ...
 ```
 
 Estimate:
 * 3-4 dev hours
 
 ## Fix ADLFS for Python
+
+Fix the Azure Data Lake Filesystem for Python package. Amazon and GCS have implementations. 
+
+Estimate:
+* unknown
 
 Links:
 
