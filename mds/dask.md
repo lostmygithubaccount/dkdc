@@ -44,6 +44,7 @@ Datasets provide easy access to data, taking care of credentials and other annoy
 ```python
 from azureml.core import Dataset
 
+# file dataset
 files = Dataset.get_by_name(ws, 'my-files')
 
 # mount the file dataset
@@ -56,8 +57,7 @@ df = ...
 # stop mount
 ctx.stop()
 
-# etc
-
+# tabular dataset
 tabular = Dataset.get_by_name(ws, 'my-tabular')
 
 df = tabular.to_dask_dataframe()
