@@ -46,10 +46,15 @@ from azureml.core import Dataset
 
 files = Dataset.get_by_name(ws, 'my-files')
 
+# mount the file dataset
 ctx = files.mount('/tmp/mnt/files')
 ctx.start()
 
 df = dd.from_csv('/tmp/mnt/files/**.csv')
+df = ...
+
+# stop mount
+ctx.stop()
 
 # etc
 
