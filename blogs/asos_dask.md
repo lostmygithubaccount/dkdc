@@ -28,6 +28,16 @@ Simply connect to the localhost with a Dask client.
 
 ![Dask client](media/dask_client.png)
 
-In this case, I am using a 25 node D12_v2 cluster. I can see this running in the Azure ML studio. 
+In this case, I am using a 25 node D12_v2 cluster, giving me 100 cores and ~700 GB of memory. I can see my cluster and run in the Azure ML portal.
 
 ![AML cluster](media/aml_cluster.png)
+
+## Playing with Dask
+
+I can open up my Dask dashboard (bokeh app) side by side with my code to see the status of my operations. 
+
+![Dask status](media/dask_status.png)
+
+There are many features in the dashboard to explore. My personal favorite is the graph, which let's you see the DAG of the job and the status at each node.
+
+![Dask graph](media/dask_graph.png)
