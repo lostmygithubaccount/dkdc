@@ -17,3 +17,17 @@ Notice we also provide a datastore, which in this case contains ~150 GB of csv f
 At this point, we need to establish port forwarding for the Dask scheduler, bokeh app, and Jupyter lab instance running on the cluster.
 
 ![SSH Forward](media/ssh_forward.png)
+
+Setup is complete, and we're ready to use Dask on an Azure ML cluster! 
+
+## Use the Dask cluster
+
+The Dask cluster can be used from a local Jupyter notebook relative to the port forwarding. Note this can also be setup in a Notebook VM.
+
+Simply connect to the localhost with a Dask client.
+
+![Dask client](media/dask_client.png)
+
+In this case, I am using a 25 node D12_v2 cluster. I can see this running in the Azure ML studio. 
+
+![AML cluster](media/aml_cluster.png)
