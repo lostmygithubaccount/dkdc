@@ -41,3 +41,13 @@ I can open up my Dask dashboard (bokeh app) side by side with my code to see the
 There are many features in the dashboard to explore. My personal favorite is the graph, which let's you see the DAG of the job and the status at each node.
 
 ![Dask graph](media/dask_graph.png)
+
+I can do my data processing - in this case, taking the average of each column over time - and plot them. I log these plots to the run so that I can refer to them later.
+
+![Dask plots](media/dask_plots.png)
+
+In the run:
+
+![Dask run](media/dask_run.png)
+
+
