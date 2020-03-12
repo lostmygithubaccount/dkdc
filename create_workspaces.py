@@ -17,5 +17,4 @@ for location in locations:
              location        = location,
              )
 
-    ws.write_config(file_path = '', file_name = f'{location}.json')
-
+    ws.write_config(path = '', file_name = f'{location}.json')
