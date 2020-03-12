@@ -1,8 +1,0 @@
-{
-  "resolution": "main",
-  "tree": {
-    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/yargs/yargs.d.ts",
-    "raw": "github:DefinitelyTyped/DefinitelyTyped/yargs/yargs.d.ts",
-    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/yargs/yargs.d.ts"
-  }
-}

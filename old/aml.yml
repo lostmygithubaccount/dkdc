@@ -1,0 +1,6 @@
+name: aml
+dependencies:
+  - pip:
+    - azureml-sdk
+    - azureml-defaults
+    - scikit-learn

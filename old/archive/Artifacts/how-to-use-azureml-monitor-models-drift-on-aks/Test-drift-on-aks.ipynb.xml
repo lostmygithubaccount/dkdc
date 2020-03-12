@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="0" failures="1" hostname="fv-az48" name="pytest" skipped="0" tests="1" time="0.172" timestamp="2019-10-16T05:57:43.764853"><testcase classname="test_drift_on_aks_ipynb" file="test_drift_on_aks_ipynb.py" line="1" name="test_drift_on_aks_ipynb" time="0.000"><failure message="AssertionError: assert &apos;failed&apos; == &apos;ok&apos;
+  - failed
+  + ok">def test_drift_on_aks_ipynb():
+&gt;       assert &apos;failed&apos;==&apos;ok&apos;
+E       AssertionError: assert &apos;failed&apos; == &apos;ok&apos;
+E         - failed
+E         + ok
+
+test_drift_on_aks_ipynb.py:3: AssertionError</failure></testcase></testsuite></testsuites>
