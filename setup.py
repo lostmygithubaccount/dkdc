@@ -16,8 +16,7 @@ locations       = ['eastus',
                    'westeurope', 
                    'uksouth', 
                    'southcentralus', 
-                   'northcentralus', 
-                   'eastuseuap']
+                   'northcentralus']
 
 # Functions
 ################################################################################ 
