@@ -21,9 +21,8 @@ locations       = ['eastus',
 # Functions
 ################################################################################ 
 ################################################################################ 
-def setup_workspaces():
+def create_rgs(locations):
     for location in locations:
-
         resource_group = f'cody-{location}-rg'
 
         ws = Workspace.create(workspace_name, 
@@ -41,8 +40,15 @@ def setup_workspaces():
 
         os.system(cmd)
 
+def delete_rgs(locations):
+    for location in locations:
+        resource_group = f'cody-{location}-rg'
+
+        os.system(f'az group delete -n {resource_group} --no-wait -y')
+
 # Run
 ################################################################################ 
 ################################################################################ 
 if __name__ == '__main__':
-    setup_workspaces()
+    create_rgs(locations)
+    #delete_rgs(locations)
