@@ -144,8 +144,7 @@ Beyond //build (5/11) we will work to deliver the integrated notebooks experienc
 * Spark UI inhereted from DevDiv notebook components 
 
 Based on customer feedback, we will customize this UI for data science workloads. In the shorter term, we expect to roughly match the Synapse UI:
-
-[Synapse Notebook](/media/synapsenb.png)
+* https://www.figma.com/file/UC8n9avTvQMmHZdUVYFuix/Synapse-integration-screens?node-id=1%3A30065
 
 ## Public Preview & General Availability
 
