@@ -41,9 +41,14 @@ Enabling Synapse Spark in open source packages has a few benefits:
 * Azure ML contributing to the open source community
 * Enabling Synapse Spark to be used in general in Jupyter tooling for data science in general
 * timeline considerations due to Private Preview at //build
-* lightweight, customizable implementation
+* lightweight, customizable implementation in user space
 
-## Private Preview
+Longer term, the plan is to leverage Azure ML Notebooks, DevDiv, and Synapse together:
+* Azure ML Notebooks allow selecting an Azure ML Spark compute target in addition to compute instance 
+* UI components for Spark session configuration, job status, etc. inhereted from DevDiv componenets
+* customize for Azure ML based on customer feedback
+
+## Private Preview - Phase 1
 
 Private Preview is targeted for //build (5/11), which puts technical constaints on the UX - primarily Synapse providing Jupyter APIs. In the short term, we are looking to meet customers at the tools they already use for interactive data preparation, exploration, and science. Compute Instances provide 3 (relevant) options in short term:
 * Jupyter
@@ -54,7 +59,7 @@ For enabling Azure ML Spark in Jupyter/Lab, we will continue the existing POC fo
 
 In a second phase of the private preview, we will enable Azure ML Spark through Azure ML Notebooks with a more integrated experience, largely inherting from Synapse Notebook components. 
 
-### Installation
+### SparkMagic installation
 
 Simply install SparkMagic - this should be pre-installed on a given Compute Instance:
 
@@ -109,6 +114,17 @@ SHOW TABLES
 SELECT * FROM mytable
 ```
 
+## Private Preview - Phase 2
+
+Beyond //build (5/11) we will work to deliver the integrated notebooks experience as soon as possible for Private Preview. This encompasses:
+* selecting Azure ML Spark from Notebooks dropdown
+* kernel/language selection
+* Spark UI inhereted from DevDiv notebook components 
+
+Based on customer feedback, we will customize this UI for data science workloads. In the shorter term, we expect to roughly match the Synapse UI:
+
+[Synapse Notebook](/media/synapsenb.png)
+
 ## Public Preview & General Availability
 
-
+The contribution to SparkMagic enabling usage of Synapse Spark Pools and Azure ML Spark Compute Targets will remain, however we will focus on improving the long term Azure ML Notebooks experience pending customer feedback.
