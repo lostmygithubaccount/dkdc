@@ -6,7 +6,7 @@ Azure ML will introduce a new Spark compute target, which directly corresponds t
 
 For interactive work, data scientists overwhelmingly prefer interactive Python (IPython) notebooks. The most popular choice of notebook editor is Jupyter - the same community has introduced a newer version, JupyterLab.
 
-Orthogonally, the Azure DevDiv team is building new notebook componenets. Both the Azure Synapse and ML teams are integrating this components into their 'integrated notebooks' experience, which is our bet for customers inteacting with notebooks long term.
+Orthogonally, the Azure DevDiv team is building new notebook componenets. Both the Azure Synapse and ML teams are integrating this components into their 'integrated notebooks' experience, which is our bet for customers interacting with notebooks long term.
 
 ## Scope
 
