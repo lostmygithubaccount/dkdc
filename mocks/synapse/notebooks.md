@@ -73,19 +73,40 @@ At this point, it is up to users to configure `sparkmagic` to their liking by in
 **NOTE:** This assumes you have can interactively authenticate with your Synapse Workspace and have a spark pool.
 
 ```python
-%synapse start --workspace workspacename --sparkpool sparky
+%spark start --synapse workspacename --sparkpool sparky
 ```
 
 ### Using Azure ML Spark with SparkMagic
 
 **NOTE:** This assumes you have linked your Azure ML & Synapse workspaces and have access to a spark pool. 
-**NOTE:** No auth should be needed running on a Compute Instance.
+**NOTE:** No auth should be needed running on a Compute Instance and using the same Azure ML workspace.
 
 ```python
-%azureml start --sparktarget sparky
+%spark start --azureml workspacename --sparktarget sparky # start session
 ```
 
-### Using SparkMagic
+### Configure Spark session
+
+```python
+%spark config
+{
+    "driverMemory": "8g",
+    "driverCores": 2,
+    "executorMemory": "16g",
+    "executorCores": 2,
+    "numExecturos": 2
+}
+```
+
+### Stop Spark session
+
+```python
+%spark stop
+```
+
+### Using Spark session
+
+See SparkMagic documentation.
 
 Run PySpark code:
 
