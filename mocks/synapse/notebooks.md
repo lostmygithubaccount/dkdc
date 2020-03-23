@@ -70,7 +70,7 @@ pip install sparkmagic
 At this point, it is up to users to configure `sparkmagic` to their liking by installing wrapper kernels, additional Jupyter widgets, etc.
 
 ### Using Synapse Spark with SparkMagic
-**NOTE:** This assumes you have can interactively authenticate with your Synapse Workspace and have a spark pool `sparky`.
+**NOTE:** This assumes you have can interactively authenticate with your Synapse Workspace and have a spark pool.
 
 ```python
 %synapse start --workspace workspacename --sparkpool sparky
@@ -78,7 +78,8 @@ At this point, it is up to users to configure `sparkmagic` to their liking by in
 
 ### Using Azure ML Spark with SparkMagic
 
-**NOTE:** This assumes you have linked your Azure ML & Synapse workspaces and have access to a spark pool named `sparky`. No auth should be needed running on a Compute Instance.
+**NOTE:** This assumes you have linked your Azure ML & Synapse workspaces and have access to a spark pool. 
+**NOTE:** No auth should be needed running on a Compute Instance.
 
 ```python
 %azureml start --sparktarget sparky
