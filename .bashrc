@@ -15,3 +15,5 @@ alias nbclear='jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplac
 
 alias python='/opt/python/latest/bin/python3.8'
 alias pip='pip3'
+
+alias azcopy='/usr/bin/azcopy'
