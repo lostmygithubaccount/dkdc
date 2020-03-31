@@ -50,5 +50,5 @@ def delete_rgs(locations):
 ################################################################################ 
 ################################################################################ 
 if __name__ == '__main__':
-    #create_rgs(locations)
-    delete_rgs(locations)
+    create_rgs(locations)
+    #delete_rgs(locations)
