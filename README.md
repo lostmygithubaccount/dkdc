@@ -1,7 +1,3 @@
-# DKDC v2
+# DKDC 
 
-## Quick Links
-* [dasky](dasky/README.md)
-* [sparky](sparky/README.md)
-* [dAKSy](daksy/README.md)
-* [Azure ML](AzureMLNotebooks/README.md)
+random stuff 
