@@ -1,9 +1,0 @@
-channels:
-- conda-forge
-dependencies:
-- python=3.6.2
-- pip:
-  - azureml-train-automl==1.0.65
-- numpy>=1.16.0,<=1.16.2
-- py-xgboost<=0.80
-- fbprophet==0.5
