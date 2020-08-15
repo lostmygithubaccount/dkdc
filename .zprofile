@@ -7,6 +7,7 @@ alias update='source ~/.zprofile'
 
 alias dkdc='conda activate dkdc'
 
+alias pip='noglob pip'
 alias python='~/opt/miniconda3/envs/dkdc/bin/python'
 
 alias nbclear='jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace'
