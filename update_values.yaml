@@ -1,0 +1,62 @@
+scheduler:
+  name: scheduler  # Dask scheduler name.
+  image:
+    repository: "daskdev/dask"  # Container image repository.
+    tag: 2.22.0  # Container image tag.
+    pullPolicy: IfNotPresent  # Container image pull policy.
+  replicas: 1  # Number of schedulers (should always be 1).
+  serviceType: "LoadBalancer" # Scheduler service type. Set to `LoadBalancer` to expose outside of your cluster.
+  servicePort: 8786 # Scheduler service internal port.
+  tolerations: []  # Tolerations.
+
+worker:
+  name: worker  # Dask worker name.
+  image:
+    repository: "daskdev/dask"  # Container image repository.
+    tag: 2.22.0  # Container image tag.
+    pullPolicy: IfNotPresent  # Container image pull policy.
+    dask_worker: "dask-worker"  # Dask worker command. E.g `dask-cuda-worker` for GPU worker.
+  replicas: 12  # Number of workers.
+  default_resources:  # overwritten by resource limits if they exist
+    cpu: 1  # Default CPU (DEPRECATED use `resources`).
+    memory: "4GiB"  # Default memory (DEPRECATED use `resources`).
+  env:  # Environment variables.
+    - name: EXTRA_APT_PACKAGES
+      value: gcc
+    - name: EXTRA_PIP_PACKAGES
+      value: adlfs azureml-core azureml-dataprep dask[complete] dask-ml[complete] distributed fastparquet fsspec joblib jupyterlab lz4 mpi4py notebook pyarrow
+  resources:
+    limits:
+      cpu: 1
+      memory: 3G
+    requests:
+      cpu: 1
+      memory: 3G
+
+jupyter:
+  name: jupyter  # Jupyter name.
+  enabled: true  # Enable/disable the bundled Jupyter notebook.
+  rbac: true  # Create RBAC service account and role to allow Jupyter pod to scale worker pods and access logs.
+  image:
+    repository: "daskdev/dask-notebook"  # Container image repository.
+    tag: 2.22.0  # Container image tag.
+    pullPolicy: IfNotPresent  # Container image pull policy.
+  replicas: 1  # Number of notebook servers.
+  serviceType: "LoadBalancer"
+  servicePort: 80  # Jupyter service internal port.
+  # This hash corresponds to the password 'dask'
+  password: 'sha1:aae8550c0a44:9507d45e087d5ee481a5ce9f4f16f37a0867318c' # Password hash. Default hash corresponds to the password `dask`.
+  env:  # Environment variables.
+    - name: EXTRA_APT_PACKAGES
+      value: gcc
+    - name: EXTRA_PIP_PACKAGES
+      value: adlfs azureml-core azureml-dataprep dask[complete] dask-ml[complete] distributed fastparquet fsspec joblib jupyterlab lz4 mpi4py notebook pyarrow
+  command: null  # Container command.
+  args:  # Container arguments.
+  serviceAccountName: "dask-jupyter"  # Service account for use with RBAC
+  ingress:
+    enabled: false  # Enable ingress.
+    tls: false  # Ingress should use TLS.
+    # secretName: dask-jupyter-tls
+    hostname: dask-jupyter.example.com  # Ingress hostname.
+    annotations:  # Ingress annotations. See `values.yaml` for example values.

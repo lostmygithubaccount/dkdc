@@ -12,6 +12,9 @@ alias update='source ~/.zprofile'
 # conda envs 
 alias dkdc='conda activate dkdc'
 
+# make life easier 
+alias du='du -h -d1 .'
+
 # make python great again 
 alias pip='noglob pip'
 alias python='~/opt/miniconda3/envs/dkdc/bin/python'
