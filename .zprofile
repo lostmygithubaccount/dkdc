@@ -22,5 +22,6 @@ alias nbclear='jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplac
 
 # export PATH
 export PATH="~/opt/miniconda3/bin:$PATH"
-export PATH="/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:$PATH"
+#export PATH="/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:$PATH"
+export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
 export PATH="/usr/local/opt/sqlite/bin:$PATH"
