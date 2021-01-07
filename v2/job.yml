@@ -1,0 +1,14 @@
+command: python ./run.py
+code:
+  directory: ./src
+environment:
+  name: dask-mpi
+  version: 1
+  path: . 
+  conda_file: ./environment.yml
+distribution:
+  type: mpi
+  process_count_per_instance: 1
+compute:
+  target: azureml:cpu-cluster
+  node_count: 30
