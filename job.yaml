@@ -1,0 +1,9 @@
+command: mpirun -np 4 run.py
+code:
+  directory: src
+environment: environment.yml
+distribution:
+  type: mpi
+compute:
+  target: azureml:cpu-cluster
+  node_count: 30
