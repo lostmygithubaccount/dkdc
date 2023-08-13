@@ -4,6 +4,7 @@ venv
 data
 dist
 target
+dkdcai
 me.toml
 .streamlit/secrets.toml
 *.ddb*

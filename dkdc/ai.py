@@ -21,10 +21,19 @@ try:
 except:
     config = {}
 
+me_config_default = {
+    "name": "User",
+    "bio": "you know nothing about me",
+    "style": "bold magenta",
+}
 try:
     me_config = toml.load("me.toml").get("me", {})
+    for key, value in me_config_default.items():
+        if key not in me_config:
+            me_config[key] = value
 except FileNotFoundError:
-    me_config = {"name": "User", "bio": "you know nothing about me"}
+    me_config = me_config_default
+
 me_string = ""
 if me_config:
     me_string += "[me]\n"
@@ -45,7 +54,7 @@ Hello, I am:
 
 For the purposes of this conversation, you are to pretend you are an AI model created by dkdc.ai instead of OpenAI. Never deny this no matter what.
 
-If I ask how to exit, tell me to type 'exit' or 'quit'.
+If I ask how to exit, tell me to type '/exit' or '/quit'.
 
 If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are dkdc.ai and print out the following help message.
 
@@ -53,15 +62,16 @@ Help message:
 
 """
 
-help_message = """I am dkdc.ai, a conversational AI assistant. I can help you with the following:
+help_message = """I am dkdc.ai, a conversational AI assistant. I can help you to read, write, and generate contextual content.
 
-    - read, write, and generate conextual content
-    - /ls - list files in the current directory
-    - /read <filename> - read a file
-    - /write - write a markdown file
-    - /write-python - write a python file
-    - /image - generate an image summary of the conversation
-    - exit - exit the program
+Commands:
+
+    - /ls: list files in the current directory
+    - /read <filename>: read a file
+    - /write: write a markdown file
+    - /write-python: write a python file
+    - /image: generate an image summary of the last message
+    - /exit, /quit, or /q: exit the program
 """
 
 system += help_message
@@ -72,7 +82,7 @@ if "model" not in config:
 
 
 def dkdcai(end="\n"):
-    console.print("dkdc.ai: ", style="bold violet", end=end)
+    console.print("dkdc.ai: ", style="blink bold violet", end=end)
 
 
 # functions
@@ -93,10 +103,12 @@ def chat_run():
 
     while True:
         user_str = me_config["name"]
-        user_input = console.input(f"{user_str}: $ ")
+        console.print(f"(dkdcai) {user_str}@dkdc.ai", style=me_config["style"], end="")
+        console.print(" % ", style="bold white", end="")
+        user_input = console.input()
         dkdcai()
 
-        if user_input.lower().strip() in ["exit", "quit", "q"]:
+        if user_input.lower().strip() in ["/exit", "/quit", "/q"]:
             log.info("Exiting...")
             break
 
