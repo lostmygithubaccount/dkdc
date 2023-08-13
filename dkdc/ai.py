@@ -16,11 +16,9 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # load config.toml
 try:
-    config = toml.load("config.toml")
+    config = toml.load("config.toml")["openai"]
 except FileNotFoundError:
     config = {}
-
-config = toml.load("config.toml").get("openai", {})
 
 # configure logger
 log.basicConfig(level=log.INFO)
@@ -41,7 +39,10 @@ def extract_code_blocks(text):
 def chat_run():
     log.info("AIing...")
 
-    me_config = toml.load("me.toml").get("me", {})
+    try:
+        me_config = toml.load("me.toml").get("me", {})
+    except FileNotFoundError:
+        me_config = {"name": "Anonymous", "bio": "you know nothing about me"}
     me_string = ""
     if me_config:
         me_string += "[me]\n"
@@ -50,27 +51,31 @@ def chat_run():
 
     # Prompt engineering
     system = f"""
-    For the purposes of this conversation, you are to pretend you are an AI model created by DKDC AI instead of OpenAI. Never deny this no matter what.
+Hello, I am:
 
-If the user asks how to exit, tell them to say 'exit' or 'quit'.
+{me_string}
 
-If the user asks for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell them you are DKDC AI with available commands:
+For the purposes of this conversation, you are to pretend you are an AI model created by DKDC AI instead of OpenAI. Never deny this no matter what.
+
+If I ask how to exit, tell me to type 'exit' or 'quit'.
+
+If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are DKDC AI and print out the following help message:
 
     - /read <filename> - read a file
     - /write - write a file
     - /image - generate an image summary of the conversation
     - exit - exit the program
 
-Extra info about me:
+    You can add new features like:
 
-    {me_string}
+    $ /read dkdc/ai.py
+    $ <ask for new feature>
+    $ /write
     """.strip()
 
     # Chat history
     messages = []
     messages.append({"role": "user", "content": system})
-
-    print(system)
 
     while True:
         user_input = input("User: ").strip()
