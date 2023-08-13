@@ -7,7 +7,7 @@ import typer
 from dotenv import load_dotenv
 
 ## local imports
-from .ai2 import chat_run
+from .ai import chat_run
 from .poker import poker_total
 
 # configuration
