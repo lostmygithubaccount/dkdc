@@ -17,7 +17,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # load config.toml
 try:
     config = toml.load("config.toml")["openai"]
-except FileNotFoundError:
+except:
     config = {}
 
 # configure logger
