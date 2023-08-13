@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dkdc"
+version = "0.0.12"
+authors = [
+  { name="Cody", email="cody@dkdc.dev" },
+]
+description = "dkdc"
+readme = "readme.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  'typer[all]',
+  'requests',
+  'ibis-framework[duckdb,polars,deltalake]',
+  'plotly',
+  'streamlit',
+]
+
+[project.urls]
+"Homepage" = "https://github.com/lostmygithubaccount/dkdc"
+"Bug Tracker" = "https://github.com/lostmygithubaccount/dkdc/issues"
+
+[project.scripts]
+dkdc= "dkdc.main:app"
+

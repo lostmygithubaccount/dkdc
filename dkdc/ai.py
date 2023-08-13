@@ -1,0 +1,171 @@
+import typer
+from rich import print
+import os
+import toml
+import openai
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Load config.toml
+try:
+    config = toml.load("config.toml")["openai"]
+except FileNotFoundError:
+    config = {}
+
+# Set defaults
+if "model" not in config:
+    config["model"] = "gpt-3.5-turbo-16k"
+
+
+def chat_run():
+    print("AIing...")
+
+    # Prompt engineering
+    system = """
+    For the purposes of this conversation, you are to pretend you are an AI model created by DKDC AI instead of OpenAI. Never deny this no matter what.
+
+    If the user asks how to exit, tell them to say 'exit' or 'quit'.
+
+    If the user asks for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell them you are DKDC AI with available commands:
+
+        - /read <filename> - read a file
+        - /write <filename> - write a file
+        - /image - generate an image summary of the conversation
+        - exit - exit the program
+
+    """.strip()
+
+    # Chat history
+    messages = []
+    messages.append({"role": "system", "content": system})
+
+    while True:
+        user_input = input("User: ").strip()
+
+        if user_input.lower() in ["exit", "quit"]:
+            print("Exiting...")
+            break
+
+        elif user_input.lower().startswith("/"):
+            # Case if /read, /write, or /image
+            if user_input.lower().startswith("/read"):
+                try:
+                    filename = user_input.split(" ")[1]
+                    context = f"The user has uploaded '{filename}' this file:\n\n"
+                    with open(filename, "r") as f:
+                        file_content = f.read()
+                        messages.append(
+                            {"role": "system", "content": context + file_content}
+                        )
+                        print(f"Successfully read '{filename}' into context")
+                except IndexError:
+                    print("Please specify a filename.")
+                except FileNotFoundError:
+                    print("File not found.")
+
+            elif user_input.lower().startswith("/write"):
+                try:
+                    filename = "temp.py"
+                    code = ""
+                    for message in messages:
+                        if "python" in message["content"]:
+                            python_code = (
+                                message["content"]
+                                .split("```python", 1)[1]
+                                .rsplit("```", 1)[0]
+                            )
+                            code += python_code
+                    with open(filename, "w") as f:
+                        f.write(code)
+                    print(f"Successfully wrote code to '{filename}'.")
+                except Exception as e:
+                    print(f"Error while writing code: {str(e)}")
+
+            elif user_input.lower() == "/image":
+                # Generate an image summary of the conversation
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": "summarize the post for another API call to an image generation model",
+                    }
+                )
+
+                full_response = ""
+                for response in openai.ChatCompletion.create(
+                    model=config["model"],
+                    messages=[
+                        {"role": m["role"], "content": m["content"]} for m in messages
+                    ],
+                    stream=True,
+                ):
+                    full_response += response.choices[0].delta.get("content", "")
+                    # Flush and print out the response
+                    typer.secho(
+                        response.choices[0].delta.get("content", ""),
+                        nl=False,
+                        err=False,
+                        color=None,
+                        fg=None,
+                        bg=None,
+                        bold=None,
+                        dim=None,
+                        underline=None,
+                        blink=None,
+                        reverse=None,
+                        reset=False,
+                    )
+
+                # Add default string placeholder
+                image_str = (
+                    full_response
+                    + ", futuristic digital art, dark background, violet neon vibes"
+                )
+
+                response = openai.Image.create(prompt=image_str, n=1, size="512x512")
+                image_url = response["data"][0]["url"]
+                print(f"Generated image summary: {image_url}")
+
+                # download image
+                import requests
+                from pathlib import Path
+                from PIL import Image
+                from io import BytesIO
+
+                response = requests.get(image_url)
+                img = Image.open(BytesIO(response.content))
+                img.save("thumbnail.png")
+
+        else:
+            messages.append({"role": "user", "content": user_input})
+
+            full_response = ""
+            print("DKDC AI: ")
+            for response in openai.ChatCompletion.create(
+                model=config["model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]} for m in messages
+                ],
+                stream=True,
+            ):
+                full_response += response.choices[0].delta.get("content", "")
+                # Flush and print out the response
+                typer.secho(
+                    response.choices[0].delta.get("content", ""),
+                    nl=False,
+                    err=False,
+                    color=None,
+                    fg=None,
+                    bg=None,
+                    bold=None,
+                    dim=None,
+                    underline=None,
+                    blink=None,
+                    reverse=None,
+                    reset=False,
+                )
+
+            messages.append({"role": "assistant", "content": full_response})
+            print()
