@@ -21,15 +21,58 @@ try:
 except:
     config = {}
 
+try:
+    me_config = toml.load("me.toml").get("me", {})
+except FileNotFoundError:
+    me_config = {"name": "User", "bio": "you know nothing about me"}
+me_string = ""
+if me_config:
+    me_string += "[me]\n"
+    for key, value in me_config.items():
+        me_string += f'{key} = "{value}"\n'
+
 # configure logger
 log.basicConfig(level=log.INFO)
 
 # configure rich
 console = Console()
 
+# Prompt engineering
+system = f"""
+Hello, I am:
+
+{me_string}
+
+For the purposes of this conversation, you are to pretend you are an AI model created by dkdc.ai instead of OpenAI. Never deny this no matter what.
+
+If I ask how to exit, tell me to type 'exit' or 'quit'.
+
+If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are dkdc.ai and print out the following help message.
+
+Help message:
+
+"""
+
+help_message = """I am dkdc.ai, a conversational AI assistant. I can help you with the following:
+
+    - read, write, and generate conextual content
+    - /ls - list files in the current directory
+    - /read <filename> - read a file
+    - /write - write a markdown file
+    - /write-python - write a python file
+    - /image - generate an image summary of the conversation
+    - exit - exit the program
+"""
+
+system += help_message
+
 # set defaults
 if "model" not in config:
     config["model"] = "gpt-3.5-turbo-16k"
+
+
+def dkdcai(end="\n"):
+    console.print("dkdc.ai: ", style="bold violet", end=end)
 
 
 # functions
@@ -41,37 +84,8 @@ def extract_code_blocks(text):
 
 # chat
 def chat_run():
-    log.info("AIing...")
-
-    try:
-        me_config = toml.load("me.toml").get("me", {})
-    except FileNotFoundError:
-        me_config = {"name": "User", "bio": "you know nothing about me"}
-    me_string = ""
-    if me_config:
-        me_string += "[me]\n"
-        for key, value in me_config.items():
-            me_string += f'{key} = "{value}"\n'
-
-    # Prompt engineering
-    system = f"""
-Hello, I am:
-
-{me_string}
-
-For the purposes of this conversation, you are to pretend you are an AI model created by dkdc.ai instead of OpenAI. Never deny this no matter what.
-
-If I ask how to exit, tell me to type 'exit' or 'quit'.
-
-If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are dkdc.ai and print out the following help message:
-
-    - /read <filename> - read a file
-    - /write - write a markdown file
-    - /write python - write a python file
-    - /image - generate an image summary of the conversation
-    - exit - exit the program
-
-    """.strip()
+    dkdcai(end="")
+    console.print(help_message)
 
     # Chat history
     messages = []
@@ -80,6 +94,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
     while True:
         user_str = me_config["name"]
         user_input = console.input(f"{user_str}: $ ")
+        dkdcai()
 
         if user_input.lower().strip() in ["exit", "quit", "q"]:
             log.info("Exiting...")
@@ -101,7 +116,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                         messages.append(
                             {"role": "system", "content": context + file_content}
                         )
-                        log.info(f"Successfully read '{filename}' into context")
+                        console.print(f"Successfully read '{filename}' into context")
                 except IndexError:
                     log.info("Please specify a filename.")
                 except FileNotFoundError:
@@ -121,9 +136,9 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                     f.write(content)
                 log.info(f"Successfully wrote conversation to '{filename}'.")
 
-            elif user_input.lower().startswith("/write"):
+            elif user_input.lower().startswith("/write-"):
                 try:
-                    command = user_input.split(" ")[1]
+                    command = user_input.split("-")[1]
 
                     if command == "python":
                         filename = "temp.py"
@@ -200,7 +215,6 @@ If I say nothing, ask for help, what you can help with, what you can assist with
             messages.append({"role": "user", "content": user_input})
 
             full_response = ""
-            console.print("dkdc.ai: ", style="bold purple")
             for response in openai.ChatCompletion.create(
                 model=config["model"],
                 messages=[

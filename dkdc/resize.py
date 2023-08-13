@@ -7,7 +7,10 @@ from PIL import Image
 # configure logger
 log.basicConfig(level=log.INFO)
 
-def resize_image(filename: str = "thumbnail.png", output: str = "thumbnail", size: int = 256):
+
+def resize_image(
+    filename: str = "thumbnail.png", output: str = "thumbnail", size: int = 256
+):
     try:
         # Open the image file
         img = Image.open(filename)
@@ -23,7 +26,9 @@ def resize_image(filename: str = "thumbnail.png", output: str = "thumbnail", siz
         # Overwrite the original image file
         resized_img.save(output)
 
-        log.info(f"Image resized successfully. New dimensions: {new_width}x{new_height}")
+        log.info(
+            f"Image resized successfully. New dimensions: {new_width}x{new_height}"
+        )
         log.info(f"Output file: {output}")
     except FileNotFoundError:
         log.error("File not found.")

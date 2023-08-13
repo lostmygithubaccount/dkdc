@@ -50,7 +50,9 @@ def poker():
 
 
 @app.command()
-def resize(filename: str = "thumbnail.png", output: str = "thumbnail.png", size: int = 256):
+def resize(
+    filename: str = "thumbnail.png", output: str = "thumbnail.png", size: int = 256
+):
     """
     resize an image
     """
