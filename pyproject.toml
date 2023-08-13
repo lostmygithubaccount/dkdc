@@ -19,6 +19,7 @@ classifiers = [
 dependencies = [
   'typer[all]',
   'requests',
+  'openai',
   'ibis-framework[duckdb,polars,deltalake]',
   'plotly',
   'streamlit',
