@@ -62,7 +62,8 @@ If I ask how to exit, tell me to type 'exit' or 'quit'.
 If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are DKDC AI and print out the following help message:
 
     - /read <filename> - read a file
-    - /write - write a file
+    - /write - write a markdown file
+    - /write python - write a python file
     - /image - generate an image summary of the conversation
     - exit - exit the program
 
@@ -73,15 +74,18 @@ If I say nothing, ask for help, what you can help with, what you can assist with
     messages.append({"role": "user", "content": system})
 
     while True:
-        user_input = input("User: ").strip()
+        user_str = me_config["name"] if "name" in me_config else "Anon"
+        user_input = input(f"{user_str}: ").strip()
 
         if user_input.lower() in ["exit", "quit"]:
             log.info("Exiting...")
             break
 
         elif user_input.lower().startswith("/"):
-            # Case if /read, /write, or /image
-            if user_input.lower().startswith("/read"):
+            if user_input.lower().startswith("/ls"):
+                os.system("ls -1phG -a")
+
+            elif user_input.lower().startswith("/read"):
                 try:
                     filename = user_input.split(" ")[1]
                     context = f"The user has uploaded '{filename}' this file:\n\n"
@@ -96,22 +100,41 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                 except FileNotFoundError:
                     log.info("File not found.")
 
+            elif user_input.lower().strip() == "/write":
+                content = "\n".join([message["content"] for message in messages])
+                filename = "temp.md"
+
+                with open(filename, "w") as f:
+                    f.write(content)
+                log.info(f"Successfully wrote conversation to '{filename}'.")
+
             elif user_input.lower().startswith("/write"):
                 try:
-                    filename = "temp.py"
-                    code = ""
-                    for message in messages[::-1]:
+                    command = user_input.split(" ")[1]
 
-                        code_blocks = extract_code_blocks(message["content"])
-                        if message["role"] == "assistant":
-                            for code_block in code_blocks:
-                                code += code_block + "\n"
-                            break
-                    with open(filename, "w") as f:
-                        f.write(code)
-                    log.info(f"Successfully wrote code to '{filename}'.")
+                    if command == "python":
+                        filename = "temp.py"
+                        code = ""
+
+                        # Find the latest code block from the assistant's responses
+                        for message in messages[::-1]:
+                            code_blocks = extract_code_blocks(message["content"])
+                            if message["role"] == "assistant":
+                                for code_block in code_blocks:
+                                    code += code_block + "\n"
+                                break
+
+                        with open(filename, "w") as f:
+                            f.write(code)
+                        log.info(f"Successfully wrote code to '{filename}'.")
+
+                except IndexError:
+                    log.info(
+                        "Please provide a command (e.g., 'python') for the /write command."
+                    )
+
                 except Exception as e:
-                    log.error(f"Error while writing code: {str(e)}")
+                    log.error(f"Error while processing the /write command: {str(e)}")
 
             elif user_input.lower() == "/image":
                 # Generate an image summary of the conversation
@@ -169,6 +192,8 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                 response = requests.get(image_url)
                 img = Image.open(BytesIO(response.content))
                 img.save("thumbnail.png")
+            else:
+                log.info("Unknown command.")
 
         else:
             messages.append({"role": "user", "content": user_input})

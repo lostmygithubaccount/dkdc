@@ -8,3 +8,4 @@ me.toml
 .streamlit/secrets.toml
 *.ddb*
 temp.py
+temp.md
