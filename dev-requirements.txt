@@ -13,6 +13,7 @@ ibis-framework[duckdb,polars,deltalake]
 plotly
 streamlit
 
-# ml
+# ai
 openai
+langchain
 

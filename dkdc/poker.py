@@ -1,6 +1,9 @@
 # imports
 import re
-import typer
+from rich import console
+
+# setup console
+console = console.Console()
 
 # functions
 def poker_total():
@@ -15,4 +18,5 @@ def poker_total():
             num = int(match)
             total += num
 
-    typer.echo(total)
+    color = "green" if total >= 0 else "red"
+    console.print(f"[bold {color}]Earnings: {total}[/bold {color}]")

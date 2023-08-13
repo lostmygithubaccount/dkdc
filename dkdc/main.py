@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 ## local imports
 from .ai import chat_run
 from .poker import poker_total
+from .resize import resize_image
 
 # configuration
 ## load .env file
@@ -46,6 +47,14 @@ def poker():
     poker
     """
     poker_total()
+
+
+@app.command()
+def resize(filename: str = "thumbnail.png", output: str = "thumbnail.png", size: int = 256):
+    """
+    resize an image
+    """
+    resize_image(filename, output, size)
 
 
 ## main

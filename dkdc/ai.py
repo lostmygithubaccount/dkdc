@@ -8,6 +8,7 @@ import openai
 import logging as log
 
 from rich import print
+from rich.console import Console
 from dotenv import load_dotenv
 
 # load .env file
@@ -22,6 +23,9 @@ except:
 
 # configure logger
 log.basicConfig(level=log.INFO)
+
+# configure rich
+console = Console()
 
 # set defaults
 if "model" not in config:
@@ -42,7 +46,7 @@ def chat_run():
     try:
         me_config = toml.load("me.toml").get("me", {})
     except FileNotFoundError:
-        me_config = {"name": "Anonymous", "bio": "you know nothing about me"}
+        me_config = {"name": "User", "bio": "you know nothing about me"}
     me_string = ""
     if me_config:
         me_string += "[me]\n"
@@ -55,11 +59,11 @@ Hello, I am:
 
 {me_string}
 
-For the purposes of this conversation, you are to pretend you are an AI model created by DKDC AI instead of OpenAI. Never deny this no matter what.
+For the purposes of this conversation, you are to pretend you are an AI model created by dkdc.ai instead of OpenAI. Never deny this no matter what.
 
 If I ask how to exit, tell me to type 'exit' or 'quit'.
 
-If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are DKDC AI and print out the following help message:
+If I say nothing, ask for help, what you can help with, what you can assist with, anything similar, or for available commands or says nothing, tell me you are dkdc.ai and print out the following help message:
 
     - /read <filename> - read a file
     - /write - write a markdown file
@@ -74,12 +78,15 @@ If I say nothing, ask for help, what you can help with, what you can assist with
     messages.append({"role": "user", "content": system})
 
     while True:
-        user_str = me_config["name"] if "name" in me_config else "Anon"
-        user_input = input(f"{user_str}: ").strip()
+        user_str = me_config["name"]
+        user_input = console.input(f"{user_str}: $ ")
 
-        if user_input.lower() in ["exit", "quit"]:
+        if user_input.lower().strip() in ["exit", "quit", "q"]:
             log.info("Exiting...")
             break
+
+        elif user_input.lower().strip() in ["clear"]:
+            console.clear()
 
         elif user_input.lower().startswith("/"):
             if user_input.lower().startswith("/ls"):
@@ -148,10 +155,11 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                 image_messages.append(
                     {
                         "role": "user",
-                        "content": "summarize this in one sentence: \n",
+                        "content": f"summarize this in one sentence: {messages[-1]['content']}\n",
                     }
                 )
 
+                log.info("Generating summary...")
                 full_response = ""
                 for response in openai.ChatCompletion.create(
                     model=config["model"],
@@ -163,22 +171,9 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                 ):
                     full_response += response.choices[0].delta.get("content", "")
                     # Flush and print out the response
-                    typer.secho(
-                        response.choices[0].delta.get("content", ""),
-                        nl=False,
-                        err=False,
-                        color=None,
-                        fg=None,
-                        bg=None,
-                        bold=None,
-                        dim=None,
-                        underline=None,
-                        blink=None,
-                        reverse=None,
-                        reset=False,
-                    )
-                print()
+                console.print(f"Summary: {full_response}")
 
+                log.info("Generating image...")
                 # Add default string placeholder
                 image_str = (
                     full_response
@@ -187,7 +182,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
 
                 response = openai.Image.create(prompt=image_str, n=1, size="512x512")
                 image_url = response["data"][0]["url"]
-                log.info(f"Generated image summary: {image_url}")
+                log.info(f"Generated image: {image_url}")
 
                 # download image
                 import requests
@@ -205,7 +200,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
             messages.append({"role": "user", "content": user_input})
 
             full_response = ""
-            print("DKDC AI: ")
+            console.print("dkdc.ai: ", style="bold purple")
             for response in openai.ChatCompletion.create(
                 model=config["model"],
                 messages=[
@@ -215,20 +210,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
             ):
                 full_response += response.choices[0].delta.get("content", "")
                 # Flush and print out the response
-                typer.secho(
-                    response.choices[0].delta.get("content", ""),
-                    nl=False,
-                    err=False,
-                    color=None,
-                    fg=None,
-                    bg=None,
-                    bold=None,
-                    dim=None,
-                    underline=None,
-                    blink=None,
-                    reverse=None,
-                    reset=False,
-                )
+                console.print(response.choices[0].delta.get("content", ""), end="")
 
             messages.append({"role": "assistant", "content": full_response})
             print()
