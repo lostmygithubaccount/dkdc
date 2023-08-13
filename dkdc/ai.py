@@ -66,11 +66,6 @@ If I say nothing, ask for help, what you can help with, what you can assist with
     - /image - generate an image summary of the conversation
     - exit - exit the program
 
-    You can add new features like:
-
-    $ /read dkdc/ai.py
-    $ <ask for new feature>
-    $ /write
     """.strip()
 
     # Chat history
@@ -153,6 +148,7 @@ If I say nothing, ask for help, what you can help with, what you can assist with
                         reverse=None,
                         reset=False,
                     )
+                print()
 
                 # Add default string placeholder
                 image_str = (
