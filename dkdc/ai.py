@@ -70,14 +70,13 @@ def chat_run():
                 try:
                     filename = "temp.py"
                     code = ""
-                    for message in messages:
-                        if "python" in message["content"]:
+                    for message in messages[::-1]:
+                        if message["role"] == "user":
                             python_code = (
-                                message["content"]
-                                .split("```python", 1)[1]
-                                .rsplit("```", 1)[0]
+                                message["content"].split("```python")[1].split("```")[0]
                             )
                             code += python_code
+                            break
                     with open(filename, "w") as f:
                         f.write(code)
                     print(f"Successfully wrote code to '{filename}'.")
@@ -86,10 +85,11 @@ def chat_run():
 
             elif user_input.lower() == "/image":
                 # Generate an image summary of the conversation
-                messages.append(
+                image_messages = []
+                image_messages.append(
                     {
                         "role": "user",
-                        "content": "summarize the post for another API call to an image generation model",
+                        "content": "summarize this in one sentence: \n",
                     }
                 )
 
@@ -97,7 +97,8 @@ def chat_run():
                 for response in openai.ChatCompletion.create(
                     model=config["model"],
                     messages=[
-                        {"role": m["role"], "content": m["content"]} for m in messages
+                        {"role": m["role"], "content": m["content"]}
+                        for m in image_messages[::-1]
                     ],
                     stream=True,
                 ):

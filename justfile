@@ -23,11 +23,13 @@ install:
     @pip install -e .
 
 # publish-test
-publish-test:
+release-test:
+    just build
     @twine upload --repository testpypi dist/* -u __token__ -p ${PYPI_TEST_KEY}
 
 # publish
-publish:
+release:
+    just build
     @twine upload dist/* -u __token__ -p ${PYPI_KEY}
 
 # streamlit stuff
