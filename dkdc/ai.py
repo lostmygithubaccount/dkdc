@@ -102,7 +102,13 @@ If I say nothing, ask for help, what you can help with, what you can assist with
 
             elif user_input.lower().strip() == "/write":
                 content = "\n".join([message["content"] for message in messages])
+                # only write the last message
                 filename = "temp.md"
+
+                # Find the latest code block from the assistant's responses
+                for message in messages[::-1]:
+                    content = message["content"]
+                    break
 
                 with open(filename, "w") as f:
                     f.write(content)
