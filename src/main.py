@@ -7,7 +7,6 @@ import typer
 from dotenv import load_dotenv
 
 ## local imports
-from .ai import chat_run
 from .poker import poker_total
 from .resize import resize_image
 
@@ -33,14 +32,6 @@ def version(value: bool):
 
 
 ## subcommands
-@app.command()
-def ai():
-    """
-    dkdc ai
-    """
-    chat_run()
-
-
 @app.command()
 def poker():
     """

@@ -1,4 +1,5 @@
 # python
+black
 build
 twine
 python-dotenv
@@ -7,13 +8,13 @@ python-dotenv
 typer[all]
 
 # data
-ibis-framework[duckdb,polars,deltalake]
+#ibis-framework[duckdb,polars,deltalake]
 
 # viz
-plotly
-streamlit
+#plotly
+#streamlit
 
 # ai
-openai
-langchain
+#openai
+#langchain
 
