@@ -58,15 +58,15 @@ def resize(
 @app.command()
 def translate(
     text: Annotated[
-        str, typer.Argument(help="Text to translate.")
+        str, typer.Argument(help="text to translate")
     ] = "hello, try passing in a string to translate",
-    to: Annotated[str, typer.Option(help="Language to translate to.")] = None,
+    to: Annotated[str, typer.Option(help="language to translate to")] = None,
     from_: Annotated[
-        str, typer.Option("--from", help="Language to translate from.")
+        str, typer.Option("--from", help="language to translate from")
     ] = None,
 ):
     """
-    Translate from one language to another.
+    translate from one language to another
     """
     if "translate" in config:
         if to is None:
