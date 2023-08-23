@@ -5,6 +5,7 @@ from rich import console
 # setup console
 console = console.Console()
 
+
 # functions
 def poker_total():
     path = "poker.md"

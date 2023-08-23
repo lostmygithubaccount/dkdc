@@ -8,13 +8,13 @@ python-dotenv
 typer[all]
 
 # data
-#ibis-framework[duckdb,polars,deltalake]
+ibis-framework[duckdb,polars,deltalake] @ git+https://github.com/ibis-project/ibis
 
 # viz
-#plotly
-#streamlit
+plotly
+streamlit
 
 # ai
-#openai
-#langchain
+openai
+marvin
 

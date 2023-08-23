@@ -4,6 +4,7 @@
 set dotenv-load
 
 # aliases
+alias preview:=app
 
 # list justfile recipes
 default:
@@ -20,7 +21,7 @@ build:
 
 # install
 install:
-    @pip install -e .
+    @pip install -e '.[all]'
 
 # publish-test
 release-test:
@@ -36,8 +37,13 @@ release:
 app:
     @streamlit run app.py
 
+# smoke-test
+smoke-test:
+    black --check .
+
 # clean
 clean:
     @rm -rf dist || True
     @pip uninstall dkdc -y
+
 

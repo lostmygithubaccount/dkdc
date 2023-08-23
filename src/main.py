@@ -4,26 +4,31 @@ import sys
 import toml
 import typer
 
-from dotenv import load_dotenv
 
-## local imports
-from .poker import poker_total
-from .resize import resize_image
+from dotenv import load_dotenv
+from typing_extensions import Annotated
+
+# local imports
+from src.poker import poker_total
+from src.resize import resize_image
+from src.testing import testing_run
+from src.translate import translate_run
 
 # configuration
-## load .env file
+# load .env file
 load_dotenv()
 
-## load config
+# load config
 try:
     config = toml.load("config.toml")
 except FileNotFoundError:
     config = {}
 
-## typer config
+# typer config
 app = typer.Typer(no_args_is_help=True)
 
-## global options
+
+# global options
 def version(value: bool):
     if value:
         version = toml.load("pyproject.toml")["project"]["version"]
@@ -31,7 +36,7 @@ def version(value: bool):
         raise typer.Exit()
 
 
-## subcommands
+# subcommands
 @app.command()
 def poker():
     """
@@ -50,7 +55,39 @@ def resize(
     resize_image(filename, output, size)
 
 
-## main
+@app.command()
+def translate(
+    text: Annotated[
+        str, typer.Argument(help="Text to translate.")
+    ] = "hello, try passing in a string to translate",
+    to: Annotated[str, typer.Option(help="Language to translate to.")] = None,
+    from_: Annotated[
+        str, typer.Option("--from", help="Language to translate from.")
+    ] = None,
+):
+    """
+    Translate from one language to another.
+    """
+    if "translate" in config:
+        if to is None:
+            if "translate" in config and "to" in config["translate"]:
+                to = config["translate"]["to"]
+        if from_ is None:
+            if "translate" in config and "from" in config["translate"]:
+                from_ = config["translate"]["from"]
+
+    translate_run(text=text, to=to, from_=from_)
+
+
+@app.command()
+def test():
+    """
+    test
+    """
+    testing_run()
+
+
+# main
 @app.callback()
 def main(
     version: bool = typer.Option(
@@ -61,6 +98,6 @@ def main(
     return
 
 
-## if __name__ == "__main__":
+## main
 if __name__ == "__main__":
     typer.run(main)
