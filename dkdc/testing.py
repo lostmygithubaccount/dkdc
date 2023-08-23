@@ -14,7 +14,7 @@ from rich.console import Console
 from dotenv import load_dotenv
 
 ## local imports
-from src.common import dkdcai
+from dkdc.common import dkdcai
 
 # load .env file
 load_dotenv()

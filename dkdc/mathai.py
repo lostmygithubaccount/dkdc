@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from marvin.engine.language_models import chat_llm
 
 ## local imports
-from src.common import dkdcai
+from dkdc.common import dkdcai
 
 # load .env file
 load_dotenv()

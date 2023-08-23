@@ -9,10 +9,10 @@ from dotenv import load_dotenv
 from typing_extensions import Annotated
 
 # local imports
-from src.poker import poker_total
-from src.resize import resize_image
-from src.testing import testing_run
-from src.translate import translate_run
+from dkdc.poker import poker_total
+from dkdc.resize import resize_image
+from dkdc.testing import testing_run
+from dkdc.translate import translate_run
 
 # configuration
 # load .env file
