@@ -1,6 +1,6 @@
-from rich.console import Console
+from rich import console
 
-console = Console()
+console = console.Console()
 
 
 def dkdcai(end="\n", blink=""):

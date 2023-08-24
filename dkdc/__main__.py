@@ -1,3 +1,3 @@
-from dkdc.main import app
+from dkdc.cli import app
 
 app(prog_name="dkdc")

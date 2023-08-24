@@ -16,23 +16,11 @@ from dotenv import load_dotenv
 ## local imports
 from dkdc.common import dkdcai
 
-# load .env file
-load_dotenv()
-
-# load config.toml
-try:
-    config = toml.load("config.toml")["test"]
-except:
-    config = {}
-
-# configure logger
-log.basicConfig(level=log.INFO)
-
-# configure rich
+# configure output
 console = Console()
 
 
-# icode
+# testing
 def testing_run():
     dkdcai(end="")
     console.print(f"\ndone...")

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dkdc"
-version = "0.2.3"
+version = "0.2.4"
 authors = [
   { name="Cody", email="cody@dkdc.dev" },
 ]
@@ -34,5 +34,5 @@ dependencies = [
 "Bug Tracker" = "https://github.com/lostmygithubaccount/dkdc/issues"
 
 [project.scripts]
-dkdc= "dkdc.main:app"
+dkdc= "dkdc.cli:app"
 

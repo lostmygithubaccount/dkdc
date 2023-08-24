@@ -7,8 +7,7 @@ import requests
 
 import logging as log
 
-from dotenv import load_dotenv
-from rich.console import Console
+from rich import console
 
 from marvin import ai_fn, ai_model
 from pydantic import BaseModel, Field
@@ -17,12 +16,10 @@ from marvin.engine.language_models import chat_llm
 ## local imports
 from dkdc.common import dkdcai
 
-# load .env file
-load_dotenv()
+# configure output
+console = console.Console()
 
-# variables
-console = Console()
-
+# configure ai
 marvin.settings.llm_model = "azure_openai/gpt-4"
 
 
@@ -31,7 +28,7 @@ def translate(text: str = "hello", to: str = "Spanish", from_: str = "English") 
     """Translate text from one language to another"""
 
 
-# icode
+# translate
 def translate_run(text, to, from_):
     dkdcai(end="")
     console.print("Starting advanced AI translation...")
@@ -41,5 +38,6 @@ def translate_run(text, to, from_):
     log.info(f"text: {text}")
 
     # translate
+    console.print(f"Original text:\n{text}")
     translated_text = translate(text, to, from_)
-    console.print(f"Translated text:\n\n{translated_text}")
+    console.print(f"Translated text:\n{translated_text}")

@@ -7,8 +7,7 @@ import requests
 
 import logging as log
 
-from dotenv import load_dotenv
-from rich.console import Console
+from rich import console
 
 from marvin import ai_fn, ai_model
 from pydantic import BaseModel, Field
@@ -17,26 +16,22 @@ from marvin.engine.language_models import chat_llm
 ## local imports
 from dkdc.common import dkdcai
 
-# load .env file
-load_dotenv()
+# configure output
+console = console.Console()
 
-# load config.toml
-config = {}
-try:
-    config = toml.load("config.toml")["translate"]
-except:
-    pass
-
-# variables
-console = Console()
-
+# configure ai
 marvin.settings.llm_model = "azure_openai/gpt-4"
 
 
 @ai_fn
-def mathai(equation: str) -> float:
+def math(equation: str) -> float:
     """Solve a math equation. Guess if you don't know."""
 
 
-def mathai_run():
-    pass
+def math_run(equation):
+    """Run math from the command line."""
+    console.print("Starting advanced AI quick mafs...")
+
+    console.print(f"Equation: {equation}")
+    result = math(equation)
+    console.print(f"Result: {result}")

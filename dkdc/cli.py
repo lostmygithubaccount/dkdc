@@ -10,6 +10,7 @@ from typing_extensions import Annotated
 
 # local imports
 from dkdc.poker import poker_total
+from dkdc.math import math_run
 from dkdc.resize import resize_image
 from dkdc.testing import testing_run
 from dkdc.translate import translate_run
@@ -43,6 +44,16 @@ def poker():
     poker
     """
     poker_total()
+
+
+@app.command()
+def math(
+    equation: Annotated[str, typer.Argument(help="equation to solve")] = "2+2",
+):
+    """
+    math
+    """
+    math_run(equation=equation)
 
 
 @app.command()
@@ -89,7 +100,7 @@ def test():
 
 # main
 @app.callback()
-def main(
+def cli(
     version: bool = typer.Option(
         None, "--version", help="Show version.", callback=version, is_eager=True
     ),
@@ -100,4 +111,4 @@ def main(
 
 ## main
 if __name__ == "__main__":
-    typer.run(main)
+    typer.run(cli)

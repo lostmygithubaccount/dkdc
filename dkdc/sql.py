@@ -8,8 +8,7 @@ import requests
 
 import logging as log
 
-from dotenv import load_dotenv
-from rich.console import Console
+from rich import console
 
 from marvin import ai_fn, ai_model
 from pydantic import BaseModel, Field
@@ -18,18 +17,8 @@ from marvin.engine.language_models import chat_llm
 ## local imports
 from dkdc.common import dkdcai
 
-# load .env file
-load_dotenv()
-
-# load config.toml
-config = {}
-try:
-    config = toml.load("config.toml")["sql"]
-except:
-    pass
-
 # variables
-console = Console()
+console = console.Console()
 
 marvin.settings.llm_model = "azure_openai/gpt-4"
 
@@ -62,22 +51,3 @@ def _sql(
 
     Interpret what the user wants and generate the simplest SQL query.
     """
-
-
-# icode
-def translate_run(text, to, from_):
-    dkdcai(end="")
-    console.print("Starting advanced AI translation...")
-
-    if "to" in config:
-        to = config["to"]
-    if "from" in config:
-        from_ = config["from"]
-
-    log.info(f"to: {to}")
-    log.info(f"from: {from_}")
-    log.info(f"text: {text}")
-
-    # translate
-    translated_text = translate(text, to, from_)
-    console.print(f"Translated text: {translated_text}")
