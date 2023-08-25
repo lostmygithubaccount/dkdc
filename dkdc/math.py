@@ -30,7 +30,8 @@ def math(equation: str) -> float:
 
 def math_run(equation):
     """Run math from the command line."""
-    console.print("Starting advanced AI quick mafs...")
+    dkdcai(end="")
+    console.print("starting advanced AI quick mafs...")
 
     console.print(f"Equation: {equation}")
     result = math(equation)
