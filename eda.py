@@ -29,7 +29,7 @@ load_dotenv()
 console = Console()
 
 # setup AI
-model = "azure_openai/gpt-4"
+model = "azure_openai/gpt-4-32k"
 marvin.settings.llm_model = model
 model = chat_llm(model)
 
@@ -42,6 +42,7 @@ class ReActPattern(System):
     Use Action to run one of the actions available to you - then return PAUSE.
     Observation will be the result of running those actions.
     """
+
 
 class ExpertSystem(System):
     content: str = (
@@ -62,6 +63,7 @@ class Tutor(System):
     name: str = "not provided"
     knowledge_level: int = 5
 
+
 class CodeOutput(System):
     content: str = (
         "You output code in {{ language }} to demonstrate the concept. "
@@ -69,18 +71,18 @@ class CodeOutput(System):
     )
     language: str = "Python"
 
-response = model(
-    (
-        ExpertSystem()
-        | Tutor()
-        | User(
-            "What are CTEs?"
-        )
-        | ChainOfThought()
-        #| ReActPattern()
-        | CodeOutput()
-    ).render(topic="SQL", name="Cody", language="Python")
-)
+
+# response = model(
+#    (
+#        ExpertSystem()
+#        | Tutor()
+#        | User("What are CTEs?")
+#        | ChainOfThought()
+#        # | ReActPattern()
+#        | CodeOutput()
+#    ).render(topic="SQL", name="Cody", language="Python")
+# )
+
 
 # functions
 @tool
@@ -88,9 +90,28 @@ def roll_dice(n_dice: int = 1) -> list[int]:
     return [random.randint(1, 6) for _ in range(n_dice)]
 
 
+@tool
+def read_file(filename: str) -> str:
+    with open(filename, "r") as f:
+        return f.read()
+
+
+@tool
+def write_file(filename: str, content: str) -> None:
+    console.print(f"Writing to {filename}...")
+    console.print(f"Content:\n{content}")
+
+    write = typer.confirm("Do you want to continue?")
+    if not write:
+        console.print("Aborting...")
+        return
+    else:
+        with open(filename, "w") as f:
+            f.write(content)
+
+
 # configure ai
-marvin.settings.llm_model = "azure_openai/gpt-4"
-chatbot = AIApplication(
+rhymebot = AIApplication(
     description=(
         "A chatbot that always speaks in brief rhymes. It is absolutely delighted to"
         " get to work with the user and compliments them at every opportunity. It"
@@ -98,6 +119,15 @@ chatbot = AIApplication(
         " better assistant."
         "Roll dice if asked."
     ),
-    tools = [roll_dice],
+    tools=[roll_dice],
     # stream_handler=lambda msg: console.print(msg.content, end="")
+)
+
+dkdc = AIApplication(
+    description=(
+        "A chatbot that helps with whaever."
+        "You can interact with the filesystem."
+        "You can roll dice."
+    ),
+    tools=[read_file, write_file, roll_dice],
 )
