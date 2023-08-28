@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from marvin.engine.language_models import chat_llm
 
 ## local imports
-from dkdc.common import dkdcai
+from dkdc.utils import dkdconsole
 
 # configure output
 console = console.Console()
@@ -30,7 +30,7 @@ def translate(text: str = "hello", to: str = "Spanish", from_: str = "English") 
 
 # translate
 def translate_run(text, to, from_):
-    dkdcai(end="")
+    dkdconsole(end="")
     console.print("Starting advanced AI translation...")
 
     log.info(f"to: {to}")

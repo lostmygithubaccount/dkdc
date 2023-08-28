@@ -23,6 +23,10 @@ build:
 install:
     @pip install -e '.[all]'
 
+# uninstall
+uninstall:
+    @pip uninstall dkdc -y
+
 # publish-test
 release-test:
     just build
@@ -44,6 +48,4 @@ smoke-test:
 # clean
 clean:
     @rm -rf dist || True
-    @pip uninstall dkdc -y
-
 

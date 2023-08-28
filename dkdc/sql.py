@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from marvin.engine.language_models import chat_llm
 
 ## local imports
-from dkdc.common import dkdcai
+from dkdc.utils import dkdconsole
 
 # variables
 console = console.Console()

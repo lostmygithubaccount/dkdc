@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from marvin.engine.language_models import chat_llm
 
 ## local imports
-from dkdc.common import dkdcai
+from dkdc.utils import dkdconsole
 
 # configure output
 console = console.Console()
@@ -30,7 +30,7 @@ def math(equation: str) -> float:
 
 def math_run(equation):
     """Run math from the command line."""
-    dkdcai(end="")
+    dkdconsole(end="")
     console.print("starting advanced AI quick mafs...")
 
     console.print(f"Equation: {equation}")

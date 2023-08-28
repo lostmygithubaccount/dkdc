@@ -5,37 +5,32 @@ import toml
 import typer
 import openai
 import marvin
+import random
 
 import logging as log
 
 from marvin import ai_fn, ai_model, ai_classifier, AIApplication
+from marvin.tools import tool
+from marvin.prompts.library import System, User, ChainOfThought
+from marvin.engine.language_models import chat_llm
+
+from typing import Optional
+
 from rich.console import Console
 from dotenv import load_dotenv
 
 ## local imports
-from dkdc.common import dkdcai
+from dkdc.utils import dkdconsole
 
 # setup console
 console = Console()
 
 # setup AI
-chatbot = AIApplication(
-    description=(
-        "A chatbot that always speaks in brief rhymes. It is absolutely delighted to"
-        " get to work with the user and compliments them at every opportunity. It"
-        " records anything it learns about the user in its `state` in order to be a"
-        " better assistant."
-    )
-)
-
+model = "azure_openai/gpt-4-32k"
+marvin.settings.llm_model = model
+model = chat_llm(model)
 
 # testing
 def testing_run():
-    dkdcai(end="")
+    dkdconsole(end="")
     console.print(f"done...")
-
-    response = chatbot("Hello! Do you know how to sail?")
-    console.print(response.content + "\n")
-
-    response = chatbot("What about coding?")
-    console.print(response.content)
