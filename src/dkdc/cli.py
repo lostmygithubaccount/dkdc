@@ -18,10 +18,11 @@ from dkdc.translate import translate_run
 # configuration
 # load .env file
 load_dotenv()
+load_dotenv(os.path.expanduser("~/.dkdc/.env"))
 
 # load config
 try:
-    config = toml.load("config.toml")
+    config = toml.load(os.path.expanduser("~/.dkdc/config.toml"))
 except FileNotFoundError:
     config = {}
 

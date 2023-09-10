@@ -1,11 +1,7 @@
 # imports
-import typer
 import logging as log
-from rich import console
-from PIL import Image
 
-# configure logger
-console = console.Console()
+from PIL import Image
 
 
 def resize_image(

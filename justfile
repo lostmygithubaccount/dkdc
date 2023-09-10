@@ -47,5 +47,6 @@ smoke-test:
 
 # clean
 clean:
+    @rm -r pgns || True
     @rm -rf dist || True
 

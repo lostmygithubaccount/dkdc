@@ -4,6 +4,10 @@ build
 twine
 python-dotenv
 
+# internet
+requests
+html2text
+
 # cli
 typer[all]
 
@@ -16,7 +20,7 @@ streamlit
 
 # ai
 openai
-marvin
+marvin[ddg]
 
 # poker
 texasholdem --pre

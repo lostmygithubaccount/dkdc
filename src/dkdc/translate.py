@@ -26,6 +26,8 @@ marvin.settings.llm_model = "azure_openai/gpt-4"
 @ai_fn
 def translate(text: str = "hello", to: str = "Spanish", from_: str = "English") -> str:
     """Translate text from one language to another"""
+    text, to, from_ = text, to, from_
+    return ""
 
 
 # translate

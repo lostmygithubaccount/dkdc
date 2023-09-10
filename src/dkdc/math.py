@@ -26,6 +26,8 @@ marvin.settings.llm_model = "azure_openai/gpt-4"
 @ai_fn
 def math(equation: str) -> float:
     """Solve a math equation. Guess if you don't know."""
+    equation = equation
+    return 1.0
 
 
 def math_run(equation):

@@ -30,7 +30,8 @@ model = "azure_openai/gpt-4-32k"
 marvin.settings.llm_model = model
 model = chat_llm(model)
 
+
 # testing
 def testing_run():
-    dkdconsole(end="")
+    console.print(f"testing.ai: ", style="bold violet", end="")
     console.print(f"done...")

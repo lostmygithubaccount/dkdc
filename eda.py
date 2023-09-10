@@ -1,41 +1,43 @@
 # imports
-import re
 import os
-import json
 import toml
 import ibis
-import typer
-import openai
-import marvin
-import random
+
+import ibis.selectors as s
 
 import logging as log
 
-from dotenv import load_dotenv
-
-from typing import Optional
-
-from marvin import ai_fn, ai_model, ai_classifier, AIApplication
-from marvin.prompts.library import System, User, ChainOfThought
-from marvin.engine.language_models import chat_llm
+import plotly.io as pio
+import plotly.express as px
 
 from rich import print
-from rich.console import Console
+from dotenv import load_dotenv
+from datetime import datetime, timedelta, date
 
-from dkdc.dkdc import ai
-from dkdc.poker import *
+# configuration
+## logger
+# log.basicConfig(level=log.INFO)
 
-# configure ibis
+## config.toml
+config = toml.load(os.path.expanduser("~/.dkdc/config.toml"))["eda"]
+
+## load .env file
+load_dotenv()
+load_dotenv(os.path.expanduser("~/.dkdc/.env"))
+
+## ibis config
 ibis.options.interactive = True
 
-# load dotenv
-load_dotenv()
-
-# create connection
-con = ibis.connect("duckdb://cache.ddb")
+# connect to backend
+connection_uri = config["connection_uri"]
+log.info(f"connection URI: {connection_uri}")
+con = ibis.connect(f"{connection_uri}")
 tables = con.list_tables()
 
-hands = play_poker()
-s = hands
-data = [history_to_dict(t) for t in hands]
-t = data[-1]
+# setup viz
+pio.templates.default = "plotly_dark"
+
+# ai
+from dkdc.ai import AI
+
+ai = AI(con)
