@@ -11,12 +11,13 @@ from html2text import html2text
 from duckduckgo_search import DDGS
 
 from dkdc.tools import tool
-from dkdc.bots.utils import *
-from dkdc.bots.models import *
-from dkdc.bots.functions import *
-from dkdc.bots.classifiers import *
-from dkdc.bots.summarize.ai import SummarizeWebpageBot
 
+from dkdc.bots.dkdc.utils import *
+from dkdc.bots.dkdc.models import *
+from dkdc.bots.dkdc.functions import *
+from dkdc.bots.dkdc.classifiers import *
+
+from dkdc.bots.summarize.ai import SummarizeWebpageBot
 
 # tools
 @tool

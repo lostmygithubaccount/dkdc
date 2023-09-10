@@ -7,12 +7,12 @@ from marvin import AIApplication
 
 from rich.console import Console
 
-from dkdc.bots.tools import *
-from dkdc.bots.models import *
-from dkdc.bots.states import *
-from dkdc.bots.systems import *
-from dkdc.bots.functions import *
-from dkdc.bots.classifiers import *
+from dkdc.bots.dkdc.tools import *
+from dkdc.bots.dkdc.models import *
+from dkdc.bots.dkdc.states import *
+from dkdc.bots.dkdc.systems import *
+from dkdc.bots.dkdc.functions import *
+from dkdc.bots.dkdc.classifiers import *
 
 
 # AI class
