@@ -4,6 +4,7 @@
 set dotenv-load
 
 # aliases
+alias fmt:=format
 alias preview:=app
 
 # list justfile recipes
@@ -14,10 +15,19 @@ default:
 setup:
     @pip install -r dev-requirements.txt
 
+# test
+test:
+    @cargo test
+
 # build
 build:
-    just clean
-    @python -m build
+    @cargo build --release
+    @cp target/release/dkdc ~/.cargo/bin
+
+# format
+format:
+    @cargo fmt
+#   @ruff format . || True
 
 # install
 install:
@@ -43,10 +53,10 @@ app:
 
 # smoke-test
 smoke-test:
-    black --check .
+    ruff format --check .
 
 # clean
 clean:
-    @rm -r pgns || True
-    @rm -rf dist || True
-
+    @rm -r target || True
+    
+# @rm -rf dist || True
