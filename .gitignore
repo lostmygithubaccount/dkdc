@@ -13,3 +13,8 @@ error.md
 test.csv
 example.sh
 pgns
+
+# rusty
+Cargo.lock
+
+*api-rs
