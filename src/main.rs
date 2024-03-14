@@ -73,7 +73,7 @@ enum AiCommands {
     #[command(about = "AI testing", long_about = None)]
     Testing {
         //#[arg(short, long)]
-        #[arg(default_value = "You are a dog, bark!")]
+        #[arg(default_value = "What is 2+2?")]
         message: String,
     },
 }
@@ -100,19 +100,22 @@ enum ImageCommands {
     },
 }
 
-//#[allow(unused)]
+#[allow(unused)]
 fn cli() {
     let cli = Cli::parse();
 
     match cli.command {
-        Some(Commands::Ai { subcommand }) => match subcommand {
-            AiCommands::Testing { message } => {
-                dkdc::commands::ai::ai_testing(message.as_str());
+        Some(Commands::Ai { subcommand }) => {
+            dkdc::utils::env::load_dotenv();
+            match subcommand {
+                AiCommands::Testing { message } => {
+                    dkdc::commands::ai::ai_testing(message.as_str());
+                }
+                AiCommands::Default { url } => {
+                    dkdc::commands::ai::ai(url.as_deref().unwrap());
+                }
             }
-            AiCommands::Default { url } => {
-                dkdc::commands::ai::ai(url.as_deref().unwrap());
-            }
-        },
+        }
         Some(Commands::Config { vim, env }) => {
             dkdc::commands::open::config_it(vim, env);
         }
@@ -140,9 +143,10 @@ fn cli() {
 }
 
 #[allow(unused)]
-fn wip() {}
+fn wip() {
+    dkdc::ai::openai::chat_completions("What is 2+2?");
+}
 
 fn main() {
-    //wip();
     cli();
 }

@@ -16,3 +16,5 @@ pgns
 
 # rusty
 Cargo.lock
+
+*api-rs
