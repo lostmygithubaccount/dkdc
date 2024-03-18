@@ -65,16 +65,65 @@ enum Commands {
 
 #[derive(Subcommand, Debug)]
 enum AiCommands {
-    #[command(about = "AI default", long_about = None)]
-    Default {
-        #[arg(default_value = "https://dkdc.dev")]
-        url: Option<String>,
+    #[command(about = "Tokenize", long_about = None)]
+    #[command(arg_required_else_help = true)]
+    Tokens {
+        #[arg(help = "The message to tokenize")]
+        string: Option<String>,
+
+        #[arg(short, long)]
+        #[arg(help = "The file to read from")]
+        filepath: Option<String>,
     },
-    #[command(about = "AI testing", long_about = None)]
-    Testing {
-        //#[arg(short, long)]
-        #[arg(default_value = "What is 2+2?")]
+    #[command(about = "AI chat", long_about = None)]
+    #[command(arg_required_else_help = true)]
+    Chat {
+        #[arg(help = "The message to send to the AI")]
         message: String,
+
+        #[arg(short, long)]
+        #[arg(default_value_t = 1)]
+        #[arg(help = "The number of completions to generate")]
+        n: u8,
+
+        #[arg(short, long)]
+        #[arg(default_value_t = 1024)]
+        #[arg(help = "The maximum number of tokens to generate")]
+        max_tokens: u32,
+
+        #[arg(short, long)]
+        #[arg(default_value = "false")]
+        #[arg(help = "Verbose output")]
+        verbose: bool,
+    },
+    #[command(about = "AI classify", long_about = None)]
+    #[command(arg_required_else_help = true)]
+    Classify {
+        #[arg(help = "The message to classify")]
+        message: Option<String>,
+
+        #[arg(short, long)]
+        #[arg(help = "The file to read from")]
+        filepath: Option<String>,
+
+        #[arg(short, long)]
+        #[arg(help = "The labels to classify against")]
+        labels: String,
+
+        #[arg(short, long)]
+        #[arg(default_value = "false")]
+        #[arg(help = "Allow none of the above")]
+        allow_none: bool,
+
+        #[arg(short, long)]
+        #[arg(default_value = "false")]
+        #[arg(help = "Verbose output")]
+        verbose: bool,
+
+        #[arg(short, long)]
+        #[arg(default_value_t = 3)]
+        #[arg(help = "The number of completions to generate")]
+        n: u8,
     },
 }
 
@@ -108,18 +157,60 @@ fn cli() {
         Some(Commands::Ai { subcommand }) => {
             dkdc::utils::env::load_dotenv();
             match subcommand {
-                AiCommands::Testing { message } => {
-                    dkdc::commands::ai::ai_testing(message.as_str());
+                AiCommands::Tokens { string, filepath } => {
+                    let string = match string {
+                        Some(string) => string,
+                        None => {
+                            let filepath = filepath.unwrap();
+                            let string = dkdc::utils::filesystem::file_to_string(filepath.as_str());
+                            string.unwrap()
+                        }
+                    };
+                    dkdc::commands::ai::tokenize(string.as_str());
                 }
-                AiCommands::Default { url } => {
-                    dkdc::commands::ai::ai(url.as_deref().unwrap());
+                AiCommands::Chat {
+                    message,
+                    n,
+                    max_tokens,
+                    verbose,
+                } => {
+                    dkdc::commands::ai::ai_chat(message.as_str(), n, max_tokens, verbose);
+                }
+
+                AiCommands::Classify {
+                    message,
+                    filepath,
+                    labels,
+                    allow_none,
+                    verbose,
+                    n,
+                } => {
+                    let message = match message {
+                        Some(message) => message,
+                        None => {
+                            let filepath = filepath.unwrap();
+                            let message =
+                                dkdc::utils::filesystem::file_to_string(filepath.as_str());
+                            message.unwrap()
+                        }
+                    };
+                    let labels =
+                        dkdc::utils::strings::comma_separated_string_to_vec(labels.as_str());
+                    dkdc::commands::ai::ai_classify(
+                        message.as_str(),
+                        labels,
+                        allow_none,
+                        verbose,
+                        Some(n),
+                    );
                 }
             }
         }
         Some(Commands::Config { vim, env }) => {
-            dkdc::commands::open::config_it(vim, env);
+            dkdc::commands::config::config_it(vim, env);
         }
         Some(Commands::Open { thing, list }) => {
+            let list = thing.is_none() || list;
             dkdc::commands::open::open_it(thing, list);
         }
         Some(Commands::Run { max, divisor }) => {
@@ -132,8 +223,7 @@ fn cli() {
                 width,
                 height,
             } => {
-                dkdc::commands::image::resize_image(file.as_str(), output.as_str(), width, height)
-                    .expect("whoops");
+                dkdc::commands::image::resize_image(file.as_str(), output.as_str(), width, height);
             }
         },
         _ => {
@@ -144,9 +234,31 @@ fn cli() {
 
 #[allow(unused)]
 fn wip() {
-    dkdc::ai::openai::chat_completions("What is 2+2?");
+    let text = "I found a bug";
+    let labels = vec!["bug", "feature request", "inquiry"];
+    let allow_none = true;
+    let verbose = true;
+    let n = Some(7);
+
+    dkdc::utils::env::load_dotenv();
+    let category = dkdc::ai::functions::classify(text, labels, allow_none, verbose, n);
+
+    println!("Category: {}", category);
 }
 
 fn main() {
+    //wip();
     cli();
 }
+
+// TODOs
+// move library logic out of commands/*
+// use just files for library code, expand to directories when it makes sense
+// finish up ai/openai:
+//   - finish up logit bias
+//   - add cast
+//   - custom functions for birdbrain
+// take a look at implementing ai/claude
+//
+// remember the method: code, wip testing, command
+// we ball

@@ -1,2 +1,3 @@
 pub mod env;
-pub mod numeric;
+pub mod filesystem;
+pub mod strings;
