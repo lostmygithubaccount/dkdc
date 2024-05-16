@@ -155,6 +155,78 @@ impl Client {
             }
         }
     }
+
+    pub fn call_stream(
+        &self,
+        payload: &ChatCompletionPayload,
+    ) -> Result<reqwest::blocking::Response, reqwest::Error> {
+        let result = self
+            .client
+            .post(&self.api_endpoint)
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", self.openai_api_key))
+            .json(payload)
+            .send();
+
+        result
+    }
+}
+
+pub struct AsyncClient {
+    pub api_endpoint: String,
+    client: reqwest::Client,
+    openai_api_key: String,
+}
+
+impl AsyncClient {
+    pub fn new() -> Self {
+        let client = AsyncClient {
+            api_endpoint: ai::openai::endpoints::OPENAI_CHAT_COMPLETIONS.to_string(),
+            client: reqwest::Client::new(),
+            openai_api_key: utils::env::get_openai_api_key(),
+        };
+
+        client
+    }
+
+
+    pub async fn call(&self, payload: &ChatCompletionPayload) -> Option<ChatCompletionResponse> {
+        let result = self
+            .client
+            .post(&self.api_endpoint)
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", self.openai_api_key))
+            .json(payload)
+            .send()
+            .await;
+
+        match result {
+            Ok(response) => {
+                let response_obj: ChatCompletionResponse = response.json().await.unwrap();
+                Some(response_obj)
+            }
+            Err(e) => {
+                eprintln!("Request failed: {}", e);
+                None
+            }
+        }
+    }
+
+    pub async fn call_stream(
+        &self,
+        payload: &ChatCompletionPayload,
+    ) -> Result<reqwest::Response, reqwest::Error> {
+        let result = self
+            .client
+            .post(&self.api_endpoint)
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", self.openai_api_key))
+            .json(payload)
+            .send()
+            .await;
+
+        result
+    }
 }
 
 pub fn chat_completions(user_message: &str, n: u8, max_tokens: u32, verbose: bool) {

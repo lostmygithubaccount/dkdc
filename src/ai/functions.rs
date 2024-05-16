@@ -78,7 +78,7 @@ pub fn classify(
     let mut payload = ai::openai::client::ChatCompletionPayload::new(text.as_str());
     payload.max_tokens = Some(1);
     payload.logit_bias = Some(logit_bias);
-    payload.n = Some(n.unwrap_or(1));
+    payload.n = Some(n.unwrap_or(3));
 
     let response = client.call(&payload);
 
