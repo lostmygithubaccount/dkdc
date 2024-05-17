@@ -8,6 +8,9 @@ use dkdc;
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
+
+    #[arg(help = "Message for AI chat")]
+    message: Option<String>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -226,6 +229,14 @@ fn cli() {
                 dkdc::commands::image::resize_image(file.as_str(), output.as_str(), width, height);
             }
         },
+        None => {
+            if let Some(default_message) = cli.message {
+                dkdc::utils::env::load_dotenv();
+                dkdc::commands::ai::ai_chat(default_message.as_str(), 1, 1024, false);
+            } else {
+                panic!("extra impossible!");
+            }
+        }
         _ => {
             panic!("impossible!")
         }

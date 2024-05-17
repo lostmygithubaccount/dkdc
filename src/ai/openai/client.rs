@@ -67,10 +67,10 @@ impl ChatCompletionPayload {
                     role: MessageRole::user,
                     content: user_message.to_string(),
                 },
-                Message {
-                    role: MessageRole::assistant,
-                    content: "The answer is:".to_string(),
-                },
+                // Message {
+                //     role: MessageRole::assistant,
+                //     content: "The answer is:".to_string(),
+                // },
             ],
             frequency_penalty: None,
             logit_bias: None,
@@ -82,7 +82,7 @@ impl ChatCompletionPayload {
             seed: None,
             stop: None,
             stream: None,
-            temperature: Some(1.0),
+            temperature: Some(0.0),
             top_p: None,
             tools: None,
             user: None,
@@ -146,6 +146,9 @@ impl Client {
 
         match result {
             Ok(response) => {
+                // TODO: better error handling
+                // e.g. using 'gpt-4-turbo-preview' as the model
+                // started failing without a good explanation
                 let response_obj: ChatCompletionResponse = response.json().unwrap();
                 Some(response_obj)
             }

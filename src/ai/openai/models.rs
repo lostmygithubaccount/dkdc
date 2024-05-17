@@ -1,1 +1,1 @@
-pub const GPT_4: &str = "gpt-4-turbo-preview";
+pub const GPT_4: &str = "gpt-4o";
