@@ -1,27 +1,5 @@
 # python
-black
+ruff
 build
 twine
-python-dotenv
-
-# internet
-requests
-html2text
-
-# cli
-typer[all]
-
-# data
-ibis-framework[duckdb,polars,deltalake] @ git+https://github.com/ibis-project/ibis
-
-# viz
-plotly
-streamlit
-
-# ai
-openai
-marvin[ddg]
-
-# poker
-texasholdem --pre
 

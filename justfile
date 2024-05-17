@@ -5,7 +5,6 @@ set dotenv-load
 
 # aliases
 alias fmt:=format
-alias preview:=app
 
 # list justfile recipes
 default:
@@ -13,43 +12,34 @@ default:
 
 # setup
 setup:
-    @pip install -r dev-requirements.txt
-
-# test
-test:
-    @cargo test
+    @uv pip install -r dev-requirements.txt
 
 # build
 build:
-    @cargo build --release
-    @cp target/release/dkdc ~/.cargo/bin
+    just clean
+    @python -m build
 
 # format
 format:
-    @cargo fmt
-#   @ruff format . || True
+    @ruff format . || True
 
 # install
 install:
-    @pip install -e '.[all]'
+    @uv pip install -e '.[all]' --reinstall-package dkdc
 
 # uninstall
 uninstall:
-    @pip uninstall dkdc -y
+    @uv pip uninstall dkdc -y
 
 # publish-test
 release-test:
     just build
-    @twine upload --repository testpypi dist/* -u __token__ -p ${PYPI_TEST_KEY}
+    @twine upload --repository testpypi dist/* -u __token__ -p ${PYPI_TEST_TOKEN}
 
 # publish
 release:
     just build
-    @twine upload dist/* -u __token__ -p ${PYPI_KEY}
-
-# streamlit stuff
-app:
-    @streamlit run app.py
+    @twine upload dist/* -u __token__ -p ${PYPI_TOKEN}
 
 # smoke-test
 smoke-test:
@@ -57,6 +47,5 @@ smoke-test:
 
 # clean
 clean:
-    @rm -r target || True
+    @rm -r dist || True
     
-# @rm -rf dist || True
