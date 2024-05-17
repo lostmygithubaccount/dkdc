@@ -34,12 +34,12 @@ uninstall:
 # publish-test
 release-test:
     just build
-    @twine upload --repository testpypi dist/* -u __token__ -p ${PYPI_TEST_KEY}
+    @twine upload --repository testpypi dist/* -u __token__ -p ${PYPI_TEST_TOKEN}
 
 # publish
 release:
     just build
-    @twine upload dist/* -u __token__ -p ${PYPI_KEY}
+    @twine upload dist/* -u __token__ -p ${PYPI_TOKEN}
 
 # smoke-test
 smoke-test:

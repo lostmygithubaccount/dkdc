@@ -5,25 +5,24 @@ build-backend = "hatchling.build"
 [project]
 name = "dkdc"
 version = "0.4.0"
-authors = [
-  { name="Cody", email="cody@dkdc.dev" },
-]
+authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 description = "dkdc"
 readme = "readme.md"
 requires-python = ">=3.11"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
 dependencies = [
-  'python-dotenv',
-  'Pillow',
-  'typer[all]',
-  'httpx',
   'html2text',
-  'openai',
+  'httpx',
   'ibis-framework[duckdb]',
+  'openai',
+  'Pillow',
+  'python-dotenv',
+  'tiktoken',
+  'typer[all]',
 ]
 
 [project.urls]
@@ -31,5 +30,4 @@ dependencies = [
 "Bug Tracker" = "https://github.com/lostmygithubaccount/dkdc/issues"
 
 [project.scripts]
-dkdc= "dkdc.cli:app"
-
+dkdc = "dkdc.cli:app"

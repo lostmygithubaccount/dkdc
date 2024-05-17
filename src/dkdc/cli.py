@@ -1,46 +1,93 @@
 # imports
-import os
-import sys
 import typer
-import tomllib as toml
 
-
-from dotenv import load_dotenv
-from typing_extensions import Annotated
-
-# load .env file
-# TODO: better
-load_dotenv(os.path.expanduser("~/.dkdc/.env"))
-
-# load config
-# TODO: better
-# try:
-#     config = toml.load(os.path.expanduser("~/.dkdc/config.toml"))
-# except FileNotFoundError:
-config = {}
+## local imports
+from dkdc.ai import tokenize_it
+from dkdc.open import open_it, list_things
+from dkdc.image import resize_image
+from dkdc.config import config_it
 
 # typer config
-app = typer.Typer(no_args_is_help=True, add_completion=False)
+## default kwargs
+default_kwargs = {
+    "no_args_is_help": True,
+    "add_completion": False,
+}
+
+## main app
+app = typer.Typer(help="dkdc", **default_kwargs)
+
+## subcommands
+ai_app = typer.Typer(help="ai subcommands", **default_kwargs)
+image_app = typer.Typer(help="image subcommands", **default_kwargs)
+
+## add subcommands
+app.add_typer(ai_app, name="ai")
+app.add_typer(image_app, name="image")
+
+## add subcommand aliases
+app.add_typer(ai_app, name="ml", hidden=True)
+app.add_typer(image_app, name="i", hidden=True)
+
+
+# commands
+@app.command()
+@app.command("c", hidden=True)
+def config(
+    vim: bool = typer.Option(False, "--vim", "-v", help="Open with (n)vim."),
+    env: bool = typer.Option(False, "--env", "-e", help="Open .env file."),
+):
+    """
+    open config file
+    """
+    config_it(vim, env)
 
 
 @app.command()
-def hello():
+@app.command("o", hidden=True)
+def open(
+    thing: str = typer.Argument(None, help="Thing to open."),
+):
     """
-    hello
+    open thing
     """
-    print("hello")
+    if thing is None:
+        list_things()
+    else:
+        open_it(thing)
+
+
+## image commands
+@ai_app.command()
+@ai_app.command("t", hidden=True)
+def tokenize(text: str = typer.Argument(..., help="Text to tokenize.")):
+    """
+    tokenize text
+    """
+    tokens = tokenize_it(text)
+    print(text, end=" -> ")
+    print(tokens)
+
+
+@image_app.command()
+def resize(
+    input_path: str = typer.Argument("thumbnail.png"),
+    output_path: str = typer.Argument("resized.png"),
+    height: int = typer.Option(256, "--height", "-h", help="Height of the image."),
+    width: int = typer.Option(256, "--width", "-w", help="Width of the image."),
+):
+    """
+    resize an image
+    """
+    resize_image(input_path, output_path, height, width)
 
 
 # main
 @app.callback()
-def cli(
-    # version: bool = typer.Option(
-    #     None, "--version", help="Show version.", callback=version, is_eager=True
-    # ),
-):
+def cli():
     return
 
 
-## main
+# main
 if __name__ == "__main__":
     typer.run(cli)
