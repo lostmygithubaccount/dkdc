@@ -12,6 +12,7 @@ from dkdc.config import config_it
 default_kwargs = {
     "no_args_is_help": True,
     "add_completion": False,
+    "context_settings": {"help_option_names": ["-h", "--help"]},
 }
 
 ## main app
@@ -38,7 +39,7 @@ def config(
     env: bool = typer.Option(False, "--env", "-e", help="Open .env file."),
 ):
     """
-    open config file
+    open config file(s)
     """
     config_it(vim, env)
 
@@ -73,8 +74,8 @@ def tokenize(text: str = typer.Argument(..., help="Text to tokenize.")):
 def resize(
     input_path: str = typer.Argument("thumbnail.png"),
     output_path: str = typer.Argument("resized.png"),
-    height: int = typer.Option(256, "--height", "-h", help="Height of the image."),
-    width: int = typer.Option(256, "--width", "-w", help="Width of the image."),
+    height: int = typer.Option(256, "--height", "-H", help="Height of the image."),
+    width: int = typer.Option(256, "--width", "-W", help="Width of the image."),
 ):
     """
     resize an image
