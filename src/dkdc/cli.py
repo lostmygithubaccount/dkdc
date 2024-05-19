@@ -1,11 +1,13 @@
 # imports
 import typer
+import textwrap
 
 ## local imports
-from dkdc.ai import tokenize_it
-from dkdc.open import open_it, list_things
-from dkdc.image import resize_image
-from dkdc.config import config_it
+from dkdc.core.ai import chat
+from dkdc.core.open import open_it, list_things
+from dkdc.core.image import resize_image
+from dkdc.core.config import config_it
+from dkdc.core.tokenize import tokenize_it
 
 # typer config
 ## default kwargs
@@ -19,24 +21,50 @@ default_kwargs = {
 app = typer.Typer(help="dkdc", **default_kwargs)
 
 ## subcommands
-ai_app = typer.Typer(help="ai subcommands", **default_kwargs)
 image_app = typer.Typer(help="image subcommands", **default_kwargs)
 
 ## add subcommands
-app.add_typer(ai_app, name="ai")
 app.add_typer(image_app, name="image")
 
 ## add subcommand aliases
-app.add_typer(ai_app, name="ml", hidden=True)
 app.add_typer(image_app, name="i", hidden=True)
 
 
 # commands
 @app.command()
+@app.command("ml", hidden=True)
+def ai(
+    text: str = typer.Argument(None, help="text to chat"),
+    interactive: bool = typer.Option(False, "--interactive", "-i", help="interactive"),
+):
+    """
+    chat with ai
+    """
+    if interactive:
+        # TODO: conversation history
+        if text is None:
+            text = typer.prompt("user")
+        while text not in ["exit", "e", "quit", "q"]:
+            response = chat(text)
+            # response = textwrap.fill(response, width=80)
+            print("ai: ", end="")
+            print(response)
+            text = typer.prompt("user")
+
+    else:
+        if text is None:
+            text = typer.prompt("user")
+        response = chat(text)
+        # response = textwrap.fill(response, width=80)
+        print("ai: ", end="")
+        print(response)
+
+
+@app.command()
 @app.command("c", hidden=True)
 def config(
-    vim: bool = typer.Option(False, "--vim", "-v", help="Open with (n)vim."),
-    env: bool = typer.Option(False, "--env", "-e", help="Open .env file."),
+    vim: bool = typer.Option(False, "--vim", "-v", help="open with (n)vim"),
+    env: bool = typer.Option(False, "--env", "-e", help="open .env file"),
 ):
     """
     open config file(s)
@@ -47,7 +75,7 @@ def config(
 @app.command()
 @app.command("o", hidden=True)
 def open(
-    thing: str = typer.Argument(None, help="Thing to open."),
+    thing: str = typer.Argument(None, help="thing to open"),
 ):
     """
     open thing
@@ -59,9 +87,9 @@ def open(
 
 
 ## image commands
-@ai_app.command()
-@ai_app.command("t", hidden=True)
-def tokenize(text: str = typer.Argument(..., help="Text to tokenize.")):
+@app.command()
+@app.command("t", hidden=True)
+def tokenize(text: str = typer.Argument(..., help="text to tokenize")):
     """
     tokenize text
     """
@@ -74,8 +102,8 @@ def tokenize(text: str = typer.Argument(..., help="Text to tokenize.")):
 def resize(
     input_path: str = typer.Argument("thumbnail.png"),
     output_path: str = typer.Argument("resized.png"),
-    height: int = typer.Option(256, "--height", "-H", help="Height of the image."),
-    width: int = typer.Option(256, "--width", "-W", help="Width of the image."),
+    height: int = typer.Option(256, "--height", "-H", help="height of the image"),
+    width: int = typer.Option(256, "--width", "-W", help="width of the image"),
 ):
     """
     resize an image

@@ -30,7 +30,7 @@ def list_things() -> None:
     """
     config = load_config()
 
-    print("\naliases:")
+    print("aliases:")
     for alias, thing in config["open"]["aliases"].items():
         print(f"  - {alias}: {thing}")
 
