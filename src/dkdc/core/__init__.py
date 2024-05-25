@@ -1,9 +1,4 @@
 # imports
-from dkdc import core  # noqa
-from dkdc import utils  # noqa
-from dkdc import defaults  # noqa
-
-## elevate core modules
 from dkdc.core import ai  # noqa
 from dkdc.core import open  # noqa
 from dkdc.core import image  # noqa

@@ -1,8 +1,10 @@
+# imports
 import tiktoken
 
 from dkdc.defaults import OPENAI_MODEL
 
 
+# functions
 def tokenize_it(text: str):
     """
     tokenize text

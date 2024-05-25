@@ -1,11 +1,10 @@
 # imports
 import typer
-import textwrap
 
 ## local imports
-from dkdc.core.ai import chat
+from dkdc.core.ai.openai import Client
 from dkdc.core.open import open_it, list_things
-from dkdc.core.image import resize_image
+from dkdc.core.image import resize_image, convert_image
 from dkdc.core.config import config_it
 from dkdc.core.tokenize import tokenize_it
 
@@ -40,24 +39,25 @@ def ai(
     """
     chat with ai
     """
+    client = Client()
     if interactive:
         # TODO: conversation history
         if text is None:
             text = typer.prompt("user")
         while text not in ["exit", "e", "quit", "q"]:
-            response = chat(text)
-            # response = textwrap.fill(response, width=80)
+            response = client(text)
             print("ai: ", end="")
-            print(response)
+            print(response.choices[0].message.content)
             text = typer.prompt("user")
 
     else:
         if text is None:
             text = typer.prompt("user")
-        response = chat(text)
-        # response = textwrap.fill(response, width=80)
+        if text in ["exit", "e", "quit", "q"]:
+            return
+        response = client(text)
         print("ai: ", end="")
-        print(response)
+        print(response.choices[0].message.content)
 
 
 @app.command()
@@ -86,7 +86,6 @@ def open(
         open_it(thing)
 
 
-## image commands
 @app.command()
 @app.command("t", hidden=True)
 def tokenize(text: str = typer.Argument(..., help="text to tokenize")):
@@ -98,7 +97,9 @@ def tokenize(text: str = typer.Argument(..., help="text to tokenize")):
     print(tokens)
 
 
+## image commands
 @image_app.command()
+@image_app.command("r", hidden=True)
 def resize(
     input_path: str = typer.Argument("thumbnail.png"),
     output_path: str = typer.Argument("resized.png"),
@@ -111,12 +112,19 @@ def resize(
     resize_image(input_path, output_path, height, width)
 
 
-# main
-@app.callback()
-def cli():
-    return
+@image_app.command()
+@image_app.command("c", hidden=True)
+def convert(
+    input_path: str = typer.Argument(..., help="input path"),
+    output_path: str = typer.Option(None, "--output", "-o", help="output path"),
+    output_format: str = typer.Option("png", "--format", "-f", help="output format"),
+):
+    """
+    convert an image
+    """
+    convert_image(input_path, output_path=output_path, output_format=output_format)
 
 
 # main
 if __name__ == "__main__":
-    typer.run(cli)
+    typer.run(app)

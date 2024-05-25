@@ -1,6 +1,10 @@
+# imports
+import os
+
 from PIL import Image
 
 
+# functions
 def resize_image(input_path: str, output_path: str, height: int, width: int) -> None:
     """
     Resize an image.
@@ -8,3 +12,21 @@ def resize_image(input_path: str, output_path: str, height: int, width: int) -> 
     with Image.open(input_path) as img:
         resized_img = img.resize((height, width))
         resized_img.save(output_path)
+
+
+def convert_image(
+    input_path: str,
+    output_path: str = None,
+    output_format: str = "png",
+):
+    """
+    convert an image to a different format
+    """
+    if output_path:
+        output_format = os.path.splitext(output_path)[1][1:]
+    else:
+        base_name = os.path.splitext(input_path)[0]
+        output_path = f"{base_name}.{output_format}"
+
+    with Image.open(input_path) as img:
+        img.save(output_path, format=output_format.upper())

@@ -1,15 +1,10 @@
+# imports
 import subprocess
 
 from dkdc.utils.config import load_config
 
 
-def _open_it(thing: str) -> None:
-    """
-    _open a thing
-    """
-    subprocess.call(["open", thing])
-
-
+# functions
 def open_it(thing: str) -> None:
     """
     open a thing
@@ -21,7 +16,7 @@ def open_it(thing: str) -> None:
     elif thing in config["open"]["things"]:
         thing = config["open"]["things"][thing]
 
-    _open_it(thing)
+    subprocess.call(["open", thing])
 
 
 def list_things() -> None:

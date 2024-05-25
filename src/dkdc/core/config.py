@@ -1,8 +1,10 @@
+# imports
 import subprocess
 
 from dkdc.defaults import CONFIG_PATH, DOTENV_PATH
 
 
+# functions
 def config_it(vim: bool, env: bool) -> None:
     """
     open a config file
