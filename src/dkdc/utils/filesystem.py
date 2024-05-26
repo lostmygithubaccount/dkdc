@@ -63,3 +63,8 @@ def files_to_markdown(files: dict[str, str]) -> str:
 
 def create_temp_dir() -> str:
     return tempfile.mkdtemp()
+
+
+def write_file(file: str, content: str) -> None:
+    with open(file, "w") as f:
+        f.write(content)

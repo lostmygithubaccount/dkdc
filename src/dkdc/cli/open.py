@@ -1,6 +1,7 @@
 # imports
 import subprocess
 
+from dkdc.cli.console import print
 from dkdc.utils.config import load_config
 
 
@@ -16,6 +17,7 @@ def open_it(thing: str) -> None:
     elif thing in config["open"]["things"]:
         thing = config["open"]["things"][thing]
 
+    print(f"opening {thing}...")
     subprocess.call(["open", thing])
 
 
@@ -25,10 +27,27 @@ def list_things() -> None:
     """
     config = load_config()
 
-    print("aliases:")
-    for alias, thing in config["open"]["aliases"].items():
-        print(f"  - {alias}: {thing}")
+    aliases = []
+    things = []
 
-    print("things:")
+    for alias, thing in config["open"]["aliases"].items():
+        aliases.append((alias, thing))
+
     for thing in config["open"]["things"]:
-        print(f"  - {thing}: {config['open']['things'][thing]}")
+        things.append((thing, config["open"]["things"][thing]))
+
+    aliases.sort(key=lambda x: (len(x[0]), x[0]))
+    things.sort(key=lambda x: (len(x[0]), x[0]))
+
+    alias_max = max([len(alias) for alias, _ in aliases])
+    thing_max = max([len(thing) for thing, _ in things])
+
+    to_print = "aliases:\n"
+    for alias, thing in aliases:
+        to_print += f"  - {alias.ljust(alias_max)} | {thing}\n"
+
+    to_print += "\n\nthings:\n"
+    for thing, path in things:
+        to_print += f"  - {thing.ljust(thing_max)} | {path}\n"
+
+    print(to_print)

@@ -8,8 +8,9 @@ import tiktoken
 from enum import Enum
 from pydantic import BaseModel, Field
 
+from dkdc.ai.systems import DKDC_AI, DKDC_CLASSIFY, DKDC_CAST
 from dkdc.utils import filesystem as fs
-from dkdc.defaults import OPENAI_MODEL, SYSTEM
+from dkdc.defaults import OPENAI_MODEL
 from dkdc.utils.vars import load_vars
 
 
@@ -77,7 +78,7 @@ class ChatCompletionResponse(BaseModel):
 class Client:
     def __init__(self):
         load_vars()
-        sys_msg = Message(role=MessageRole.SYSTEM, content=SYSTEM)
+        sys_msg = Message(role=MessageRole.SYSTEM, content=DKDC_AI)
 
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.messages = [sys_msg]
@@ -112,7 +113,7 @@ class Client:
 
     def reset(self) -> None:
         self.context = {}
-        sys_msg = Message(role=MessageRole.SYSTEM, content=SYSTEM)
+        sys_msg = Message(role=MessageRole.SYSTEM, content=DKDC_AI)
         self.messages = [sys_msg]
 
     def classify(
@@ -137,11 +138,7 @@ class Client:
         if verbose:
             print(f"Text: {text}")
 
-        system = """you are an expert classifier and will respond with a single
-        token corresponding to the correct option
-
-        options: 
-        """
+        system = DKDC_CLASSIFY
 
         for i, label in enumerate(labels):
             system += f"{i}: {label}\n"
@@ -183,9 +180,12 @@ class Client:
         self,
         text: str,
         model_class: BaseModel,
+        additional_instructions: str = None,
     ):
-        system = """you are an expert at casting text into a pydantic model
-        """
+        system = DKDC_CAST
+        if additional_instructions:
+            system += f"### additional instructions\n\n{additional_instructions}"
+
         sys_msg = Message(role=MessageRole.SYSTEM, content=system)
         cls_msg = Message(role=MessageRole.USER, content=text)
 

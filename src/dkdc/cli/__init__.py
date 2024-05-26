@@ -32,11 +32,11 @@ app.add_typer(image_app, name="i", hidden=True)
 # commands
 @app.command()
 @app.command("ml", hidden=True)
-def ai(text: str = typer.Argument(None, help="text to chat")):
+def ai():
     """
     chat with ai
     """
-    run_ai(text)
+    run_ai()
 
 
 @app.command()
