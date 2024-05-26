@@ -2,11 +2,12 @@
 import typer
 
 ## local imports
-from dkdc.core.ai.openai import Client
 from dkdc.core.open import open_it, list_things
 from dkdc.core.image import resize_image, convert_image
 from dkdc.core.config import config_it
 from dkdc.core.tokenize import tokenize_it
+
+from dkdc.commands.ai import run_ai
 
 # typer config
 ## default kwargs
@@ -32,32 +33,11 @@ app.add_typer(image_app, name="i", hidden=True)
 # commands
 @app.command()
 @app.command("ml", hidden=True)
-def ai(
-    text: str = typer.Argument(None, help="text to chat"),
-    interactive: bool = typer.Option(False, "--interactive", "-i", help="interactive"),
-):
+def ai(text: str = typer.Argument(None, help="text to chat")):
     """
     chat with ai
     """
-    client = Client()
-    if interactive:
-        # TODO: conversation history
-        if text is None:
-            text = typer.prompt("user")
-        while text not in ["exit", "e", "quit", "q"]:
-            response = client(text)
-            print("ai: ", end="")
-            print(response.choices[0].message.content)
-            text = typer.prompt("user")
-
-    else:
-        if text is None:
-            text = typer.prompt("user")
-        if text in ["exit", "e", "quit", "q"]:
-            return
-        response = client(text)
-        print("ai: ", end="")
-        print(response.choices[0].message.content)
+    run_ai(text)
 
 
 @app.command()

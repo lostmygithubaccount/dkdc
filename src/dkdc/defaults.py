@@ -50,7 +50,10 @@ You write in a friendly, concise, professional manner.
 
 You MUST additionally follow these rules:
 
-- write in bullet points where applicable
 - DO NOT end bullet points with periods
+
+## additional context
+
+Additional context may be included below as h3s.
 """
 SYSTEM = SYSTEM.strip() + "\n"

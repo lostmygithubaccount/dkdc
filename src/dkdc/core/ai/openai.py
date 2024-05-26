@@ -4,9 +4,11 @@ import json
 import openai
 import tiktoken
 
+
 from enum import Enum
 from pydantic import BaseModel, Field
 
+from dkdc.utils import filesystem as fs
 from dkdc.defaults import OPENAI_MODEL, SYSTEM
 from dkdc.utils.vars import load_vars
 
@@ -79,6 +81,7 @@ class Client:
 
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.messages = [sys_msg]
+        self.context = {}
 
     def __call__(self, text: str) -> ChatCompletionResponse:
         usr_msg = Message(role=MessageRole.USER, content=text)
@@ -102,6 +105,15 @@ class Client:
         )
 
         return response
+
+    def add_context(self, files: dict[str, str]) -> None:
+        self.context = self.context | files
+        self.messages[0].content += f"\n{fs.files_to_markdown(files)}"
+
+    def reset(self) -> None:
+        self.context = {}
+        sys_msg = Message(role=MessageRole.SYSTEM, content=SYSTEM)
+        self.messages = [sys_msg]
 
     def classify(
         self,
