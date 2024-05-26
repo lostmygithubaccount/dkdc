@@ -15,7 +15,7 @@ def list_files(
     return [
         f
         for f in glob.glob(
-            os.path.join(directory, pattern),
+            os.path.join(directory, os.path.expanduser(pattern)),
             recursive=recursive,
             include_hidden=include_hidden,
         )

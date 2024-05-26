@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from dkdc.utils import filesystem as fs
-from dkdc.core.ai.openai import Client
+from dkdc.ai.openai import Client
 
 
 # functions

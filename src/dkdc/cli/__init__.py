@@ -2,12 +2,11 @@
 import typer
 
 ## local imports
-from dkdc.core.open import open_it, list_things
-from dkdc.core.image import resize_image, convert_image
-from dkdc.core.config import config_it
-from dkdc.core.tokenize import tokenize_it
-
-from dkdc.commands.ai import run_ai
+from dkdc.cli.ai import run_ai
+from dkdc.cli.open import open_it, list_things
+from dkdc.cli.image import resize_image, convert_image
+from dkdc.cli.config import config_it
+from dkdc.cli.tokenize import tokenize_it
 
 # typer config
 ## default kwargs
@@ -72,9 +71,7 @@ def tokenize(text: str = typer.Argument(..., help="text to tokenize")):
     """
     tokenize text
     """
-    tokens = tokenize_it(text)
-    print(text, end=" -> ")
-    print(tokens)
+    tokenize_it(text)
 
 
 ## image commands
