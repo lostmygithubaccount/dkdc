@@ -48,4 +48,3 @@ smoke-test:
 # clean
 clean:
     @rm -r dist || True
-    
