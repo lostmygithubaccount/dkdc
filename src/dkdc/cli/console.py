@@ -16,7 +16,7 @@ style_map = {
 
 # functions
 def print(
-    text: str, as_markdown: bool = True, with_panel: bool = True, header: str = "dkdc"
+    text: str, as_markdown: bool = True, as_panel: bool = True, header: str = "dkdc"
 ) -> None:
     """
     print text
@@ -24,7 +24,7 @@ def print(
     if as_markdown:
         text = Markdown(text)
 
-    if with_panel:
+    if as_panel:
         text = Panel(text, title=header, border_style=style_map[header])
 
     console.print(text)
