@@ -18,11 +18,12 @@ dependencies = [
   'cairosvg',
   'html2text',
   'httpx',
-  'ibis-framework[duckdb]',
+  'ibis-framework[duckdb,sqlite]',
   'openai',
   'Pillow',
   'python-dotenv',
   'rich',
+  'blobfile',
   'tiktoken',
   'typer[all]',
 ]

@@ -9,9 +9,12 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from dkdc.ai.systems import DKDC_AI, DKDC_CLASSIFY, DKDC_CAST
+from dkdc.ai.tokenize import str_to_tokens, get_tokenizer
 from dkdc.utils import filesystem as fs
 from dkdc.defaults import OPENAI_MODEL
 from dkdc.utils.vars import load_vars
+
+OPENAI_MODEL = "llama3.1:70b"
 
 
 class MessageRole(str, Enum):
@@ -80,7 +83,10 @@ class Client:
         load_vars()
         sys_msg = Message(role=MessageRole.SYSTEM, content=DKDC_AI)
 
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # self.client = openai.OpenAI(base_url="")  # api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = openai.OpenAI(
+            base_url="http://localhost:11434/v1", api_key="ollama"
+        )
         self.messages = [sys_msg]
         self.context = {}
 
@@ -124,7 +130,7 @@ class Client:
         verbose: bool = False,
         n: int = 1,
     ) -> str:
-        enc = tiktoken.encoding_for_model(OPENAI_MODEL)
+        enc = get_tokenizer()
 
         if allow_none:
             labels.append("None of the above")
