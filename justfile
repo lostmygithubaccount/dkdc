@@ -10,10 +10,6 @@ alias fmt:=format
 default:
     just --list
 
-# setup
-setup:
-    @uv pip install -r dev-requirements.txt
-
 # build
 build:
     just clean
@@ -48,3 +44,11 @@ smoke-test:
 # clean
 clean:
     @rm -r dist || True
+# justfile
+
+# setup
+setup:
+    @uv venv
+    @. .venv/bin/activate
+    @uv pip install --upgrade --resolution=highest -r dev-requirements.txt
+
