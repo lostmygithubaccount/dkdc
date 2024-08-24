@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dkdc"
-version = "0.9.0"
+version = "0.10.0"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 description = "dkdc"
 readme = "readme.md"
@@ -19,6 +19,7 @@ dependencies = [
   'httpx',
   'ibis-framework[duckdb,sqlite]',
   'openai',
+  'ollama',
   'Pillow',
   'python-dotenv',
   'rich',
