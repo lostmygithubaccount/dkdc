@@ -45,8 +45,8 @@ func OpenThings(things []string) {
 	for _, thing := range things {
 		thing, err := aliasOrThingToUri(thing)
 		if err != nil {
-			logger.Fatalf("failed to resolve %s: %v", thing, err)
-			os.Exit(1)
+			logger.Printf("skipping %s: %v", thing, err)
+			continue
 		}
 		openIt(thing)
 	}
