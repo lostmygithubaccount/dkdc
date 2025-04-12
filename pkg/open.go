@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-
-	"github.com/spf13/viper"
 )
 
 func aliasOrThingToUri(thing string) (string, error) {
-	config := viper.AllSettings()
+	config := GetConfig()
 
 	if aliases, ok := config["aliases"].(map[string]any); ok {
 		if alias, exists := aliases[thing]; exists {

@@ -78,8 +78,13 @@ func ConfigIt() {
 	}
 }
 
-func PrintConfig() {
+func GetConfig() map[string]any {
 	config := viper.AllSettings()
+	return config
+}
+
+func PrintConfig() {
+	config := GetConfig()
 
 	sections := []string{"aliases", "things"}
 
