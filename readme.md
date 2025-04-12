@@ -5,7 +5,7 @@
 ## installation
 
 ```bash
-go install dkdc
+go install github.com/lostmygithubaccount/dkdc
 ```
 
 ## usage
