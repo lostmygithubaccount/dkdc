@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
+	"sync"
 )
 
 func aliasOrThingToUri(thing string) (string, error) {
@@ -39,13 +41,44 @@ func openIt(thing string) {
 	fmt.Printf("opening %s...\n", thing)
 }
 
-func OpenThings(things []string) {
-	for _, thing := range things {
-		thing, err := aliasOrThingToUri(thing)
-		if err != nil {
-			logger.Printf("skipping %s: %v", thing, err)
-			continue
+func OpenThings(things []string, fast bool) {
+	if fast {
+		maxWorkers := runtime.NumCPU()
+
+		jobs := make(chan string, len(things))
+
+		var wg sync.WaitGroup
+
+		for range maxWorkers {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for thing := range jobs {
+					uri, err := aliasOrThingToUri(thing)
+					if err != nil {
+						logger.Printf("skipping %s: %v", thing, err)
+						continue
+					}
+					openIt(uri)
+				}
+			}()
 		}
-		openIt(thing)
+
+		for _, thing := range things {
+			jobs <- thing
+		}
+
+		close(jobs)
+
+		wg.Wait()
+	} else {
+		for _, thing := range things {
+			uri, err := aliasOrThingToUri(thing)
+			if err != nil {
+				logger.Printf("skipping %s: %v", thing, err)
+				continue
+			}
+			openIt(uri)
+		}
 	}
 }

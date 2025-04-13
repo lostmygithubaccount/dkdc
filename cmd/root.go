@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var fastFlag bool
+
 var rootCmd = &cobra.Command{
 	Use:   "dkdc",
 	Short: "bookmarks in your terminal",
@@ -20,7 +22,7 @@ func runRootCmd(things []string) {
 	if len(things) == 0 {
 		pkg.PrintConfig()
 	} else {
-		pkg.OpenThings(things)
+		pkg.OpenThings(things, fastFlag)
 	}
 }
 
@@ -28,6 +30,7 @@ func init() {
 	cobra.OnInitialize(pkg.InitConfig)
 
 	rootCmd.PersistentFlags().BoolP("config", "c", false, "configure dkdc")
+	rootCmd.Flags().BoolVarP(&fastFlag, "fast", "f", false, "open things in parallel")
 
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		configFlag, _ := cmd.Flags().GetBool("config")
