@@ -27,7 +27,16 @@ func aliasOrThingToUri(thing string) (string, error) {
 }
 
 func openIt(thing string) {
-	openCmd := "open"
+	var openCmd string
+	switch runtime.GOOS {
+	case "darwin":
+		openCmd = "open"
+	case "linux":
+		openCmd = "xdg-open"
+	default:
+		logger.Fatalf("unsupported OS: %s", runtime.GOOS)
+	}
+
 	_, err := exec.LookPath(openCmd)
 	if err != nil {
 		logger.Fatalf("command %s not found in PATH", openCmd)
@@ -41,44 +50,34 @@ func openIt(thing string) {
 	fmt.Printf("opening %s...\n", thing)
 }
 
-func OpenThings(things []string, fast bool) {
-	if fast {
-		maxWorkers := runtime.NumCPU()
+func OpenThings(things []string, maxWorkers int) {
+	var wg sync.WaitGroup
+	jobs := make(chan string, len(things))
+	numCPU := runtime.NumCPU()
 
-		jobs := make(chan string, len(things))
-
-		var wg sync.WaitGroup
-
-		for range maxWorkers {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				for thing := range jobs {
-					uri, err := aliasOrThingToUri(thing)
-					if err != nil {
-						logger.Printf("skipping %s: %v", thing, err)
-						continue
-					}
-					openIt(uri)
-				}
-			}()
-		}
-
-		for _, thing := range things {
-			jobs <- thing
-		}
-
-		close(jobs)
-
-		wg.Wait()
-	} else {
-		for _, thing := range things {
-			uri, err := aliasOrThingToUri(thing)
-			if err != nil {
-				logger.Printf("skipping %s: %v", thing, err)
-				continue
-			}
-			openIt(uri)
-		}
+	for _, thing := range things {
+		jobs <- thing
 	}
+	close(jobs)
+
+	if maxWorkers <= 0 || maxWorkers > numCPU {
+		maxWorkers = numCPU
+	}
+
+	for range maxWorkers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for thing := range jobs {
+				uri, err := aliasOrThingToUri(thing)
+				if err != nil {
+					logger.Printf("skipping %s: %v", thing, err)
+					continue
+				}
+				openIt(uri)
+			}
+		}()
+	}
+
+	wg.Wait()
 }

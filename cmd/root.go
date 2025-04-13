@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var fastFlag bool
+var maxWorkersFlag int
 
 var rootCmd = &cobra.Command{
 	Use:   "dkdc",
@@ -22,7 +22,7 @@ func runRootCmd(things []string) {
 	if len(things) == 0 {
 		pkg.PrintConfig()
 	} else {
-		pkg.OpenThings(things, fastFlag)
+		pkg.OpenThings(things, maxWorkersFlag)
 	}
 }
 
@@ -30,7 +30,7 @@ func init() {
 	cobra.OnInitialize(pkg.InitConfig)
 
 	rootCmd.PersistentFlags().BoolP("config", "c", false, "configure dkdc")
-	rootCmd.Flags().BoolVarP(&fastFlag, "fast", "f", false, "open things in parallel")
+	rootCmd.Flags().IntVarP(&maxWorkersFlag, "max-workers", "m", 1, "maximum number of workers for parallel processing (0 = use all CPUs)")
 
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		configFlag, _ := cmd.Flags().GetBool("config")

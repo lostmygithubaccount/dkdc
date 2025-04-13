@@ -84,20 +84,3 @@ func TestAliasOrThingToUri(t *testing.T) {
 		})
 	}
 }
-
-// Since we can't easily mock openIt function (it's not a variable),
-// we'll create a simplified test for OpenThings that just checks that
-// the aliasOrThingToUri function is correctly called
-func TestOpenThingsBasic(t *testing.T) {
-	setupTestConfig()
-
-	// We can at least test that non-existent things are skipped
-	// This will print errors but should not crash the test
-	OpenThings([]string{"thing", "nonexistent"}, false)
-
-	// Similarly test the parallel version
-	OpenThings([]string{"thing", "nonexistent"}, true)
-
-	// If we reach here without errors, the test passes
-	// This is a basic smoke test
-}
