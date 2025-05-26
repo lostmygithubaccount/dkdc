@@ -15,4 +15,5 @@ services:
     build: .
     ports:
       - "3007:3007"
-    command: uv run panel serve apps/app1.py --port 3007 --allow-websocket-origin=*
+    working_dir: /app/apps
+    command: uv run panel serve app1.py --port 3007 --allow-websocket-origin=*
