@@ -1,0 +1,15 @@
+[project]
+name = "dkdc-sh"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+dkdc-sh = "dkdc_sh:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

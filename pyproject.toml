@@ -1,0 +1,25 @@
+[project]
+name = "dkdc"
+version = "0.30.0"
+description = "don't know, don't care"
+readme = "README.md"
+authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
+requires-python = ">=3.12"
+dependencies = ["panel>=1.7.0", "watchfiles>=1.0.5"]
+
+[project.scripts]
+dkdc = "dkdc:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.workspace]
+members = ["packages/dkdc-rs", "packages/dkdc-sh", "packages/dkdc-config"]
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple/"
+
+[[tool.uv.index]]
+url = "https://us-python.pkg.dev/ascend-io-ops-artifacts/private-pypi/simple/"
+default = true
