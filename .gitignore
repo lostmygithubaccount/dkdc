@@ -7,3 +7,7 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+# Environment files
+.env
+.devcontainer/.env
