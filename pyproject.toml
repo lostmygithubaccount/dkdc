@@ -17,9 +17,9 @@ build-backend = "hatchling.build"
 [tool.uv.workspace]
 members = ["packages/dkdc-rs", "packages/dkdc-sh", "packages/dkdc-config"]
 
-[[tool.uv.index]]
-url = "https://pypi.org/simple/"
+# [[tool.uv.index]]
+# url = "https://pypi.org/simple/"
+# default = true
 
-[[tool.uv.index]]
-url = "https://us-python.pkg.dev/ascend-io-ops-artifacts/private-pypi/simple/"
-default = true
+#[[tool.uv.index]]
+#url = "https://us-python.pkg.dev/ascend-io-ops-artifacts/private-pypi/simple/"

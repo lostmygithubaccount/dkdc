@@ -30,12 +30,12 @@ RUN apt-get update && apt-get install -y \
 # Create dev user with sudo privileges
 RUN groupadd -g 1000 dev && \
     useradd -m -s /bin/zsh -u 1000 -g 1000 -G sudo dev && \
-    echo 'dev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-    chown -R dev:dev /home/dev
+    echo 'dev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Install development tools
 RUN apt-get update && apt-get install -y \
     tree \
+    tmux \
     ripgrep \
     btop \
     zsh \
@@ -81,32 +81,17 @@ RUN /bin/bash -c 'eval "$(/usr/local/bin/fnm env --shell bash)" && \
     npm install -g @anthropic-ai/claude-code@latest && \
     npm install -g @openai/codex@latest'
 
-# Apply surgical patch to fix Claude Code ANTHROPIC_API_KEY bug (line 1965)
-# This removes the &&!1 pattern that prevents environment variables from working
-RUN /bin/bash -c 'eval "$(/usr/local/bin/fnm env --shell bash)" && \
-    CLAUDE_CLI_PATH=$(which claude) && \
-    if [ -f "$CLAUDE_CLI_PATH" ]; then \
-        echo "Patching Claude Code at: $CLAUDE_CLI_PATH" && \
-        sed -i "s/&&!1//g" "$CLAUDE_CLI_PATH" && \
-        if grep -q "process\.env\.ANTHROPIC_API_KEY.*OyA" "$CLAUDE_CLI_PATH" && ! grep -q "&&!1" "$CLAUDE_CLI_PATH"; then \
-            echo "✓ Claude Code ANTHROPIC_API_KEY patch applied successfully"; \
-        else \
-            echo "✗ Claude Code patch verification failed" && exit 1; \
-        fi; \
-    else \
-        echo "✗ Claude CLI not found for patching" && exit 1; \
-    fi'
-
 # Python environment - install with cache mount for dev user
-RUN --mount=type=cache,target=/home/dev/.cache/uv,uid=1000,gid=1000 \
-    uv python install 3.13 \
+# --mount=type=cache,target=/home/dev/.cache/uv,uid=1000,gid=1000 \
+RUN uv python install 3.14 \
+    && uv python install 3.13 \
     && uv python install 3.12 \
     && uv python install 3.11 \
     && uv python pin --global 3.13
 
 # Python development tools - install with cache mount for dev user
-RUN --mount=type=cache,target=/home/dev/.cache/uv,uid=1000,gid=1000 \
-    uv tool install ruff \
+# --mount=type=cache,target=/home/dev/.cache/uv,uid=1000,gid=1000 \
+RUN uv tool install ruff \
     && uv tool install pytest \
     && uv tool install ranger-fm \
     && uv tool install pre-commit \
@@ -114,6 +99,10 @@ RUN --mount=type=cache,target=/home/dev/.cache/uv,uid=1000,gid=1000 \
 
 # Prevent future Python downloads and make tools available
 ENV UV_PYTHON_DOWNLOADS=never
+
+# Set ownership of the home directory to dev user
+RUN sudo chown -R dev:dev /home/dev
+RUN sudo chown -R dev:dev /home/dev/.cache
 
 # Create a workspace directory and set proper ownership
 RUN sudo mkdir -p /workspace && sudo chown dev:dev /workspace

@@ -5,7 +5,7 @@
   },
   "remoteUser": "dev",
   "mounts": [
-    "source=${localWorkspaceFolder}/.devcontainer/.env,target=/home/dev/.env,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/.env,target=/home/dev/.env,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.zprofile,target=/home/dev/.zshrc,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.bash_aliases,target=/home/dev/.bash_aliases,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.tmux.conf,target=/home/dev/.tmux.conf,type=bind,consistency=cached",
@@ -17,10 +17,6 @@
     "source=${localEnv:HOME}/code/ascend-io,target=/workspaces,type=bind,consistency=cached",
     "source=dev-uv-cache,target=/home/dev/.cache/uv,type=volume"
   ],
-  "containerEnv": {
-    "CLAUDE_CODE_ENTRYPOINT": "cli",
-    "CLAUDECODE": "1"
-  },
   "customizations": {
     "codespaces": {
       "repositories": {
