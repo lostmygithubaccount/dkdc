@@ -83,21 +83,20 @@ function install_dependencies() {
     }
     
     # Install Docker from official repository
-    if ! command -v docker &> /dev/null; then
-        log "Installing Docker from official repository..."
-        
-        # Add Docker's official GPG key
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-        
-        # Add Docker repository
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-        
-        # Update package list and install Docker
-        apt update
-        DEBIAN_FRONTEND=noninteractive apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    else
-        log "Docker already installed"
-    fi
+    log "Setting up Docker from official repository..."
+    
+    # Remove old Docker packages if they exist
+    apt remove -y docker docker-engine docker.io containerd runc || true
+    
+    # Add Docker's official GPG key
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    
+    # Add Docker repository
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    
+    # Update package list and install Docker
+    apt update
+    DEBIAN_FRONTEND=noninteractive apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     
     # Install Docker Compose v2 if not available (fallback)
     if ! command -v docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
