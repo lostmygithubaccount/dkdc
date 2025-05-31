@@ -48,6 +48,10 @@ def main(
         else:
             sql_cmd = "INSTALL ducklake; INSTALL sqlite; ATTACH 'ducklake:sqlite:dl.sqlite' AS dl (DATA_PATH 'datalake/sqlite/'); USE dl;"
 
+        # Print available info similar to Python mode
+        console.print(f"📦 Available: dl catalog, ducklake extension")
+        console.print(f"🌍 DKDC_DL_CATALOG={catalog.lower()}")
+        
         subprocess.run(["duckdb", "-cmd", sql_cmd], check=False)
     else:
         # IPython startup code with variable display
