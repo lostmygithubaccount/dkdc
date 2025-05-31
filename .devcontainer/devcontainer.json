@@ -1,50 +1,7 @@
 {
   "name": "dkdc-devcontainer",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "../Dockerfile"
   },
-  "remoteUser": "dev",
-  "mounts": [
-    "source=${localWorkspaceFolder}/.env,target=/home/dev/.env,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.zprofile,target=/home/dev/.zshrc,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.bash_aliases,target=/home/dev/.bash_aliases,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.tmux.conf,target=/home/dev/.tmux.conf,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.config,target=/home/dev/.config,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.ipython,target=/home/dev/.ipython,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.claude.json,target=/home/dev/.claude.json,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.codex,target=/home/dev/.codex,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/code/ascend-io,target=/workspaces,type=bind,consistency=cached",
-    "source=dev-uv-cache,target=/home/dev/.cache/uv,type=volume"
-  ],
-  "customizations": {
-    "codespaces": {
-      "repositories": {
-        "ascend-io/ascend-core": {
-          "permissions": "write-all"
-        },
-        "ascend-io/ascend-backend": {
-          "permissions": "write-all"
-        },
-        "ascend-io/ascend-ui": {
-          "permissions": "write-all"
-        },
-        "ascend-io/ascend-infra": {
-          "permissions": "write-all"
-        },
-        "ascend-io/ascend-community-internal": {
-          "permissions": "write-all"
-        },
-        "ascend-io/ascend-docs": {
-          "permissions": "write-all"
-        },
-        "ascend-io/basecamp": {
-          "permissions": "write-all"
-        },
-        "ascend-io/product": {
-          "permissions": "write-all"
-        }
-      }
-    }
-  }
+  "remoteUser": "dev"
 }

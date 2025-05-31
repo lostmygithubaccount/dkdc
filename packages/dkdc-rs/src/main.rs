@@ -1,0 +1,50 @@
+use anyhow::Result;
+use clap::Parser;
+use std::sync::Arc;
+
+use dkdc_rs::config::{config_it, init_config, load_config, print_config};
+use dkdc_rs::open::open_things;
+
+#[derive(Parser, Debug)]
+#[command(name = "dkdc")]
+#[command(about = "bookmarks in your terminal")]
+#[command(version)]
+struct Args {
+    /// Configure dkdc
+    #[arg(short, long)]
+    config: bool,
+
+    /// Maximum number of workers for parallel processing (0 = use all CPUs)
+    #[arg(short, long, default_value = "1")]
+    max_workers: usize,
+
+    /// Things to open
+    things: Vec<String>,
+}
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let args = Args::parse();
+
+    // Initialize config (creates default if doesn't exist)
+    init_config()?;
+
+    // Handle --config flag
+    if args.config {
+        config_it()?;
+        return Ok(());
+    }
+
+    // Load config
+    let config = Arc::new(load_config()?);
+
+    // If no arguments, print config
+    if args.things.is_empty() {
+        print_config(&config)?;
+    } else {
+        // Open the things
+        open_things(args.things, args.max_workers, config).await?;
+    }
+
+    Ok(())
+}

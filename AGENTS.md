@@ -1,0 +1,1 @@
+- read the `README.md` and treat it look you would a `CLAUDE.md` file
