@@ -42,6 +42,18 @@ services:
       - uv-cache:/home/dev/.cache/uv
       - npm-cache:/home/dev/.cache/npm
 
+  dkdc-dl-catalog:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ducklake
+      POSTGRES_USER: dkdc
+      POSTGRES_PASSWORD: dkdc
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
 volumes:
   uv-cache:
   npm-cache:

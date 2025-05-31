@@ -5,7 +5,12 @@ description = "don't know, don't care"
 readme = "README.md"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 requires-python = ">=3.12"
-dependencies = ["panel>=1.7.0", "watchfiles>=1.0.5", "dkdc-dl"]
+dependencies = [
+    "dkdc-config",
+    "dkdc-dl", 
+    "dkdc-fe",
+    "dkdc-sh",
+]
 
 [project.scripts]
 dkdc = "dkdc:main"
@@ -15,7 +20,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
+dkdc-config = { workspace = true }
 dkdc-dl = { workspace = true }
+dkdc-fe = { workspace = true }
+dkdc-sh = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]

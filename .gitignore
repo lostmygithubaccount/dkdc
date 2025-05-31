@@ -21,3 +21,4 @@ docker-compose.override.yaml
 *.delta
 *.sqlite
 datalake/
+pgdata/

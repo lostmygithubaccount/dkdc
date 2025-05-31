@@ -11,6 +11,7 @@ members = [
     "dkdc",
     "dkdc-config",
     "dkdc-dl",
+    "dkdc-fe",
     "dkdc-rs",
     "dkdc-sh",
 ]
@@ -341,16 +342,18 @@ name = "dkdc"
 version = "0.30.0"
 source = { editable = "." }
 dependencies = [
+    { name = "dkdc-config" },
     { name = "dkdc-dl" },
-    { name = "panel" },
-    { name = "watchfiles" },
+    { name = "dkdc-fe" },
+    { name = "dkdc-sh" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "dkdc-config", editable = "packages/dkdc-config" },
     { name = "dkdc-dl", editable = "packages/dkdc-dl" },
-    { name = "panel", specifier = ">=1.7.0" },
-    { name = "watchfiles", specifier = ">=1.0.5" },
+    { name = "dkdc-fe", editable = "packages/dkdc-fe" },
+    { name = "dkdc-sh", editable = "packages/dkdc-sh" },
 ]
 
 [[package]]
@@ -371,6 +374,21 @@ dependencies = [
 requires-dist = [
     { name = "gcsfs", specifier = ">=2025.5.1" },
     { name = "ibis-framework", extras = ["deltalake", "duckdb", "examples"], specifier = ">=10.5.0" },
+]
+
+[[package]]
+name = "dkdc-fe"
+version = "0.1.0"
+source = { editable = "packages/dkdc-fe" }
+dependencies = [
+    { name = "panel" },
+    { name = "watchfiles" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "panel", specifier = ">=1.7.0" },
+    { name = "watchfiles", specifier = ">=1.0.5" },
 ]
 
 [[package]]
