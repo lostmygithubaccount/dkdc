@@ -6,7 +6,7 @@ use dkdc_rs::config::{config_it, init_config, load_config, print_config};
 use dkdc_rs::open::open_things;
 
 #[derive(Parser, Debug)]
-#[command(name = "dkdc")]
+#[command(name = "dkdc-rs")]
 #[command(about = "bookmarks in your terminal")]
 #[command(version)]
 struct Args {

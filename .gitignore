@@ -11,3 +11,6 @@ devenv.local.nix
 # Environment files
 .env
 .devcontainer/.env
+
+# Docker cache directories
+docker-compose.override.yaml

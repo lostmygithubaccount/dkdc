@@ -1,3 +1,4 @@
+# Base image
 FROM ghcr.io/astral-sh/uv:debian-slim
 
 # Install system dependencies and development tools
@@ -37,8 +38,25 @@ RUN groupadd -g 1000 dev && \
 # Install fnm (Fast Node Manager)
 RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /usr/local/bin
 
-# Copy project files as root (for docker-compose services)
+# Install Zola (static site generator)
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then ZOLA_ARCH="x86_64-unknown-linux-gnu"; \
+    elif [ "$ARCH" = "arm64" ]; then ZOLA_ARCH="aarch64-unknown-linux-gnu"; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    wget https://github.com/getzola/zola/releases/download/v0.20.0/zola-v0.20.0-${ZOLA_ARCH}.tar.gz && \
+    tar xzf zola-v0.20.0-${ZOLA_ARCH}.tar.gz && \
+    mv zola /usr/local/bin/zola && \
+    chmod +x /usr/local/bin/zola && \
+    rm zola-v0.20.0-${ZOLA_ARCH}.tar.gz
+
+# Create app directory
 WORKDIR /app
+
+# Copy only dependency files first (for better caching)
+COPY pyproject.toml uv.lock* /app/
+COPY package*.json /app/
+
+# Copy the rest of the project files
 COPY . /app
 
 # Switch to dev user for remaining setup
@@ -47,7 +65,11 @@ WORKDIR /home/dev
 
 # Set up fnm environment
 ENV FNM_DIR="/home/dev/.fnm"
-ENV PATH="/usr/local/bin:$PATH"
+ENV PATH="/home/dev/.local/bin:/home/dev/.fnm/aliases/default/bin:/usr/local/bin:$PATH"
+
+# Set cache directories for better volume mounting
+ENV UV_CACHE_DIR="/home/dev/.cache/uv"
+ENV npm_config_cache="/home/dev/.cache/npm"
 
 # Install Node.js 22 and set as default
 RUN /bin/bash -c 'eval "$(/usr/local/bin/fnm env --shell bash)" && \
@@ -64,6 +86,12 @@ RUN /bin/bash -c 'eval "$(/usr/local/bin/fnm env --shell bash)" && \
     npm install -g pyright && \
     npm install -g sql-language-server'
 
+# Python environment - install with cache mount for dev user
+RUN uv python install 3.13 \
+    && uv python install 3.12 \
+    && uv python install 3.11 \
+    && uv python pin --global 3.13
+
 # Install Python development tools
 RUN uv tool install ruff && \
     uv tool install pytest && \
@@ -75,10 +103,13 @@ RUN uv tool install ruff && \
 RUN curl https://install.duckdb.org | sh
 
 # Set ownership
-RUN sudo chown -R dev:dev /home/dev
+RUN sudo chown -R dev:dev /home/dev /app
 
 # Create workspace
 RUN sudo mkdir -p /workspace && sudo chown dev:dev /workspace
+
+# Prevent future Python downloads and make tools available
+ENV UV_PYTHON_DOWNLOADS=never
 
 # For devcontainer
 WORKDIR /workspace

@@ -8,7 +8,7 @@ repository = "https://github.com/lostmygithubaccount/dkdc"
 license = "MIT"
 
 [[bin]]
-name = "dkdc"
+name = "dkdc-rs"
 path = "src/main.rs"
 
 [dependencies]

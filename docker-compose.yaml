@@ -1,22 +1,47 @@
 services:
   dkdc-dev:
     build: .
-    user: root
+    user: dev
     ports:
       - "1313:1313"
     working_dir: /app/websites/dkdc.dev
     command: zola serve --interface 0.0.0.0 --port 1313
+    environment:
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - npm_config_cache=/home/dev/.cache/npm
+    volumes:
+      - .:/app
+      - uv-cache:/home/dev/.cache/uv
+      - npm-cache:/home/dev/.cache/npm
   dkdc-io:
     build: .
-    user: root
+    user: dev
     ports:
       - "1314:1314"
     working_dir: /app/websites/dkdc.io
     command: zola serve --interface 0.0.0.0 --port 1314
+    environment:
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - npm_config_cache=/home/dev/.cache/npm
+    volumes:
+      - .:/app
+      - uv-cache:/home/dev/.cache/uv
+      - npm-cache:/home/dev/.cache/npm
   app1:
     build: .
-    user: root
+    user: dev
     ports:
       - "3007:3007"
     working_dir: /app/apps
     command: uv run panel serve app1.py --port 3007 --allow-websocket-origin=*
+    environment:
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - npm_config_cache=/home/dev/.cache/npm
+    volumes:
+      - .:/app
+      - uv-cache:/home/dev/.cache/uv
+      - npm-cache:/home/dev/.cache/npm
+
+volumes:
+  uv-cache:
+  npm-cache:
