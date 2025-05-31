@@ -1,5 +1,6 @@
 # The URL the site will be built for
 base_url = "https://dkdc.dev"
+title = "dkdc.dev"
 # Theme
 theme = "terminimal"
 
@@ -8,6 +9,9 @@ compile_sass = true
 
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
+
+# Generate clean URLs without .html extensions
+slugify.paths = "safe"
 
 [markdown]
 # Whether to do syntax highlighting
@@ -24,6 +28,16 @@ default_og_image = "static/favicon.png"
 favicon = "/favicon.png"
 favicon_mimetype = "image/png"
 
+# Menu items
+menu_items = [
+    {name = "blog", url = "$BASE_URL/posts"},
+    {name = "about", url = "$BASE_URL/about"},
+    {name = "dogs", url = "$BASE_URL/dogs"}, 
+    {name = "cats", url = "$BASE_URL/cats"},
+]
+
+# Custom minimal footer
+copyright_html = '<a href="/">dkdc.dev</a>'
 
 # One of: blue, green, orange, pink, red.
 # Defaults to blue.

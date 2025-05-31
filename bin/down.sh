@@ -9,4 +9,4 @@ function run_command() {
     eval "$command"
 }
 
-run_command "docker compose down"
+run_command "docker compose down $*"

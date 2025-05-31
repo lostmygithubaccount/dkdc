@@ -1,0 +1,4 @@
+<details>
+  <summary>{{ summary | default(value="Details") }}</summary>
+  {{ body | markdown() | safe }}
+</details>

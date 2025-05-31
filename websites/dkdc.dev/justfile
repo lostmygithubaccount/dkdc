@@ -1,0 +1,39 @@
+# Justfile
+
+# load environment variables
+set dotenv-load
+
+# aliases
+alias publish:=release
+
+# list justfile recipes
+default:
+    just --list
+
+# preview
+preview *args:
+    zola serve {{ args }}
+
+# preview with drafts
+previewd:
+    just preview --drafts
+
+# build
+build:
+    zola build
+
+# release
+release: build
+    gsutil -m rsync -d -r public/ gs://dkdc.dev
+    
+# uncache
+uncache:
+    gcloud compute url-maps invalidate-cdn-cache dkdc-dev-lb --path "/*" --project dkdcwebsite --async
+
+# config
+config:
+    $EDITOR config.toml
+
+# clean
+clean:
+    rm -rf public

@@ -1,5 +1,6 @@
 +++
-title = "Hello"
+title = "dkdc.dev"
+paginate_by = 0
 +++
 
-Cody's website.
+Hi, I'm [Cody](/about)!
