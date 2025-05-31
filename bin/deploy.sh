@@ -5,6 +5,24 @@
 
 set -euo pipefail
 
+# Trap to cleanup on script failure
+trap 'cleanup_on_error $LINENO $BASH_COMMAND' ERR
+
+function cleanup_on_error() {
+    local line_no=$1
+    local command="$2"
+    error "Script failed at line $line_no: $command"
+    
+    # Attempt to stop any running services
+    if [ -d "$DEPLOY_DIR" ] && [ -f "$DEPLOY_DIR/docker-compose.yaml" ]; then
+        warn "Attempting to stop any running services..."
+        cd "$DEPLOY_DIR" && docker compose down || true
+    fi
+    
+    error "Deployment failed. Check logs above for details."
+    exit 1
+}
+
 # Configuration
 REPO_URL="https://github.com/lostmygithubaccount/dkdc.git"
 DEPLOY_USER="dkdc"
@@ -40,29 +58,52 @@ function check_root() {
 function install_dependencies() {
     log "Installing system dependencies..."
     
-    apt update
-    apt install -y \
+    # Update package lists with retry
+    local retry_count=0
+    while ! apt update && [ $retry_count -lt 3 ]; do
+        warn "Package update failed, retrying in 5 seconds..."
+        sleep 5
+        retry_count=$((retry_count + 1))
+    done
+    
+    # Install packages with error checking
+    DEBIAN_FRONTEND=noninteractive apt install -y \
         curl \
         git \
         docker.io \
-        docker-compose \
+        docker-compose-plugin \
         ufw \
         fail2ban \
         htop \
         tree \
-        unzip
+        unzip || {
+        error "Failed to install required packages"
+        exit 1
+    }
     
-    # Install Docker Compose v2 if not available
-    if ! command -v docker compose &> /dev/null; then
+    # Install Docker Compose v2 if not available (fallback)
+    if ! command -v docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
         log "Installing Docker Compose v2..."
         curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
         ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
     fi
     
-    # Start Docker service
-    systemctl enable docker
-    systemctl start docker
+    # Start Docker service with error checking
+    if ! systemctl is-enabled docker &>/dev/null; then
+        systemctl enable docker
+    fi
+    
+    if ! systemctl is-active docker &>/dev/null; then
+        systemctl start docker
+        sleep 5  # Wait for Docker to fully start
+    fi
+    
+    # Verify Docker is working
+    if ! docker info &>/dev/null; then
+        error "Docker installation failed or service not running"
+        exit 1
+    fi
     
     log "Dependencies installed successfully!"
 }
@@ -87,22 +128,32 @@ function setup_user() {
 function configure_firewall() {
     log "Configuring firewall..."
     
-    # Reset UFW to defaults
-    ufw --force reset
+    # Only reset if UFW is not already configured properly
+    if ! ufw status | grep -q "Status: active"; then
+        ufw --force reset
+    fi
     
-    # Default policies
+    # Default policies (idempotent)
     ufw default deny incoming
     ufw default allow outgoing
     
-    # SSH access
-    ufw allow ssh
+    # SSH access (check if already allowed)
+    if ! ufw status | grep -q "22/tcp"; then
+        ufw allow ssh
+    fi
     
-    # HTTP/HTTPS
-    ufw allow 80/tcp
-    ufw allow 443/tcp
+    # HTTP/HTTPS (check if already allowed)
+    if ! ufw status | grep -q "80/tcp"; then
+        ufw allow 80/tcp
+    fi
+    if ! ufw status | grep -q "443/tcp"; then
+        ufw allow 443/tcp
+    fi
     
-    # Enable firewall
-    ufw --force enable
+    # Enable firewall only if not already active
+    if ! ufw status | grep -q "Status: active"; then
+        ufw --force enable
+    fi
     
     log "Firewall configured successfully!"
 }
@@ -110,8 +161,9 @@ function configure_firewall() {
 function configure_fail2ban() {
     log "Configuring fail2ban..."
     
-    # Create jail configuration for nginx
-    cat > /etc/fail2ban/jail.d/nginx.conf << 'EOF'
+    # Create jail configuration for nginx (only if not exists or different)
+    if [ ! -f /etc/fail2ban/jail.d/nginx.conf ] || ! grep -q "nginx-http-auth" /etc/fail2ban/jail.d/nginx.conf; then
+        cat > /etc/fail2ban/jail.d/nginx.conf << 'EOF'
 [nginx-http-auth]
 enabled = true
 port = http,https
@@ -129,9 +181,18 @@ port = http,https
 logpath = /var/log/nginx/access.log
 maxretry = 2
 EOF
+    fi
 
-    systemctl enable fail2ban
-    systemctl restart fail2ban
+    # Enable and start fail2ban if not already running
+    if ! systemctl is-enabled fail2ban &>/dev/null; then
+        systemctl enable fail2ban
+    fi
+    
+    if ! systemctl is-active fail2ban &>/dev/null; then
+        systemctl start fail2ban
+    else
+        systemctl reload fail2ban
+    fi
     
     log "Fail2ban configured successfully!"
 }
@@ -152,17 +213,54 @@ function clone_repository() {
     
     if [ -d "$DEPLOY_DIR/.git" ]; then
         log "Repository already exists, updating..."
+        # Ensure ownership is correct first
+        chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR"
+        
         sudo -u "$DEPLOY_USER" bash << 'EOF'
+set -e
 cd /opt/dkdc
-git pull origin main
+
+# Reset any local changes that might block pull
+git reset --hard HEAD
+git clean -fd
+
+# Pull latest changes with retry
+retry_count=0
+while ! git pull origin main && [ $retry_count -lt 3 ]; do
+    echo "Git pull failed, retrying in 5 seconds..."
+    sleep 5
+    retry_count=$((retry_count + 1))
+done
+
+if [ $retry_count -eq 3 ]; then
+    echo "Error: Failed to pull repository after 3 attempts"
+    exit 1
+fi
 EOF
         log "Repository updated"
     else
         log "Cloning fresh repository..."
-        rm -rf "$DEPLOY_DIR"
         
-        # Clone as root, then fix ownership
-        git clone "$REPO_URL" "$DEPLOY_DIR"
+        # Clean up any existing directory
+        if [ -d "$DEPLOY_DIR" ]; then
+            rm -rf "$DEPLOY_DIR"
+        fi
+        
+        # Clone with retry mechanism
+        local retry_count=0
+        while ! git clone "$REPO_URL" "$DEPLOY_DIR" && [ $retry_count -lt 3 ]; do
+            warn "Git clone failed, retrying in 5 seconds..."
+            rm -rf "$DEPLOY_DIR"
+            sleep 5
+            retry_count=$((retry_count + 1))
+        done
+        
+        if [ $retry_count -eq 3 ]; then
+            error "Failed to clone repository after 3 attempts"
+            exit 1
+        fi
+        
+        # Fix ownership
         chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR"
         log "Repository cloned"
     fi
@@ -172,21 +270,44 @@ function setup_environment() {
     log "Setting up environment..."
     
     sudo -u "$DEPLOY_USER" bash << 'EOF'
+set -e
 cd /opt/dkdc
 
 # Make scripts executable
-chmod +x bin/*.sh
+if [ -d "bin" ]; then
+    chmod +x bin/*.sh
+else
+    echo "Warning: bin directory not found"
+    exit 1
+fi
 
 # Create logs directory
 mkdir -p logs
+
+# Verify critical files exist
+for file in "docker-compose.yaml" "bin/up.sh" "bin/ssl-setup.sh"; do
+    if [ ! -f "$file" ]; then
+        echo "Error: Required file $file not found"
+        exit 1
+    fi
+done
+
+echo "Environment setup completed"
 EOF
 }
 
 function configure_docker_logging() {
     log "Configuring Docker logging..."
     
-    # Configure Docker daemon for log rotation
-    cat > /etc/docker/daemon.json << 'EOF'
+    # Only configure if not already set or different
+    if [ ! -f /etc/docker/daemon.json ] || ! grep -q "log-driver" /etc/docker/daemon.json; then
+        # Backup existing daemon.json if it exists
+        if [ -f /etc/docker/daemon.json ]; then
+            cp /etc/docker/daemon.json /etc/docker/daemon.json.backup
+        fi
+        
+        # Configure Docker daemon for log rotation
+        cat > /etc/docker/daemon.json << 'EOF'
 {
     "log-driver": "json-file",
     "log-opts": {
@@ -196,11 +317,28 @@ function configure_docker_logging() {
 }
 EOF
 
-    systemctl restart docker
+        # Restart Docker only if config changed
+        log "Restarting Docker with new logging configuration..."
+        systemctl restart docker
+        
+        # Wait for Docker to restart
+        sleep 10
+        
+        # Verify Docker is running
+        if ! systemctl is-active docker &>/dev/null; then
+            error "Docker failed to restart after configuration change"
+            exit 1
+        fi
+    else
+        log "Docker logging already configured"
+    fi
 }
 
 function setup_monitoring() {
     log "Setting up basic monitoring..."
+    
+    # Ensure bin directory exists
+    mkdir -p "$DEPLOY_DIR/bin"
     
     # Create a simple health check script
     cat > "$DEPLOY_DIR/bin/health-check.sh" << 'EOF'
@@ -242,9 +380,14 @@ EOF
     chmod +x "$DEPLOY_DIR/bin/health-check.sh"
     chown "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR/bin/health-check.sh"
     
-    # Setup cron for health checks
+    # Setup cron for health checks (only if not already exists)
     sudo -u "$DEPLOY_USER" bash << 'EOF'
-(crontab -l 2>/dev/null; echo "*/5 * * * * /opt/dkdc/bin/health-check.sh >> /opt/dkdc/logs/health-check.log 2>&1") | crontab -
+if ! crontab -l 2>/dev/null | grep -q "health-check.sh"; then
+    (crontab -l 2>/dev/null; echo "*/5 * * * * /opt/dkdc/bin/health-check.sh >> /opt/dkdc/logs/health-check.log 2>&1") | crontab -
+    echo "Health check cron job added"
+else
+    echo "Health check cron job already exists"
+fi
 EOF
 
     log "Health monitoring setup completed!"
@@ -254,16 +397,49 @@ function deploy_services() {
     log "Deploying services..."
     
     sudo -u "$DEPLOY_USER" bash << 'EOF'
+set -e
 cd /opt/dkdc
 
+# Stop any existing services first (idempotent)
+if docker compose ps | grep -q Up; then
+    echo "Stopping existing services..."
+    docker compose down || true
+fi
+
+# Clean up any orphaned containers
+docker system prune -f --volumes || true
+
 # Build and start services in production mode
+echo "Starting services in production mode..."
 DKDC_ENV=prod ./bin/up.sh
 
-# Wait for services to be ready
-sleep 10
+# Wait for services to be ready with timeout
+echo "Waiting for services to start..."
+local timeout=60
+local count=0
+while [ $count -lt $timeout ]; do
+    if docker compose ps | grep -q "Up"; then
+        echo "Services are starting up..."
+        break
+    fi
+    sleep 2
+    count=$((count + 2))
+done
+
+# Additional wait for services to stabilize
+sleep 15
 
 # Check service status
+echo "Service status:"
 docker compose ps
+
+# Verify key services are running
+if ! docker compose ps | grep -q "dkdc-dev.*Up"; then
+    echo "Warning: dkdc-dev service may not be running properly"
+fi
+if ! docker compose ps | grep -q "nginx.*Up"; then
+    echo "Warning: nginx service may not be running properly"
+fi
 EOF
 }
 
@@ -293,10 +469,35 @@ function print_success() {
     echo -e "${GREEN}Your dkdc deployment is ready!${NC}"
 }
 
+function verify_system_requirements() {
+    log "Verifying system requirements..."
+    
+    # Check if we're on Ubuntu/Debian
+    if ! command -v apt &> /dev/null; then
+        error "This script requires a Debian/Ubuntu system with apt package manager"
+        exit 1
+    fi
+    
+    # Check available disk space (require at least 5GB)
+    local available_space=$(df / | awk 'NR==2 {print $4}')
+    if [ "$available_space" -lt 5242880 ]; then  # 5GB in KB
+        warn "Low disk space detected. At least 5GB recommended."
+    fi
+    
+    # Check memory (warn if less than 2GB)
+    local available_mem=$(free -k | awk 'NR==2{print $2}')
+    if [ "$available_mem" -lt 2097152 ]; then  # 2GB in KB
+        warn "Low memory detected. At least 2GB RAM recommended."
+    fi
+    
+    log "System requirements verified"
+}
+
 function main() {
     log "Starting dkdc production deployment..."
     
     check_root
+    verify_system_requirements
     install_dependencies
     setup_user
     configure_firewall
