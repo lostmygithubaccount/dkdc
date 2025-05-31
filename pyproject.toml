@@ -5,7 +5,7 @@ description = "don't know, don't care"
 readme = "README.md"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 requires-python = ">=3.12"
-dependencies = ["panel>=1.7.0", "watchfiles>=1.0.5"]
+dependencies = ["panel>=1.7.0", "watchfiles>=1.0.5", "dkdc-dl"]
 
 [project.scripts]
 dkdc = "dkdc:main"
@@ -14,8 +14,11 @@ dkdc = "dkdc:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv.sources]
+dkdc-dl = { workspace = true }
+
 [tool.uv.workspace]
-members = ["packages/dkdc-rs", "packages/dkdc-sh", "packages/dkdc-config"]
+members = ["packages/*"]
 
 # [[tool.uv.index]]
 # url = "https://pypi.org/simple/"

@@ -14,3 +14,10 @@ devenv.local.nix
 
 # Docker cache directories
 docker-compose.override.yaml
+
+# Data
+*.db
+*.ddb
+*.delta
+*.sqlite
+datalake/
