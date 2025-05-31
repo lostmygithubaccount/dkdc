@@ -1,9 +1,37 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+    depends_on:
+      - dkdc-dev
+      - dkdc-io
+      - app1
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./nginx/certbot-webroot:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email cody@dkdc.dev --agree-tos --no-eff-email -d dkdc.dev -d dkdc.io -d app.dkdc.io
+    depends_on:
+      - nginx
+
   dkdc-dev:
     build: .
     user: dev
-    ports:
-      - "1313:1313"
+    expose:
+      - "1313"
     working_dir: /app/websites/dkdc.dev
     command: zola serve --interface 0.0.0.0 --port 1313
     environment:
@@ -13,11 +41,21 @@ services:
       - .:/app
       - uv-cache:/home/dev/.cache/uv
       - npm-cache:/home/dev/.cache/npm
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1313"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   dkdc-io:
     build: .
     user: dev
-    ports:
-      - "1314:1314"
+    expose:
+      - "1314"
     working_dir: /app/websites/dkdc.io
     command: zola serve --interface 0.0.0.0 --port 1314
     environment:
@@ -27,11 +65,21 @@ services:
       - .:/app
       - uv-cache:/home/dev/.cache/uv
       - npm-cache:/home/dev/.cache/npm
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1314"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   app1:
     build: .
     user: dev
-    ports:
-      - "3007:3007"
+    expose:
+      - "3007"
     working_dir: /app/apps
     command: uv run panel serve app1.py --port 3007 --allow-websocket-origin=*
     environment:
@@ -41,6 +89,15 @@ services:
       - .:/app
       - uv-cache:/home/dev/.cache/uv
       - npm-cache:/home/dev/.cache/npm
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   dkdc-dl-catalog:
     image: postgres:latest
@@ -53,7 +110,21 @@ services:
       - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dkdc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   uv-cache:
   npm-cache:
+  certbot-etc:
+  certbot-var:
+
+networks:
+  dkdc-network:
+    driver: bridge

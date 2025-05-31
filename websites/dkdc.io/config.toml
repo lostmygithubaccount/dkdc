@@ -1,5 +1,6 @@
 # The URL the site will be built for
 base_url = "https://dkdc.io"
+title = "Coding with Cody"
 # Theme
 theme = "parchment"
 
@@ -9,13 +10,17 @@ compile_sass = false
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
+# Generate clean URLs without .html extensions
+slugify.paths = "safe"
+
 [markdown]
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
 highlight_code = true
 
 [extra]
-head_title = "Cody <head> Title"
+head_title = "Cody | Product Manager & Engineer"
+
 [[extra.footer_menu]]
 [[extra.footer_menu.links]]
 text = "dkdc.io"

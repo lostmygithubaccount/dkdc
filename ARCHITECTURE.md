@@ -2,119 +2,73 @@
 
 ## Overview
 
-dkdc is a monorepo containing static websites, web applications, and Python packages. The architecture follows a container-first, development-focused approach with emphasis on simplicity and scalability.
+dkdc is a monorepo with nginx reverse proxy routing three domains to containerized services. Container-first approach for dev/prod parity and simple deployment.
 
-## Core Components
+## Request Flow
 
-### 1. Python Package (dkdc)
-- **Location**: `src/dkdc/`
-- **Dependencies**: Panel (>=1.7.0), watchfiles (>=1.0.5)
-- **Purpose**: Core Python package with CLI entry point
-- **Runtime**: Python 3.12+ (pinned to 3.13 in containers)
-
-### 2. Web Applications
-- **app1.py**: Panel-based data visualization app (Bokeh/NumPy sine wave demo)
-- **Port**: 3007
-- **Framework**: Panel with Bokeh backend
-
-### 3. Static Websites
-- **dkdc.dev**: Primary website on port 1313
-- **dkdc.io**: Secondary website on port 1314
-- **Generator**: Zola (v0.20.0)
-- **Themes**: Terminimal (dkdc.dev), Parchment (dkdc.io)
-
-## Container Architecture
-
-### Base Image
-- **FROM**: `ghcr.io/astral-sh/uv:debian-slim`
-- **User**: `dev` (UID 1000, GID 1000) with sudo privileges
-- **Shell**: zsh
-
-### Development Tools
-- **Python**: uv with multiple versions (3.11, 3.12, 3.13)
-- **Node.js**: fnm with Node.js 22
-- **Tools**: ruff, pytest, ranger-fm, pre-commit, ipython, pyright
-- **System**: git, curl, wget, ripgrep, tmux, tree, DuckDB
-
-### Cache Strategy
-- **uv cache**: `/home/dev/.cache/uv` (persistent volume)
-- **npm cache**: `/home/dev/.cache/npm` (persistent volume)
-- **Environment variables**: UV_CACHE_DIR, npm_config_cache
-
-## Docker Compose Stack
-
-### Services Configuration
-All services share:
-- Same Dockerfile build
-- Same user (`dev`)
-- Same volume mounts (source code + caches)
-- Same environment variables
-
-#### Service Details
-1. **dkdc-dev**: Zola development server for dkdc.dev
-2. **dkdc-io**: Zola development server for dkdc.io  
-3. **app1**: Panel application server
-
-### Volume Strategy
-- **Source code**: Bind mount `.:/app` for live reload
-- **Persistent caches**: Named volumes for uv and npm caches
-- **Working directories**: Service-specific paths within `/app`
-
-## Development Container
-- **devcontainer.json**: VS Code integration
-- **Remote user**: `dev`
-- **Workspace**: `/workspace`
-
-## Workspace Structure
 ```
-/app/                    # Container workspace
-├── websites/           # Static sites
-│   ├── dkdc.dev/      # Primary website
-│   └── dkdc.io/       # Secondary website
-├── apps/              # Web applications  
-├── src/dkdc/          # Python package
-├── packages/          # Workspace members
-└── pyproject.toml     # Python project config
+Internet → nginx:80/443 → {
+  dkdc.dev     → dkdc-dev:1313   (Zola site)
+  dkdc.io      → dkdc-io:1314    (Zola site)  
+  app.dkdc.io  → app1:3007       (Panel app)
+}
 ```
 
-## Resilience Considerations
+## Core Services
 
-### Current State
-- Basic container setup without restart policies
-- No health checks or retry logic
-- Single-container services
+- **nginx**: Reverse proxy, SSL termination, security headers
+- **dkdc-dev**: Zola static site generator (primary website)
+- **dkdc-io**: Zola static site generator (secondary website)
+- **app1**: Panel data visualization app (Python/Bokeh)
+- **dkdc-dl-catalog**: PostgreSQL database
+- **certbot**: Let's Encrypt SSL certificate management
 
-### Recommended Improvements
-```yaml
-# Add to each service in docker-compose.yaml
-restart: unless-stopped
-healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:PORT/health"]
-  interval: 30s
-  timeout: 10s
-  retries: 3
-  start_period: 40s
-```
+## Environment Modes
 
-### Additional Resilience Options
-- **Dependency management**: `depends_on` with health conditions
-- **Resource limits**: memory/CPU constraints
-- **Logging**: structured logging with rotation
-- **Monitoring**: Prometheus metrics endpoints
+### Development Mode (`./bin/up.sh`)
+- Direct port exposure (1313, 1314, 3007)
+- No nginx or SSL required
+- Live reload for all services
+- docker-compose.override.yaml created automatically
+
+### Production Mode (`./bin/up.sh -e prod`)
+- All traffic through nginx reverse proxy
+- SSL/TLS termination with Let's Encrypt
+- Rate limiting and security headers
+- Health checks and auto-restart
+
+## Container Details
+
+**Base**: `ghcr.io/astral-sh/uv:debian-slim` with Python 3.13, Node.js 22, Zola
+**User**: `dev` (UID 1000) with sudo access
+**Caching**: Persistent volumes for uv/npm caches
+**Networking**: Isolated `dkdc-network` bridge
+
+## Security Features
+
+- UFW firewall (SSH, HTTP, HTTPS only)
+- Fail2ban protection against brute force
+- Modern TLS ciphers and HSTS headers
+- nginx rate limiting and security headers
+- Automatic SSL certificate renewal
+
+## Deployment Flow
+
+### VPS Setup
+1. `curl -sSL <repo>/bin/deploy.sh | bash` - Full server setup
+2. Point domains to server IP 
+3. `./bin/ssl-setup.sh` - Generate SSL certificates
+4. Services auto-start with health monitoring
+
+### Key Scripts
+- **bin/up.sh**: Development/production startup
+- **bin/deploy.sh**: Full VPS deployment with security hardening
+- **bin/ssl-setup.sh**: SSL certificate management + auto-renewal
+- **bin/health-check.sh**: Service monitoring (auto-generated)
 
 ## Design Philosophy
 
-### Development = Production
-- Same containers for dev and prod environments
-- Consistent tooling and dependencies
-- Simplified deployment pipeline
-
-### Speed & Simplicity
-- Fast startup with cached dependencies
-- Minimal configuration overhead  
-- Live reload for all services
-
-### Scalability Ready
-- Container-native architecture
-- Stateless application design
-- External cache persistence
+**Dev = Prod**: Same containers, different routing
+**Speed**: Cached dependencies, fast startup
+**Simple**: One command deployment, minimal config  
+**Secure**: Firewall, SSL, rate limiting, auto-updates
