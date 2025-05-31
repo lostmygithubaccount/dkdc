@@ -82,8 +82,8 @@ function install_dependencies() {
         exit 1
     }
     
-    # Install Docker from official repository
-    log "Setting up Docker from official repository..."
+    # Always ensure proper Docker installation with compose support
+    log "Setting up Docker with Compose support..."
     
     # Remove old Docker packages if they exist
     apt remove -y docker docker-engine docker.io containerd runc || true
