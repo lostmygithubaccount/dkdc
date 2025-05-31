@@ -152,21 +152,20 @@ function clone_repository() {
     
     if [ -d "$DEPLOY_DIR/.git" ]; then
         log "Repository already exists, updating..."
-        sudo -u "$DEPLOY_USER" bash << EOF
-cd "$DEPLOY_DIR"
+        sudo -u "$DEPLOY_USER" bash << 'EOF'
+cd /opt/dkdc
 git pull origin main
 EOF
         log "Repository updated"
     else
         log "Cloning fresh repository..."
         rm -rf "$DEPLOY_DIR"
-        mkdir -p "$DEPLOY_DIR"
-        sudo -u "$DEPLOY_USER" git clone "$REPO_URL" "$DEPLOY_DIR"
+        
+        # Clone as root, then fix ownership
+        git clone "$REPO_URL" "$DEPLOY_DIR"
+        chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR"
         log "Repository cloned"
     fi
-    
-    # Ensure proper ownership
-    chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR"
 }
 
 function setup_environment() {
