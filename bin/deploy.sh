@@ -5,6 +5,19 @@
 
 set -euo pipefail
 
+# Display banner
+cat << 'EOF'
+██████╗ ██╗  ██╗██████╗  ██████╗
+██╔══██╗██║ ██╔╝██╔══██╗██╔════╝
+██║  ██║█████╔╝ ██║  ██║██║     
+██║  ██║██╔═██╗ ██║  ██║██║     
+██████╔╝██║  ██╗██████╔╝╚██████╗
+╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝
+
+Production Deployment Script v2.0
+EOF
+echo
+
 # Trap to cleanup on script failure
 trap 'cleanup_on_error $LINENO $BASH_COMMAND' ERR
 
