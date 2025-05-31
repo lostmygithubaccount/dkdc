@@ -150,23 +150,30 @@ function setup_ssl_directories() {
 function clone_repository() {
     log "Cloning repository..."
     
-    sudo -u "$DEPLOY_USER" bash << EOF
+    if [ -d "$DEPLOY_DIR/.git" ]; then
+        log "Repository already exists, updating..."
+        sudo -u "$DEPLOY_USER" bash << EOF
 cd "$DEPLOY_DIR"
-if [ -d .git ]; then
-    git pull origin main
-    log "Repository updated"
-else
-    git clone "$REPO_URL" .
-    log "Repository cloned"
-fi
+git pull origin main
 EOF
+        log "Repository updated"
+    else
+        log "Cloning fresh repository..."
+        rm -rf "$DEPLOY_DIR"
+        mkdir -p "$DEPLOY_DIR"
+        sudo -u "$DEPLOY_USER" git clone "$REPO_URL" "$DEPLOY_DIR"
+        log "Repository cloned"
+    fi
+    
+    # Ensure proper ownership
+    chown -R "$DEPLOY_USER:$DEPLOY_USER" "$DEPLOY_DIR"
 }
 
 function setup_environment() {
     log "Setting up environment..."
     
-    sudo -u "$DEPLOY_USER" bash << EOF
-cd "$DEPLOY_DIR"
+    sudo -u "$DEPLOY_USER" bash << 'EOF'
+cd /opt/dkdc
 
 # Make scripts executable
 chmod +x bin/*.sh
@@ -247,15 +254,14 @@ EOF
 function deploy_services() {
     log "Deploying services..."
     
-    sudo -u "$DEPLOY_USER" bash << EOF
-cd "$DEPLOY_DIR"
+    sudo -u "$DEPLOY_USER" bash << 'EOF'
+cd /opt/dkdc
 
-# Build and start services
-docker compose build
-docker compose up -d --remove-orphans
+# Build and start services in production mode
+DKDC_ENV=prod ./bin/up.sh
 
 # Wait for services to be ready
-sleep 30
+sleep 10
 
 # Check service status
 docker compose ps
@@ -265,8 +271,8 @@ EOF
 function setup_ssl() {
     log "Setting up SSL certificates..."
     
-    sudo -u "$DEPLOY_USER" bash << EOF
-cd "$DEPLOY_DIR"
+    sudo -u "$DEPLOY_USER" bash << 'EOF'
+cd /opt/dkdc
 ./bin/ssl-setup.sh setup
 EOF
 }
@@ -319,7 +325,7 @@ case "${1:-deploy}" in
         setup_ssl
         ;;
     "health")
-        "$DEPLOY_DIR/bin/health-check.sh"
+        sudo -u "$DEPLOY_USER" /opt/dkdc/bin/health-check.sh
         ;;
     *)
         echo "Usage: $0 [deploy|update|ssl|health]"
