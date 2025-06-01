@@ -11,31 +11,27 @@ ibis.options.repr.interactive.max_columns = None
 
 # Determine catalog type from environment variable
 catalog_type = os.getenv("DKDC_DL_CATALOG", "sqlite").lower()
+data_path = f"datalake/catalog-{catalog_type}/"
 
 # Ensure datalake directories exist
-datalake_dir = Path("datalake")
-sqlite_dir = datalake_dir / "sqlite"
-postgres_dir = datalake_dir / "postgres"
-
-sqlite_dir.mkdir(parents=True, exist_ok=True)
-postgres_dir.mkdir(parents=True, exist_ok=True)
+Path(data_path).mkdir(parents=True, exist_ok=True)
 
 if catalog_type == "postgres":
-    sql = """
+    sql = f"""
 INSTALL ducklake;
 INSTALL postgres;
 
 ATTACH 'ducklake:postgres:host=localhost port=5432 dbname=ducklake user=dkdc password=dkdc' AS dl
-    (DATA_PATH 'datalake/postgres/');
+    (DATA_PATH '{data_path}');
 USE dl;
 """.strip()
 else:  # default to sqlite
-    sql = """
+    sql = f"""
 INSTALL ducklake;
 INSTALL sqlite;
 
 ATTACH 'ducklake:sqlite:dl.sqlite' AS dl
-    (DATA_PATH 'datalake/sqlite/');
+    (DATA_PATH '{data_path}');
 USE dl;
 """.strip()
 

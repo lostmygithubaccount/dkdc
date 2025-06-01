@@ -43,10 +43,11 @@ def main(
 
     if sql:
         # SQL commands for catalog setup
+        data_path = f"datalake/catalog-{catalog.lower()}/"
         if catalog.lower() == "postgres":
-            sql_cmd = "INSTALL ducklake; INSTALL postgres; ATTACH 'ducklake:postgres:host=localhost port=5432 dbname=ducklake user=dkdc password=dkdc' AS dl (DATA_PATH 'datalake/postgres/'); USE dl;"
+            sql_cmd = f"INSTALL ducklake; INSTALL postgres; ATTACH 'ducklake:postgres:host=localhost port=5432 dbname=ducklake user=dkdc password=dkdc' AS dl (DATA_PATH '{data_path}'); USE dl;"
         else:
-            sql_cmd = "INSTALL ducklake; INSTALL sqlite; ATTACH 'ducklake:sqlite:dl.sqlite' AS dl (DATA_PATH 'datalake/sqlite/'); USE dl;"
+            sql_cmd = f"INSTALL ducklake; INSTALL sqlite; ATTACH 'ducklake:sqlite:dl.sqlite' AS dl (DATA_PATH '{data_path}'); USE dl;"
 
         # Print available info similar to Python mode
         console.print(f"📦 Available: dl catalog, ducklake extension")
