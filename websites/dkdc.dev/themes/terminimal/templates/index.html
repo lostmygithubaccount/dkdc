@@ -129,6 +129,32 @@
     {% endblock footer %}
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({ 
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+            primaryColor: '#1a1a2e',
+            primaryTextColor: '#e0aaff',
+            primaryBorderColor: '#9d4edd',
+            lineColor: '#c77dff',
+            secondaryColor: '#16213e',
+            tertiaryColor: '#0f3460',
+            background: '#1a1a2e',
+            mainBkg: '#1a1a2e',
+            secondBkg: '#16213e',
+            tertiaryBkg: '#0f3460',
+            primaryBorderColor: '#9d4edd',
+            secondaryBorderColor: '#c77dff',
+            tertiaryBorderColor: '#7209b7',
+            darkMode: true,
+            fontFamily: 'Hack, monospace'
+        }
+    });
+</script>
+
 {%- block extra_body %}
 {% endblock extra_body -%}
 </body>
