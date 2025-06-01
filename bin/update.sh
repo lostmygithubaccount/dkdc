@@ -18,7 +18,8 @@ function log() {
 cd /opt/dkdc
 
 log "Pulling latest changes..."
-git pull origin main
+git fetch origin main
+git reset --hard origin/main
 
 log "Building static sites..."
 ./bin/build-static.sh

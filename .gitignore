@@ -22,3 +22,15 @@ docker-compose.override.yaml
 *.sqlite
 datalake/
 pgdata/
+
+# Server-specific files (prevent conflicts)
+logs/
+nginx/certbot-webroot/
+nginx/conf.d.old/
+nginx/conf.d/*.bak*
+server-files/
+bin/health-check.sh
+bin/ssl-renew.sh
+
+# Lock files that may differ
+uv.lock

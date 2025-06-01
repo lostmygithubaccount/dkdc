@@ -41,9 +41,11 @@ if ! ssh -o ConnectTimeout=5 root@"$VPS_HOST" "echo 'Connection successful'" > /
     exit 1
 fi
 
-# Pull latest changes
+# Pull latest changes (handle any local changes gracefully)
 log "Pulling latest changes from GitHub..."
-ssh root@"$VPS_HOST" "cd $DEPLOY_DIR && git pull origin main"
+ssh root@"$VPS_HOST" "cd $DEPLOY_DIR && \
+    git fetch origin main && \
+    git reset --hard origin/main"
 
 # Rebuild static sites
 log "Building static sites..."
