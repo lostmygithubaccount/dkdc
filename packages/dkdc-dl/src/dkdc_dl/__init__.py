@@ -1,5 +1,6 @@
 # Imports
 import os
+from pathlib import Path
 
 import ibis
 
@@ -10,6 +11,14 @@ ibis.options.repr.interactive.max_columns = None
 
 # Determine catalog type from environment variable
 catalog_type = os.getenv("DKDC_DL_CATALOG", "sqlite").lower()
+
+# Ensure datalake directories exist
+datalake_dir = Path("datalake")
+sqlite_dir = datalake_dir / "sqlite"
+postgres_dir = datalake_dir / "postgres"
+
+sqlite_dir.mkdir(parents=True, exist_ok=True)
+postgres_dir.mkdir(parents=True, exist_ok=True)
 
 if catalog_type == "postgres":
     sql = """

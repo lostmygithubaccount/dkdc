@@ -5,12 +5,7 @@ description = "don't know, don't care"
 readme = "README.md"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 requires-python = ">=3.12"
-dependencies = [
-    "dkdc-config",
-    "dkdc-dl", 
-    "dkdc-fe",
-    "dkdc-sh",
-]
+dependencies = ["dkdc-config", "dkdc-dl", "dkdc-fe", "dkdc-sh"]
 
 [project.scripts]
 dkdc = "dkdc:main"
@@ -27,10 +22,3 @@ dkdc-sh = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
-
-# [[tool.uv.index]]
-# url = "https://pypi.org/simple/"
-# default = true
-
-#[[tool.uv.index]]
-#url = "https://us-python.pkg.dev/ascend-io-ops-artifacts/private-pypi/simple/"
