@@ -4,29 +4,64 @@
 
 ## Quick Start
 
+### Local Development
+
 ```bash
-# Development (direct port access)
+# Start all services with hot reload
 ./bin/up.sh
 
-# Production (nginx routing + SSL)
-./bin/up.sh -e prod
+# Services available at:
+# - http://localhost:1313 (dkdc.dev)
+# - http://localhost:1314 (dkdc.io)
+# - http://localhost:3007 (app.dkdc.io)
+```
 
-# VPS deployment
+### Production Deployment
+
+```bash
+# First time setup (on VPS as root)
 curl -sSL https://raw.githubusercontent.com/lostmygithubaccount/dkdc/main/bin/deploy.sh | bash
+
+# Deploy updates (from local machine)
+./bin/deploy-update.sh
 ```
 
 ## What's Inside
 
-- **dkdc.dev**: Primary website (Zola)
-- **dkdc.io**: Secondary website (Zola) 
+- **dkdc.dev**: Primary website (Zola static site)
+- **dkdc.io**: Secondary website (Zola static site) 
 - **app.dkdc.io**: Panel data visualization app
 - **PostgreSQL**: Data catalog for DuckDB
 
-## Development URLs
+## Common Tasks
 
-- http://localhost:1313 (dkdc.dev)
-- http://localhost:1314 (dkdc.io)
-- http://localhost:3007 (app.dkdc.io)
+### Update Website Content
+
+1. Edit files in `websites/*/content/`
+2. Test locally: `./bin/up.sh`
+3. Deploy: `git push && ./bin/deploy-update.sh`
+
+### Add a Blog Post
+
+```bash
+# Create new post
+echo "+++
+title = 'My New Post'
+date = $(date +%Y-%m-%d)
++++
+
+# Content here" > websites/dkdc.dev/content/posts/my-new-post.md
+
+# Deploy
+git add . && git commit -m "Add new post" && git push
+./bin/deploy-update.sh
+```
+
+### View Production Logs
+
+```bash
+ssh root@$VPS_IP "cd /opt/dkdc && docker compose logs -f"
+```
 
 ## Production URLs
 
@@ -34,25 +69,13 @@ curl -sSL https://raw.githubusercontent.com/lostmygithubaccount/dkdc/main/bin/de
 - https://dkdc.io
 - https://app.dkdc.io
 
-## Key Commands
+## Key Scripts
 
-```bash
-# Start all services
-./bin/up.sh
-
-# View logs
-docker compose logs -f
-
-# Stop everything
-docker compose down
-
-# Rebuild containers
-./bin/up.sh --build
-
-# Production deployment
-./bin/deploy.sh
-
-# SSL setup
-./bin/ssl-setup.sh
-```
+| Script | Purpose |
+|--------|---------|  
+| `./bin/up.sh` | Start local development |
+| `./bin/deploy-update.sh` | Deploy updates to production |
+| `./bin/build-static.sh` | Build static sites (runs on server) |
+| `./bin/ssl-setup.sh` | Manage SSL certificates |
+| `./bin/health-check.sh` | Check service health |
 

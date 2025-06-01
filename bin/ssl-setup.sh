@@ -25,50 +25,53 @@ function reload_nginx() {
 function setup_initial_certs() {
     log "Setting up initial SSL certificates..."
     
-    # Create temporary nginx config without SSL for initial setup
-    cp nginx/conf.d/default.conf nginx/conf.d/default.conf.bak
+    # Make sure certbot webroot directory exists
+    mkdir -p nginx/certbot-webroot
     
-    # Create a minimal config for HTTP only during cert generation
-    cat > nginx/conf.d/temp.conf << 'EOF'
-server {
-    listen 80;
-    server_name dkdc.dev dkdc.io app.dkdc.io;
+    # Check if nginx is running with current config
+    if ! docker compose ps nginx | grep -q "Up"; then
+        log "Nginx not running, starting services..."
+        docker compose up -d nginx
+        sleep 5
+    fi
     
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
+    # Run certbot for each domain separately to handle failures better
+    for domain in $DOMAINS; do
+        if [ "$domain" = "dkdc.ai" ]; then
+            log "Skipping dkdc.ai (alias domain)"
+            continue
+        fi
+        
+        log "Requesting certificate for $domain..."
+        docker compose run --rm certbot certonly \
+            --webroot \
+            --webroot-path=/var/www/certbot \
+            --email $EMAIL \
+            --agree-tos \
+            --no-eff-email \
+            --non-interactive \
+            -d $domain || {
+            log "Failed to get certificate for $domain, continuing..."
+        }
+    done
     
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-EOF
-
-    # Remove SSL config temporarily
-    mv nginx/conf.d/default.conf nginx/conf.d/default.conf.ssl
+    # Check if any certificates were obtained
+    if docker compose exec nginx ls /etc/letsencrypt/live/ 2>/dev/null | grep -q "dkdc"; then
+        log "Certificates obtained, activating SSL configuration..."
+        
+        # Copy SSL template to active config if it exists
+        if [ -f nginx/conf.d/ssl.conf.template ]; then
+            cp nginx/conf.d/ssl.conf.template nginx/conf.d/ssl.conf
+            log "SSL configuration activated"
+        fi
+        
+        # Reload nginx
+        reload_nginx
+    else
+        log "Warning: No certificates were obtained. Sites will run on HTTP only."
+    fi
     
-    # Reload nginx with HTTP-only config
-    reload_nginx
-    
-    # Run certbot
-    log "Running certbot for domains: $DOMAINS"
-    docker compose run --rm certbot certonly \
-        --webroot \
-        --webroot-path=/var/www/certbot \
-        --email $EMAIL \
-        --agree-tos \
-        --no-eff-email \
-        --force-renewal \
-        $(echo $DOMAINS | sed 's/\([^ ]*\)/-d \1/g')
-    
-    # Restore SSL config
-    mv nginx/conf.d/default.conf.ssl nginx/conf.d/default.conf
-    rm nginx/conf.d/temp.conf
-    
-    # Reload nginx with SSL config
-    reload_nginx
-    
-    log "SSL certificates setup completed!"
+    log "SSL setup process completed!"
 }
 
 function renew_certs() {

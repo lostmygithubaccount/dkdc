@@ -1,27 +1,12 @@
-# dkdc.dev - Primary website
+# SSL configuration for dkdc.dev
 server {
-    listen 80;
+    listen 443 ssl;
+    http2 on;
     server_name dkdc.dev;
 
-    # Let's Encrypt challenge
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    # Proxy to service (redirect will be handled by SSL server block when available)
-    location / {
-        proxy_pass http://dkdc-dev:1313;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # WebSocket support for live reload
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/dkdc.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dkdc.dev/privkey.pem;
     
     # SSL security settings
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -49,35 +34,20 @@ server {
     }
 }
 
-# dkdc.io - Secondary website
+# SSL configuration for dkdc.io
 server {
-    listen 80;
+    listen 443 ssl;
+    http2 on;
     server_name dkdc.io dkdc.ai;
-
-    # Let's Encrypt challenge
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
 
     # Redirect dkdc.ai to dkdc.io
     if ($host = dkdc.ai) {
-        return 301 http://dkdc.io$request_uri;
+        return 301 https://dkdc.io$request_uri;
     }
-    
-    # Proxy to service
-    location / {
-        proxy_pass http://dkdc-io:1314;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # WebSocket support for live reload
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
+
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/dkdc.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dkdc.io/privkey.pem;
     
     # SSL security settings
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -105,31 +75,15 @@ server {
     }
 }
 
-# app.dkdc.io - Application server
+# SSL configuration for app.dkdc.io
 server {
-    listen 80;
+    listen 443 ssl;
+    http2 on;
     server_name app.dkdc.io;
 
-    # Let's Encrypt challenge
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-    
-    # Proxy to service
-    location / {
-        proxy_pass http://app1:3007;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # WebSocket support for Panel apps
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_read_timeout 86400;
-    }
-}
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/app.dkdc.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app.dkdc.io/privkey.pem;
     
     # SSL security settings
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -155,5 +109,20 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_read_timeout 86400;
+    }
+}
+
+# Redirect HTTP to HTTPS for all domains when SSL is active
+server {
+    listen 80;
+    server_name dkdc.dev dkdc.io app.dkdc.io;
+    
+    # Let's Encrypt challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+    
+    location / {
+        return 301 https://$host$request_uri;
     }
 }

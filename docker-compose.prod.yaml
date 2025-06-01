@@ -1,0 +1,118 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./nginx/certbot-webroot:/var/www/certbot
+      # Serve built static files directly
+      - dkdc-dev-static:/var/www/dkdc.dev:ro
+      - dkdc-io-static:/var/www/dkdc.io:ro
+    depends_on:
+      dkdc-dev-builder:
+        condition: service_completed_successfully
+      dkdc-io-builder:
+        condition: service_completed_successfully
+      app1:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+
+  # Build static sites
+  dkdc-dev-builder:
+    build: .
+    user: dev
+    working_dir: /app/websites/dkdc.dev
+    command: >
+      sh -c "zola build --output-dir /output && 
+             echo 'Built dkdc.dev static site'"
+    volumes:
+      - .:/app:ro
+      - dkdc-dev-static:/output
+    networks:
+      - dkdc-network
+
+  dkdc-io-builder:
+    build: .
+    user: dev
+    working_dir: /app/websites/dkdc.io
+    command: >
+      sh -c "zola build --output-dir /output && 
+             echo 'Built dkdc.io static site'"
+    volumes:
+      - .:/app:ro
+      - dkdc-io-static:/output
+    networks:
+      - dkdc-network
+
+  # Keep the app server as-is since it needs to run dynamically
+  app1:
+    build: .
+    user: dev
+    expose:
+      - "3007"
+    working_dir: /app/apps
+    command: uv run panel serve app1.py --port 3007 --allow-websocket-origin=*
+    environment:
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - npm_config_cache=/home/dev/.cache/npm
+    volumes:
+      - .:/app
+      - uv-cache:/home/dev/.cache/uv
+      - npm-cache:/home/dev/.cache/npm
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  dkdc-dl-catalog:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ducklake
+      POSTGRES_USER: dkdc
+      POSTGRES_PASSWORD: dkdc
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - dkdc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dkdc"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./nginx/certbot-webroot:/var/www/certbot
+    depends_on:
+      - nginx
+
+volumes:
+  uv-cache:
+  npm-cache:
+  certbot-etc:
+  certbot-var:
+  dkdc-dev-static:
+  dkdc-io-static:
+
+networks:
+  dkdc-network:
+    driver: bridge
