@@ -38,6 +38,12 @@ RUN groupadd -g 1000 dev && \
 # Install fnm (Fast Node Manager)
 RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /usr/local/bin
 
+# Install latest Neovim from pre-built tarball
+RUN curl -L https://github.com/neovim/neovim/releases/download/v0.10.2/nvim-linux64.tar.gz | tar -xz -C /opt && \
+    ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim && \
+    ln -sf /usr/local/bin/nvim /usr/local/bin/vim && \
+    ln -sf /usr/local/bin/nvim /usr/local/bin/vi
+
 # Install Zola (static site generator)
 RUN ARCH=$(dpkg --print-architecture) && \
     if [ "$ARCH" = "amd64" ]; then ZOLA_ARCH="x86_64-unknown-linux-gnu"; \
