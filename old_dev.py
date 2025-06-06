@@ -2,10 +2,10 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "dkdc",
+#     "ascend-product",
 # ]
 # [tool.uv.sources]
-# dkdc = { path = ".", editable = true }
+# ascend-product = { path = ".", editable = true }
 # ///
 
 # Prerequisites:
@@ -14,6 +14,8 @@
 # - docker: https://docs.docker.com/desktop/setup/install/mac-install
 
 # Imports
+import os
+import sqlite3  # noqa
 import subprocess
 import time
 from pathlib import Path
@@ -30,39 +32,55 @@ from rich.console import Console
 console = Console()
 app = typer.Typer(add_completion=False)
 
-# Constants: File paths
-POSTGRES_DATA_PATH = Path.home() / "lake" / "data"
-POSTGRES_DATA_DIR = Path.home() / "lake" / "metadata"
+# Constants - File paths
+SQLITE_DATA_PATH = Path("datalake/catalog-sqlite")
+SQLITE_CATALOG_PATH = "catalog.sqlite"
+POSTGRES_DATA_PATH = Path("datalake/catalog-postgres")
+POSTGRES_DATA_DIR = Path("catalog.postgres")
+CSV_DATA_PATH = Path("penguins.csv")
+DELTA_DATA_PATH = Path("penguins.delta")
+PARQUET_DATA_PATH = Path("penguins.parquet")
+BOOTSTRAP_MARKER = Path(".DEMO_BOOTSTRAP")
 
-# Constants: Postgres configuration
+# Constants - Data sources
+BUCKET = "gs://ascend-io-gcs-public"
+FEEDBACK_ASCENDERS_GLOB = "ottos-expeditions/lakev0/generated/events/feedback_ascenders.parquet/year=*/month=*/day=*/*.parquet"
+
+# Constants - Postgres configuration
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = 5432
-POSTGRES_DB = "dkdc"
-POSTGRES_USER = "dkdc"
-POSTGRES_PASSWORD = "dkdc"
-POSTGRES_CONTAINER_NAME = "dkdc-dl-catalog"
+POSTGRES_DB = "ducklake"
+POSTGRES_USER = "product"
+POSTGRES_PASSWORD = "product"
+POSTGRES_CONTAINER_NAME = "product-dl-catalog"
 MAX_POSTGRES_STARTUP_ATTEMPTS = 30
 POSTGRES_STARTUP_TIMEOUT_MSG = "Postgres failed to become ready in 15 seconds"
 
-# Constants: Schema configuration
-SCHEMAS = ["dev", "stage", "prod"]
-DEFAULT_METADATA_SCHEMA = SCHEMAS[0]
+# Constants - Schema configuration
+SCHEMAS = [
+    "default",
+    "workspace_cody",
+    "workspace_otto",
+    "deployment_development",
+    "deployment_staging",
+    "deployment_production",
+]
 
 # SQL command templates
+SQLITE_SQL_COMMANDS = """
+INSTALL ducklake;
+INSTALL sqlite;
+ATTACH 'ducklake:sqlite:{catalog_path}'
+    AS dl (DATA_PATH '{data_path}');
+USE dl;
+""".strip()
+
 POSTGRES_SQL_COMMANDS = """
--- Install extensions
 INSTALL ducklake;
 INSTALL postgres;
-
--- Attach metadata connection
-ATTACH 'host={host} port={port} dbname={database} user={user} password={password}' AS metadata (TYPE postgres, SCHEMA '{metadata_schema}', READ_ONLY);
-
--- Attach data connection
 ATTACH 'ducklake:postgres:host={host} port={port} dbname={database} user={user} password={password}'
-    AS data (DATA_PATH '{data_path}', METADATA_SCHEMA '{metadata_schema}, ENCRYPTED'); 
-
--- Use data connection
-USE data;
+    AS dl (DATA_PATH '{data_path}', METADATA_SCHEMA '{metadata_schema}'); 
+USE dl;
 """.strip()
 
 
@@ -95,9 +113,24 @@ def check_docker():
         raise typer.Exit(1)
 
 
-def get_postgres_connection(
-    catalog: bool = False, metadata_schema: str = DEFAULT_METADATA_SCHEMA
-):
+def get_sqlite_connection(catalog: bool = False, metadata_schema: str = "default"):
+    """Create and return a DuckDB connection with SQLite catalog attached."""
+    SQLITE_DATA_PATH.mkdir(parents=True, exist_ok=True)
+
+    if not catalog:
+        con = ibis.duckdb.connect()
+        con.raw_sql(
+            SQLITE_SQL_COMMANDS.format(
+                catalog_path=SQLITE_CATALOG_PATH, data_path=SQLITE_DATA_PATH
+            )
+        )
+    else:
+        con = ibis.sqlite.connect(str(SQLITE_CATALOG_PATH))
+
+    return con
+
+
+def get_postgres_connection(catalog: bool = False, metadata_schema: str = "default"):
     """Create and return a DuckDB connection with Postgres catalog attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
 
@@ -115,7 +148,6 @@ def get_postgres_connection(
             )
         )
     else:
-        breakpoint()
         con = ibis.postgres.connect(
             host=POSTGRES_HOST,
             port=POSTGRES_PORT,
@@ -132,9 +164,8 @@ def ensure_postgres_running():
     """Ensure Postgres container is running and ready."""
     console.print("📦 Checking Postgres container...")
 
-    # Ensure both lake directories exist
-    POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
-    POSTGRES_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure pgdata directory exists
+    POSTGRES_DATA_DIR.mkdir(exist_ok=True)
 
     # Check if container already exists and is running
     try:
@@ -274,33 +305,143 @@ def run_command(command: list[str]):
     subprocess.run(command, check=False)
 
 
-def launch_sql_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
-    """Launch DuckDB CLI with Postgres catalog attached."""
+def safe_remove(path: str | Path):
+    """Safely remove a file or directory if it exists."""
+    path_obj = Path(path)
+    if path_obj.exists():
+        if path_obj.is_dir():
+            run_command(["rm", "-rf", str(path_obj)])
+        else:
+            run_command(["rm", "-f", str(path_obj)])
+    else:
+        console.print(f"Skipping {path} (does not exist)")
+
+
+def clean_demo():
+    """Clean up demo data and containers."""
+    console.print("🧹 Cleaning up demo data...")
+
+    # Stop postgres first
+    stop_postgres()
+
+    # Remove demo files and directories
+    safe_remove("catalog.sqlite")
+    safe_remove("catalog.postgres")
+    safe_remove("datalake")
+    safe_remove("penguins.delta")
+    safe_remove(".DEMO_BOOTSTRAP")
+
+    console.print("✅ Demo cleanup complete")
+
+
+def bootstrap_demo():
+    """Bootstrap demo data: penguins tables, feedback_ascenders data, and delta files."""
+    if BOOTSTRAP_MARKER.exists():
+        console.print("✅ Demo already bootstrapped (found .DEMO_BOOTSTRAP file)")
+        return
+
+    console.print("🚀 Bootstrapping DuckLake demo data...")
+
+    # Ensure Postgres is running
+    check_docker()
+    ensure_postgres_running()
+
+    # Setup SQLite data (SQLite doesn't support METADATA_SCHEMA, so just use default)
+    console.print("📊 Setting up SQLite data...")
+    con = get_sqlite_connection()
+    ibis.set_backend(con)
+
+    t = ibis.read_parquet(f"{BUCKET}/{FEEDBACK_ASCENDERS_GLOB}")
+    con.create_table("feedback_ascenders", t, overwrite=True)
+    console.print(f"✅ SQLite setup complete. Tables: {con.list_tables()}")
+
+    # Setup Postgres data (now uses penguins data)
+    console.print("📊 Setting up Postgres data...")
+    for schema in SCHEMAS:
+        console.print(f"  Setting up Postgres schema: {schema}")
+        con = get_postgres_connection(metadata_schema=schema)
+        ibis.set_backend(con)
+
+        t = ibis.examples.penguins.fetch()
+        con.create_table("penguins", t, overwrite=True)
+        con.create_table("penguins2", t, overwrite=True)
+        console.print(
+            f"    ✅ Postgres {schema} setup complete. Tables: {con.list_tables()}"
+        )
+
+    # Setup CSV files
+    console.print("📊 Setting up CSV files...")
+    penguins = ibis.examples.penguins.fetch()
+    penguins.to_csv(str(CSV_DATA_PATH), overwrite=True)
+    console.print("✅ CSV files setup complete")
+
+    # Setup Delta files
+    console.print("📊 Setting up Delta files...")
+    penguins = ibis.examples.penguins.fetch()
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    penguins.to_delta(str(DELTA_DATA_PATH), mode="overwrite")
+    console.print("✅ Delta files setup complete")
+
+    # Setup Parquet files
+    console.print("📊 Setting up Parquet files...")
+    penguins = ibis.examples.penguins.fetch()
+    penguins.to_parquet(str(PARQUET_DATA_PATH), overwrite=True)
+    console.print("✅ Parquet files setup complete")
+
+    # Create bootstrap marker file
+    BOOTSTRAP_MARKER.touch()
+    console.print("🎉 Demo bootstrap complete!")
+
+
+def launch_sql_mode(catalog: str, metadata_schema: str = "default"):
+    """Launch DuckDB CLI with appropriate catalog attached."""
     check_duckdb()
 
-    sql_cmd = POSTGRES_SQL_COMMANDS.format(
-        host=POSTGRES_HOST,
-        port=POSTGRES_PORT,
-        database=POSTGRES_DB,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
-        data_path=POSTGRES_DATA_PATH,
-        metadata_schema=metadata_schema,
-    )
+    if catalog == "postgres":
+        sql_cmd = POSTGRES_SQL_COMMANDS.format(
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT,
+            database=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            data_path=POSTGRES_DATA_PATH,
+            metadata_schema=metadata_schema,
+        )
+    else:
+        sql_cmd = SQLITE_SQL_COMMANDS.format(
+            catalog_path=SQLITE_CATALOG_PATH, data_path=SQLITE_DATA_PATH
+        )
 
     console.print("📦 Available: dl catalog, ducklake extension")
+    console.print(f"🌍 PRODUCT_DL_CATALOG={catalog}")
     console.print(f"🏷️ METADATA_SCHEMA={metadata_schema}")
 
     subprocess.run(["duckdb", "-cmd", sql_cmd], check=False)
 
 
-def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
-    """Launch IPython with Postgres catalog connection."""
-    # Get connection
-    con = get_postgres_connection(metadata_schema=metadata_schema)
+def launch_python_mode(catalog: str, metadata_schema: str = "default"):
+    """Launch IPython with appropriate catalog connection."""
+    # Set environment
+    os.environ["PRODUCT_DL_CATALOG"] = catalog
+
+    # Get connection based on catalog type
+    con = (
+        get_postgres_connection(metadata_schema=metadata_schema)
+        if catalog == "postgres"
+        else get_sqlite_connection(metadata_schema=metadata_schema)
+    )
 
     # Get catalog connection for direct catalog access
-    catalog_con = get_postgres_connection(catalog=True)
+    catalog_con = (
+        get_postgres_connection(catalog=True)
+        if catalog == "postgres"
+        else get_sqlite_connection(catalog=True)
+    )
 
     # Configure ibis
     ibis.options.interactive = True
@@ -313,9 +454,14 @@ def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
         "con": con,
         "catalog_con": catalog_con,
         "ibis": ibis,
+        "bucket": BUCKET,
+        "feedback_ascenders_glob": FEEDBACK_ASCENDERS_GLOB,
     }
 
     console.print(f"📦 Available: {', '.join(namespace.keys())}")
+    console.print(
+        f"🌍 PRODUCT_DL_CATALOG={os.environ.get('PRODUCT_DL_CATALOG', 'unset')}"
+    )
     console.print(f"🏷️ METADATA_SCHEMA={metadata_schema}")
 
     # Start IPython with our namespace
@@ -328,42 +474,87 @@ def main(
     sql: bool = typer.Option(
         False, "--sql", help="Enter DuckDB CLI instead of IPython"
     ),
+    catalog: str = typer.Option(
+        "sqlite", "--catalog", help="Catalog type: sqlite or postgres"
+    ),
+    postgres: bool = typer.Option(
+        False,
+        "--postgres",
+        help="Use postgres catalog (equivalent to --catalog postgres)",
+    ),
     down: bool = typer.Option(
         False, "--down", help="Stop and remove the Postgres container"
     ),
+    clean: bool = typer.Option(
+        False, "--clean", help="Clean up demo data and stop containers"
+    ),
     metadata_schema: str = typer.Option(
-        DEFAULT_METADATA_SCHEMA,
-        "--metadata-schema",
-        "-s",
-        help="Metadata schema to use",
+        "default", "--metadata-schema", "-s", help="Metadata schema to use"
     ),
     exit_after_setup: bool = typer.Option(
         False, "--exit", help="Exit after setup without starting REPL"
     ),
+    restart: bool = typer.Option(
+        False,
+        "--restart",
+        help="Reset all state: clean up, bootstrap fresh, then exit (equivalent to --clean && --exit)",
+    ),
 ):
-    """Development environment CLI with DuckLake and Postgres."""
+    """Ascend product development environment CLI with DuckLake."""
+
+    # Handle --restart flag - clean up demo data, then continue with setup but exit
+    if restart:
+        clean_demo()
+        exit_after_setup = True  # Force exit after setup
 
     # Handle --down flag - stop postgres and exit
     if down:
         stop_postgres()
         raise typer.Exit(0)
 
-    # Always ensure postgres is running
-    check_docker()
-    ensure_postgres_running()
+    # Handle --clean flag - clean up demo data and exit
+    if clean:
+        clean_demo()
+        raise typer.Exit(0)
+
+    # Handle --postgres flag
+    if postgres:
+        catalog = "postgres"
+
+    # Validate metadata schema usage with SQLite
+    if catalog.lower() == "sqlite" and metadata_schema != "default":
+        console.print(
+            "⚠️  Warning: SQLite catalog does not support METADATA_SCHEMA parameter"
+        )
+        console.print(
+            f"   Requested schema '{metadata_schema}' will be ignored, using 'default' instead"
+        )
+        metadata_schema = "default"
+
+    # Bootstrap demo if never bootstrapped before
+    if not BOOTSTRAP_MARKER.exists():
+        bootstrap_demo()
+
+    # Always ensure postgres is running when using postgres catalog
+    if catalog.lower() == "postgres":
+        check_docker()
+        ensure_postgres_running()
+
+    os.environ["PRODUCT_DL_CATALOG"] = catalog.lower()
 
     # Handle --exit flag
     if exit_after_setup:
         console.print("✅ Setup complete, exiting as requested")
         raise typer.Exit(0)
 
+    catalog_emoji = "🐘" if catalog.lower() == "postgres" else "🗂️"
     mode_emoji = "🦆" if sql else "🐍"
-    console.print(f"dev: {mode_emoji} (language) 🐘 (postgres)")
+    console.print(f"product dev: {mode_emoji} (language) {catalog_emoji} (catalog)")
 
     if sql:
-        launch_sql_mode(metadata_schema)
+        launch_sql_mode(catalog.lower(), metadata_schema)
     else:
-        launch_python_mode(metadata_schema)
+        launch_python_mode(catalog.lower(), metadata_schema)
 
 
 # Entry point

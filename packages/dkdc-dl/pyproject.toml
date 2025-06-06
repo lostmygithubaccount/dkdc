@@ -1,14 +1,16 @@
 [project]
 name = "dkdc-dl"
-version = "0.1.0"
+version = "0.1.1"
 description = "dkdc datalake"
 readme = "README.md"
 authors = [{ name = "Cody", email = "cody@dkdc.dev" }]
 requires-python = ">=3.12"
 dependencies = [
-    "duckdb==1.3.0",
+    "pandas",
+    "polars",
+    "duckdb>=1.3.0",
     "gcsfs>=2025.5.1",
-    "ibis-framework[deltalake,duckdb,examples]>=10.5.0",
+    "ibis-framework[duckdb,postgres]>=10.5.0",
 ]
 
 [build-system]
