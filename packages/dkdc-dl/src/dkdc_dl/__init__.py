@@ -1,44 +1,27 @@
-# Imports
 import os
-from pathlib import Path
 
 import ibis
+
+from . import secrets, utils
 
 # Config
 ibis.options.interactive = True
 ibis.options.repr.interactive.max_rows = 40
 ibis.options.repr.interactive.max_columns = None
 
-# Determine catalog type from environment variable
-catalog_type = os.getenv("DKDC_DL_CATALOG", "sqlite").lower()
-data_path = f"datalake/catalog-{catalog_type}/"
+# Get default schema from environment variable
+default_schema = os.getenv(
+    "DKDC_DL_DEFAULT_METADATA_SCHEMA", utils.DEFAULT_METADATA_SCHEMA
+)
 
-# Ensure datalake directories exist
-Path(data_path).mkdir(parents=True, exist_ok=True)
+# Ensure postgres is running
+utils.ensure_postgres_running()
 
-if catalog_type == "postgres":
-    sql = f"""
-INSTALL ducklake;
-INSTALL postgres;
+# Create connection with all schemas attached
+con = utils.get_multi_schema_connection(default_schema=default_schema)
 
-ATTACH 'ducklake:postgres:host=localhost port=5432 dbname=ducklake user=dkdc password=dkdc' AS dl
-    (DATA_PATH '{data_path}');
-USE dl;
-""".strip()
-else:  # default to sqlite
-    sql = f"""
-INSTALL ducklake;
-INSTALL sqlite;
-
-ATTACH 'ducklake:sqlite:dl.sqlite' AS dl
-    (DATA_PATH '{data_path}');
-USE dl;
-""".strip()
-
-con = ibis.duckdb.connect()
-con.raw_sql(sql)
-
+# Set ibis backend
 ibis.set_backend(con)
 
 # Exports
-__all__ = ["ibis", "con"]
+__all__ = ["ibis", "con", "secrets"]
