@@ -55,11 +55,11 @@ INSTALL ducklake;
 INSTALL postgres;
 
 -- Attach metadata connection
-ATTACH 'host={host} port={port} dbname={database} user={user} password={password}' AS metadata (TYPE postgres, SCHEMA '{metadata_schema}', READ_ONLY);
+ATTACH 'host={host} port={port} dbname={database} user={user} password={password}' AS metadata (TYPE postgres, SCHEMA {metadata_schema}, READ_ONLY);
 
 -- Attach data connection
 ATTACH 'ducklake:postgres:host={host} port={port} dbname={database} user={user} password={password}'
-    AS data (DATA_PATH '{data_path}', METADATA_SCHEMA '{metadata_schema}, ENCRYPTED'); 
+    AS data (DATA_PATH '{data_path}', METADATA_SCHEMA {metadata_schema}, ENCRYPTED); 
 
 -- Use data connection
 USE data;
@@ -115,7 +115,6 @@ def get_postgres_connection(
             )
         )
     else:
-        breakpoint()
         con = ibis.postgres.connect(
             host=POSTGRES_HOST,
             port=POSTGRES_PORT,
@@ -297,10 +296,10 @@ def launch_sql_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
 def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
     """Launch IPython with Postgres catalog connection."""
     # Get connection
-    con = get_postgres_connection(metadata_schema=metadata_schema)
+    con = get_postgres_connection(catalog=False, metadata_schema=metadata_schema)
 
     # Get catalog connection for direct catalog access
-    catalog_con = get_postgres_connection(catalog=True)
+    catalog_con = get_postgres_connection(catalog=True, metadata_schema=metadata_schema)
 
     # Configure ibis
     ibis.options.interactive = True
