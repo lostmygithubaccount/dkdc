@@ -70,7 +70,6 @@ def launch_python_mode(metadata_schema: str):
         "con": con,
         "metacon": metacon,
         # dkdc submodules
-        "utils": ibis.util,
         "files": files,
         "secrets": secrets,
     }

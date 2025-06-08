@@ -8,7 +8,7 @@ POSTGRES_PORT = 5432
 POSTGRES_DB = "dkdc"
 POSTGRES_USER = "dkdc"
 POSTGRES_PASSWORD = "dkdc"
-POSTGRES_CONTAINER_NAME = "dkdc-dl-metadata"
+POSTGRES_CONTAINER_NAME = "dkdc-postgres"
 
 # Connection timeouts and retries
 MAX_POSTGRES_STARTUP_ATTEMPTS = 30
@@ -74,4 +74,14 @@ DKDC_BANNER = r"""
  ░              ░      ░
 
 develop knowledge, develop code
+"""
+
+# we'll switch to this once we hit v1.0.0, then use above for dev builds and such
+"""
+██████╗ ██╗  ██╗██████╗  ██████╗
+██╔══██╗██║ ██╔╝██╔══██╗██╔════╝
+██║  ██║█████╔╝ ██║  ██║██║     
+██║  ██║██╔═██╗ ██║  ██║██║     
+██████╔╝██║  ██╗██████╔╝╚██████╗
+╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝
 """

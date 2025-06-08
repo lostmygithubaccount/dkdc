@@ -1,0 +1,1 @@
+- `media` table, basically same as `files`, just separating for organization

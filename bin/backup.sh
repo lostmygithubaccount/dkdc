@@ -15,7 +15,7 @@ BUCKET="gs://dkdc-dl"
 LAKE_DATA_DIR="$HOME/lake/data"
 
 # Postgres configuration (must match utils.py)
-POSTGRES_CONTAINER_NAME="dkdc-dl-metadata"
+POSTGRES_CONTAINER_NAME="dkdc-metadata"
 POSTGRES_USER="dkdc"
 POSTGRES_DB="dkdc"
 
