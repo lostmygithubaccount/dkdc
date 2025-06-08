@@ -14,7 +14,7 @@ curl https://sh.rustup.rs -sSf | sh
 
 ### Installation
 
-Install `dkdc-links`:
+Install [`dkdc-links`](https://crates.io/crates/dkdc-links):
 
 ```bash
 cargo install dkdc-links
