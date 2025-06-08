@@ -163,19 +163,19 @@ function ws() {
 }
 
 function pri() {
-  v $HOME/code/lostmygithubaccount/files/pri.md
+  dkdc files open pri.md
 }
 
 function todo() {
   if [[ "$MACHINE_TYPE" == "WORK" ]]; then
-    v $HOME/code/lostmygithubaccount/files/work.md
+    dkdc files open work.md
   else
-    v $HOME/code/lostmygithubaccount/files/life.md
+    dkdc files open life.md
   fi
 }
 
 function notes() {
-  v $HOME/code/lostmygithubaccount/files/notes.md
+  dkdc files open notes.md
 }
 
 ## Core functionality

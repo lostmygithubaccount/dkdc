@@ -5,6 +5,7 @@ import typer
 
 from dkdc.cli.archive import archive_app
 from dkdc.cli.dev import dev_app
+from dkdc.cli.files import files_app
 from dkdc.config.config import open_config
 
 # Configuration
@@ -12,6 +13,7 @@ app = typer.Typer(name="dkdc")
 
 app.add_typer(archive_app, name="archive")
 app.add_typer(dev_app, name="dev")
+app.add_typer(files_app, name="files")
 
 
 @app.callback(invoke_without_command=True)

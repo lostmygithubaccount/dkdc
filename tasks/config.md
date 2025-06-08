@@ -1,4 +1,0 @@
-- I want a `--config/-c` flag for `dkdc` that works like the one for `dkdc-links`
-- open $HOME/.config/dkdc/config.toml in your editor
-- see how `config.rs` works in `dkdc-links`
-- add this in `py/dkdc` with the CLI flag
