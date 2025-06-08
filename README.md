@@ -68,3 +68,18 @@ Run the development REPL:
 ```bash
 uv run dkdc dev
 ```
+
+## Organization
+
+Code is organized:
+
+- [`src/`](src): Python package source code
+- [`rs/`](rs): Rust source code
+- [`go/`](go): Go source code
+- [`bin/`](bin): Repository utilities
+- [`tasks/`](tasks): Markdown tasks
+- [`websites/`](websites): Static websites
+
+## Rust CLIs
+
+See [`dkdc-links`](rs/dkdc-links/README.md) for bookmarks in your terminal.

@@ -1,6 +1,6 @@
 # dkdc-links
 
-***Links in your terminal.***
+***Bookmarks in your terminal.***
 
 ## Setup
 
