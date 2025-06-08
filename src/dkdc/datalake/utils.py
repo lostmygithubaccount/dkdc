@@ -246,6 +246,25 @@ USE data_{metadata_schema};
     """.strip()
 
 
+def get_multi_schema_sql_commands(default_schema: str = DEFAULT_METADATA_SCHEMA) -> str:
+    """Generate SQL commands for multi-schema connection with all schemas attached."""
+    commands = [
+        "INSTALL ducklake;",
+        "INSTALL postgres;",
+        "",
+    ]
+
+    # Add attachment commands for all schemas
+    for schema in METADATA_SCHEMAS:
+        metadata_sql, data_sql = _attach_schema_sql(schema)
+        commands.extend([metadata_sql, "", data_sql, ""])
+
+    # Set default schema
+    commands.append(f"USE data_{default_schema};")
+
+    return "\n".join(commands)
+
+
 def get_multi_schema_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
     """Create and return a DuckDB connection with all schemas attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
