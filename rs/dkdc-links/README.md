@@ -25,25 +25,28 @@ cargo install dkdc-links
 
 ## Usage
 
-To view links and aliases:
+To view aliases and links:
 
 ```bash
 dkdc-links
 ```
 
-To edit links and aliases:
+To open aliases and links:
+
+> [!TIP]
+> You can open multiple aliases/links in one command.
+
+```bash
+dkdc-links a alias link
+```
+
+To edit aliases and links:
+
+> [!TIP]
+> Configure `$EDITOR` to use your preferred text editor.
 
 ```bash
 dkdc-links --config
-```
-
-To open links and aliases:
-
-> [!TIP]
-> You can open multiple links/aliases in one command.
-
-```bash
-dkdc-links [links/aliases]
 ```
 
 Use `dkdc-links --help` for more information.

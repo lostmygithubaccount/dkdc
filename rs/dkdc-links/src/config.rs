@@ -12,7 +12,7 @@ pub struct Config {
     pub links: HashMap<String, String>,
 }
 
-const DEFAULT_CONFIG: &str = r#"# dkdc config file
+const DEFAULT_CONFIG: &str = r#"# dkdc-links config file
 [aliases]
 a = "link"
 alias = "link"
