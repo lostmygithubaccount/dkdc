@@ -15,7 +15,7 @@ BUCKET="gs://dkdc-dl"
 LAKE_DATA_DIR="$HOME/lake/data"
 
 # Postgres configuration (must match utils.py)
-POSTGRES_CONTAINER_NAME="dkdc-metadata"
+POSTGRES_CONTAINER_NAME="dkdc-postgres"
 POSTGRES_USER="dkdc"
 POSTGRES_DB="dkdc"
 
@@ -41,14 +41,26 @@ fi
 
 echo -e "${GREEN}✅ gcloud authentication confirmed${NC}"
 
-# Ensure Postgres container is running
-echo -e "${YELLOW}🐘 Ensuring Postgres container is ready...${NC}"
-if ! uv run dkdc dev --exit; then
-    echo -e "${RED}❌ Failed to start Postgres container${NC}"
+# Check if Docker container is running
+echo -e "${YELLOW}🐘 Checking Postgres container status...${NC}"
+if ! docker ps --format "table {{.Names}}" | grep -q "^${POSTGRES_CONTAINER_NAME}$"; then
+    echo -e "${RED}❌ Postgres container '${POSTGRES_CONTAINER_NAME}' is not running${NC}"
+    echo -e "${YELLOW}Starting container...${NC}"
+    if ! uv run dkdc dev --exit; then
+        echo -e "${RED}❌ Failed to start Postgres container${NC}"
+        exit 1
+    fi
+fi
+
+# Verify container is actually ready
+if ! docker exec "$POSTGRES_CONTAINER_NAME" pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+    echo -e "${RED}❌ Postgres container is running but database is not ready${NC}"
     exit 1
 fi
 
-echo -e "${YELLOW}📦 Creating and encrypting metadata backup...${NC}"
+echo -e "${GREEN}✅ Postgres container is ready${NC}"
+
+echo -e "${YELLOW}📦 Creating and encrypting metadata (Postgres) backup...${NC}"
 echo "OpenSSL will prompt for the encryption passphrase twice:"
 echo -e "${YELLOW}Note: If passphrases don't match, OpenSSL will show 'Verify failure' and you'll need to retry${NC}"
 
