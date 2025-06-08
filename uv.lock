@@ -160,7 +160,7 @@ wheels = [
 
 [[package]]
 name = "dkdc"
-version = "0.42.0"
+version = "0.43.0"
 source = { editable = "." }
 dependencies = [
     { name = "duckdb" },

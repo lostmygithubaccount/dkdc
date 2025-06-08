@@ -26,17 +26,23 @@ def get_file_from_datalake(con, filename: str) -> Optional[bytes]:
     ensure_files_table(con)
 
     files_table = con.table(TABLE_NAME)
+    # TODO: some nasty Ibis/DuckDB/DuckLake bug here
+    # Using the `.cache()` to work around it
+    # Calling the `.order_by()` fucks shit up
     result = (
-        files_table.filter(
-            (files_table["path"] == "./files") & (files_table["filename"] == filename)
-        )
-        .order_by(ibis.desc("updated_at"))
+        files_table.filter((ibis._["filename"] == filename))
+        .cache()
+        .filter(ibis._["path"] == "./files")
+        .order_by(ibis._["updated_at"].desc())
         .limit(1)
         .to_pyarrow()
         .to_pylist()
     )
 
-    return result[0]["data"] if result else None
+    if not result:
+        return None
+
+    return result[0]["data"]
 
 
 def save_file_to_datalake(con, filename: str, content: bytes) -> None:
