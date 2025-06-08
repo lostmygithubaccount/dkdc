@@ -42,7 +42,7 @@ dkdc-links
 To open a links:
 
 ```bash
-dkdc-links <link>
+dkdc-links [aliases and/or things to open]
 ```
 
 > [!TIP]
