@@ -5,6 +5,8 @@ import subprocess
 import typer
 
 from dkdc.cli.utils import (
+    check_and_report_duckdb,
+    ensure_postgres_with_feedback,
     operation_progress,
     print_error,
     print_header,
@@ -12,6 +14,7 @@ from dkdc.cli.utils import (
     print_key_value,
     print_success,
     spinner_task,
+    stop_postgres_with_feedback,
 )
 
 dev_app = typer.Typer(name="dev", invoke_without_command=True, no_args_is_help=False)
@@ -20,9 +23,9 @@ dev_app = typer.Typer(name="dev", invoke_without_command=True, no_args_is_help=F
 def launch_sql_mode(metadata_schema: str):
     """Launch DuckDB CLI with Postgres catalog attached."""
     from dkdc.config.constants import DKDC_BANNER
-    from dkdc.datalake.utils import check_duckdb, get_multi_schema_sql_commands
+    from dkdc.datalake.utils import get_multi_schema_sql_commands
 
-    check_duckdb()
+    check_and_report_duckdb()
 
     sql_cmd = get_multi_schema_sql_commands(metadata_schema)
 
@@ -115,33 +118,34 @@ def dev_main(
 
     # Handle --down flag - stop postgres and exit
     if down:
-        from dkdc.datalake.utils import stop_postgres
-
         try:
             with spinner_task(
-                "Stopping Postgres container...", "Postgres container stopped"
+                "Stopping metadata database (Postgres)...",
+                "Metadata database (Postgres) stopped",
             ):
-                stop_postgres(quiet=True)
+                stop_postgres_with_feedback(quiet=True)
         except Exception as e:
             print_error("Failed to stop Postgres", str(e))
         raise typer.Exit(0)
 
     # Always ensure postgres is running
     try:
-        from dkdc.datalake.utils import check_docker, ensure_postgres_running
+        from dkdc.cli.utils import check_and_report_docker
 
         with operation_progress(
-            "Setting up development environment...", "Development environment ready"
+            "Ensuring metadata database (Postgres) is running...",
+            "Metadata database (Postgres) is ready",
         ) as progress:
             progress.update(
                 progress.task_ids[0], description="Checking Docker availability..."
             )
-            check_docker()
+            check_and_report_docker()
 
             progress.update(
-                progress.task_ids[0], description="Starting Postgres container..."
+                progress.task_ids[0],
+                description="Starting metadata database (Postgres)...",
             )
-            ensure_postgres_running(quiet=True)
+            ensure_postgres_with_feedback(quiet=True)
 
             progress.update(progress.task_ids[0], description="Finalizing setup...")
 

@@ -2,14 +2,11 @@ import subprocess
 import time
 
 import ibis
-from rich.console import Console
 
 from dkdc.config import (
     DEFAULT_METADATA_SCHEMA,
-    DOCKER_INSTALL_URL,
     DOCKER_POSTGRES_IMAGE,
     DOCKER_RESTART_POLICY,
-    DUCKDB_INSTALL_URL,
     DUCKLAKE_EXTENSION,
     MAX_POSTGRES_STARTUP_ATTEMPTS,
     METADATA_SCHEMAS,
@@ -21,45 +18,30 @@ from dkdc.config import (
     POSTGRES_HOST,
     POSTGRES_PASSWORD,
     POSTGRES_PORT,
-    POSTGRES_STARTUP_TIMEOUT_MSG,
     POSTGRES_USER,
 )
 
-# Configuration
-console = Console()
 
-
-def check_duckdb() -> None:
-    """Check if duckdb CLI is available and print installation help if not."""
+def check_duckdb() -> bool:
+    """Check if duckdb CLI is available."""
     try:
         result = subprocess.run(["which", "duckdb"], capture_output=True, text=True)
-        if result.returncode != 0:
-            raise FileNotFoundError
+        return result.returncode == 0
     except FileNotFoundError:
-        console.print("❌ Missing prerequisite:")
-        console.print(f"  - duckdb CLI: {DUCKDB_INSTALL_URL}")
-        console.print("Please install duckdb CLI and try again.")
-        raise
+        return False
 
 
-def check_docker():
-    """Check if docker is available and print installation help if not."""
+def check_docker() -> bool:
+    """Check if docker is available."""
     try:
         result = subprocess.run(["which", "docker"], capture_output=True, text=True)
-        if result.returncode != 0:
-            raise FileNotFoundError
+        return result.returncode == 0
     except FileNotFoundError:
-        console.print("❌ Missing prerequisite:")
-        console.print(f"  - docker: {DOCKER_INSTALL_URL}")
-        console.print("Please install docker and try again.")
-        raise
+        return False
 
 
-def ensure_postgres_running(quiet: bool = False):
+def ensure_postgres_running() -> None:
     """Ensure Postgres container is running and ready."""
-    if not quiet:
-        console.print("📦 Checking Postgres container...")
-
     # Ensure both lake directories exist
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
     POSTGRES_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -73,19 +55,12 @@ def ensure_postgres_running(quiet: bool = False):
             text=True,
         )
         if result.stdout.strip() == "true":
-            if not quiet:
-                console.print("✅ Postgres container already running")
             # Test connection to ensure it's ready
             try:
                 con = get_postgres_connection()
                 con.raw_sql("SELECT 1")
-                if not quiet:
-                    console.print("✅ Postgres is ready!")
                 return
-            except Exception as e:
-                if not quiet:
-                    console.print(f"⚠️ Container running but not responding: {e}")
-                    console.print("Will restart container...")
+            except Exception:
                 # Stop and remove the unresponsive container
                 subprocess.run(
                     ["docker", "stop", POSTGRES_CONTAINER_NAME],
@@ -99,88 +74,62 @@ def ensure_postgres_running(quiet: bool = False):
                 )
         else:
             # Container exists but not running, remove it
-            if not quiet:
-                console.print(
-                    "🔄 Existing container found but not running, removing..."
-                )
             subprocess.run(
                 ["docker", "rm", POSTGRES_CONTAINER_NAME],
                 check=True,
                 capture_output=True,
             )
-            if not quiet:
-                console.print("✅ Existing container removed")
     except subprocess.CalledProcessError:
         # Container doesn't exist, which is fine
         pass
 
-    try:
-        # Start postgres container directly with docker
-        subprocess.run(
-            [
-                "docker",
-                "run",
-                "-d",
-                "--name",
-                POSTGRES_CONTAINER_NAME,
-                "--restart",
-                DOCKER_RESTART_POLICY,
-                "-e",
-                f"POSTGRES_DB={POSTGRES_DB}",
-                "-e",
-                f"POSTGRES_USER={POSTGRES_USER}",
-                "-e",
-                f"POSTGRES_PASSWORD={POSTGRES_PASSWORD}",
-                "-p",
-                f"{POSTGRES_PORT}:{POSTGRES_PORT}",
-                "-v",
-                f"{POSTGRES_DATA_DIR.absolute()}:/var/lib/postgresql/data",
-                DOCKER_POSTGRES_IMAGE,
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        if not quiet:
-            console.print("✅ Postgres container started")
-    except subprocess.CalledProcessError as e:
-        if not quiet:
-            console.print(f"❌ Failed to start Postgres container: {e}")
-            if e.stderr:
-                console.print(f"Error details: {e.stderr}")
-            if e.stdout:
-                console.print(f"Output: {e.stdout}")
-            console.print(
-                "💡 Try running './dev.py --down' first to clean up any existing containers"
-            )
-        raise
+    # Start postgres container directly with docker
+    subprocess.run(
+        [
+            "docker",
+            "run",
+            "-d",
+            "--name",
+            POSTGRES_CONTAINER_NAME,
+            "--restart",
+            DOCKER_RESTART_POLICY,
+            "-e",
+            f"POSTGRES_DB={POSTGRES_DB}",
+            "-e",
+            f"POSTGRES_USER={POSTGRES_USER}",
+            "-e",
+            f"POSTGRES_PASSWORD={POSTGRES_PASSWORD}",
+            "-p",
+            f"{POSTGRES_PORT}:{POSTGRES_PORT}",
+            "-v",
+            f"{POSTGRES_DATA_DIR.absolute()}:/var/lib/postgresql/data",
+            DOCKER_POSTGRES_IMAGE,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     # Wait for Postgres to be ready by trying to connect
-    if not quiet:
-        console.print("⏳ Waiting for Postgres to be ready...")
     for i in range(MAX_POSTGRES_STARTUP_ATTEMPTS):
         try:
             # Try to connect to Postgres via ducklake
             con = get_postgres_connection()
             con.raw_sql("SELECT 1")
-            if not quiet:
-                console.print("✅ Postgres is ready!")
             return
         except Exception as e:
             if i < MAX_POSTGRES_STARTUP_ATTEMPTS - 1:
                 time.sleep(0.5)
             else:
-                if not quiet:
-                    console.print(f"❌ {POSTGRES_STARTUP_TIMEOUT_MSG}")
-                    console.print(f"❌ Last error: {e}")
-                raise
+                raise RuntimeError(
+                    f"Postgres failed to start after {MAX_POSTGRES_STARTUP_ATTEMPTS} attempts: {e}"
+                )
 
 
-def stop_postgres(quiet: bool = False):
+def stop_postgres() -> None:
     """Stop and remove the Postgres container."""
-    check_docker()
-    if not quiet:
-        console.print("🛑 Stopping Postgres container...")
+    if not check_docker():
+        raise RuntimeError("Docker is not available")
 
     try:
         # Stop the container
@@ -189,8 +138,6 @@ def stop_postgres(quiet: bool = False):
             check=True,
             capture_output=True,
         )
-        if not quiet:
-            console.print("✅ Postgres container stopped")
 
         # Remove the container
         subprocess.run(
@@ -198,19 +145,10 @@ def stop_postgres(quiet: bool = False):
             check=True,
             capture_output=True,
         )
-        if not quiet:
-            console.print("✅ Postgres container removed")
 
     except subprocess.CalledProcessError as e:
-        if "No such container" in str(e.stderr):
-            if not quiet:
-                console.print("✅ Postgres container was not running")
-        else:
-            if not quiet:
-                console.print(f"❌ Failed to stop Postgres container: {e}")
-                if e.stderr:
-                    console.print(f"Error details: {e.stderr}")
-            raise
+        if "No such container" not in str(e.stderr):
+            raise RuntimeError(f"Failed to stop Postgres container: {e}")
 
 
 def _attach_schema_sql(schema: str) -> tuple[str, str]:

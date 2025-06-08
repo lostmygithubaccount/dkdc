@@ -8,7 +8,7 @@ POSTGRES_PORT = 5432
 POSTGRES_DB = "dkdc"
 POSTGRES_USER = "dkdc"
 POSTGRES_PASSWORD = "dkdc"
-POSTGRES_CONTAINER_NAME = "dkdc-dl-catalog"
+POSTGRES_CONTAINER_NAME = "dkdc-dl-metadata"
 
 # Connection timeouts and retries
 MAX_POSTGRES_STARTUP_ATTEMPTS = 30
