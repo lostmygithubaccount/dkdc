@@ -28,9 +28,9 @@ from dkdc.datalake.utils import (
     check_docker,
     check_duckdb,
     ensure_postgres_running,
-    get_duckdb_connection,
+    get_connection,
+    get_multi_schema_connection,
     get_multi_schema_sql_commands,
-    get_postgres_connection,
     stop_postgres,
 )
 
@@ -57,10 +57,10 @@ def launch_sql_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
 def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
     """Launch IPython with Postgres catalog connection."""
     # Get multi-schema connection
-    con = get_duckdb_connection(default_schema=metadata_schema)
+    con = get_multi_schema_connection(default_schema=metadata_schema)
 
     # Get catalog connection for direct catalog access
-    metacon = get_postgres_connection(metadata_schema=metadata_schema)  # nowa
+    catalog_con = get_connection(postgres=True, metadata_schema=metadata_schema)
 
     # Configure ibis
     ibis.options.interactive = True
@@ -74,7 +74,7 @@ def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
         "ibis": ibis,
         # Data connections
         "con": con,
-        "metacon": metacon,
+        "catalog_con": catalog_con,
         # dkdc submodules
         "utils": ibis.util,
         "files": files,

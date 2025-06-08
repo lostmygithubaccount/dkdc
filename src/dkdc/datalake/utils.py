@@ -77,7 +77,7 @@ def ensure_postgres_running():
             console.print("✅ Postgres container already running")
             # Test connection to ensure it's ready
             try:
-                con = get_postgres_connection()
+                con = get_connection(postgres=True)
                 con.raw_sql("SELECT 1")
                 console.print("✅ Postgres is ready!")
                 return
@@ -152,7 +152,7 @@ def ensure_postgres_running():
     for i in range(MAX_POSTGRES_STARTUP_ATTEMPTS):
         try:
             # Try to connect to Postgres via ducklake
-            con = get_postgres_connection()
+            con = get_connection(postgres=True)
             con.raw_sql("SELECT 1")
             console.print("✅ Postgres is ready!")
             return
@@ -206,18 +206,25 @@ def _attach_schema_sql(schema: str) -> tuple[str, str]:
     return metadata_sql, data_sql
 
 
-def get_postgres_connection(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
+def get_connection(
+    postgres: bool = False, metadata_schema: str = DEFAULT_METADATA_SCHEMA
+):
     """Create and return a DuckDB connection with Postgres catalog attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
 
-    con = ibis.postgres.connect(
-        host=POSTGRES_HOST,
-        port=POSTGRES_PORT,
-        database=POSTGRES_DB,
-        schema=metadata_schema,
-        user=POSTGRES_USER,
-        password=POSTGRES_PASSWORD,
-    )
+    if postgres:
+        con = ibis.postgres.connect(
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT,
+            database=POSTGRES_DB,
+            schema=metadata_schema,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+        )
+
+    con = ibis.duckdb.connect()
+    con.raw_sql(get_single_schema_sql_commands(metadata_schema))
+
     return con
 
 
@@ -239,7 +246,7 @@ USE data_{metadata_schema};
     """.strip()
 
 
-def get_duckdb_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
+def get_multi_schema_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
     """Create and return a DuckDB connection with all schemas attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
 
