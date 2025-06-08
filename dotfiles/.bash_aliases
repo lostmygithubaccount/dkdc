@@ -143,7 +143,7 @@ function dotfiles() {
 }
 
 function files() {
-  dkdc files
+  dkdc files "$@"
 }
 
 function p() {
