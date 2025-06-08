@@ -1,13 +1,13 @@
 # Imports
-from datetime import datetime
+from datetime import UTC, datetime
 
 import ibis
 import ibis.expr.datatypes as dt
 
-from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
+from dkdc.config import DEFAULT_METADATA_SCHEMA, SECRETS_TABLE_NAME
 
 # Constants
-TABLE_NAME = "secrets"
+TABLE_NAME = SECRETS_TABLE_NAME
 TABLE_SCHEMA = ibis.schema(
     {
         "key": str,
@@ -38,7 +38,7 @@ def add_secret(
     """Add a secret to the specified schema. Returns the secret ID."""
     ensure_secrets_table(con)
 
-    now = datetime.now()
+    now = datetime.now(UTC)
     data = {
         "key": [key],
         "value": [value],

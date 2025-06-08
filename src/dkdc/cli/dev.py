@@ -1,47 +1,18 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.13"
-# dependencies = [
-#     "dkdc",
-# ]
-# [tool.uv.sources]
-# dkdc = { path = ".", editable = true }
-# ///
+"""Development environment CLI with DuckLake and Postgres."""
 
-# Prerequisites:
-# - duckdb CLI (1.3.0 or later): curl https://install.duckdb.org | sh
-# - uv: curl -LsSf https://astral.sh/uv/install.sh | bash
-# - docker: https://docs.docker.com/desktop/setup/install/mac-install
-
-# Imports
 import subprocess
 
-import ibis
 import typer
-from IPython import start_ipython
 from rich.console import Console
 
-from dkdc.datalake import files, secrets
-from dkdc.datalake.utils import (
-    DEFAULT_METADATA_SCHEMA,
-    backup_metadata,
-    check_docker,
-    check_duckdb,
-    ensure_postgres_running,
-    get_connection,
-    get_multi_schema_connection,
-    get_multi_schema_sql_commands,
-    stop_postgres,
-)
-
-# Configuration
 console = Console()
-app = typer.Typer(add_completion=False)
+dev_app = typer.Typer(name="dev", invoke_without_command=True, no_args_is_help=False)
 
 
-# Functions
-def launch_sql_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
+def launch_sql_mode(metadata_schema: str):
     """Launch DuckDB CLI with Postgres catalog attached."""
+    from dkdc.datalake.utils import check_duckdb, get_multi_schema_sql_commands
+
     check_duckdb()
 
     sql_cmd = get_multi_schema_sql_commands(metadata_schema)
@@ -54,18 +25,25 @@ def launch_sql_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
     subprocess.run(["duckdb", "-cmd", sql_cmd], check=False)
 
 
-def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
+def launch_python_mode(metadata_schema: str):
     """Launch IPython with Postgres catalog connection."""
+    import ibis
+    from IPython import start_ipython
+
+    from dkdc.config import IBIS_INTERACTIVE, IBIS_MAX_COLUMNS, IBIS_MAX_ROWS
+    from dkdc.datalake import files, secrets
+    from dkdc.datalake.utils import get_duckdb_connection, get_postgres_connection
+
     # Get multi-schema connection
-    con = get_multi_schema_connection(default_schema=metadata_schema)
+    con = get_duckdb_connection(default_schema=metadata_schema)
 
     # Get catalog connection for direct catalog access
-    catalog_con = get_connection(postgres=True, metadata_schema=metadata_schema)
+    metacon = get_postgres_connection(metadata_schema=metadata_schema)
 
     # Configure ibis
-    ibis.options.interactive = True
-    ibis.options.repr.interactive.max_rows = 40
-    ibis.options.repr.interactive.max_columns = None
+    ibis.options.interactive = IBIS_INTERACTIVE
+    ibis.options.repr.interactive.max_rows = IBIS_MAX_ROWS
+    ibis.options.repr.interactive.max_columns = IBIS_MAX_COLUMNS
     ibis.set_backend(con)
 
     # Prepare namespace
@@ -74,7 +52,7 @@ def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
         "ibis": ibis,
         # Data connections
         "con": con,
-        "catalog_con": catalog_con,
+        "metacon": metacon,
         # dkdc submodules
         "utils": ibis.util,
         "files": files,
@@ -90,9 +68,8 @@ def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
     start_ipython(argv=["--no-banner"], user_ns=namespace)
 
 
-# Commands
-@app.command()
-def main(
+@dev_app.callback()
+def dev_main(
     sql: bool = typer.Option(
         False, "--sql", help="Enter DuckDB CLI instead of IPython"
     ),
@@ -100,7 +77,7 @@ def main(
         False, "--down", help="Stop and remove the Postgres container"
     ),
     metadata_schema: str = typer.Option(
-        DEFAULT_METADATA_SCHEMA,
+        None,
         "--metadata-schema",
         "-s",
         help="Metadata schema to use",
@@ -115,9 +92,16 @@ def main(
     ),
 ):
     """Development environment CLI with DuckLake and Postgres."""
+    from dkdc.config import DEFAULT_METADATA_SCHEMA
+
+    # Set default schema if not provided
+    if metadata_schema is None:
+        metadata_schema = DEFAULT_METADATA_SCHEMA
 
     # Handle --down flag - stop postgres and exit
     if down:
+        from dkdc.datalake.utils import stop_postgres
+
         try:
             stop_postgres()
         except Exception:
@@ -126,6 +110,8 @@ def main(
 
     # Handle --backup-metadata flag - create backup and exit
     if backup_metadata_flag:
+        from dkdc.datalake.utils import backup_metadata
+
         try:
             backup_metadata()
         except Exception as e:
@@ -135,6 +121,8 @@ def main(
 
     # Always ensure postgres is running
     try:
+        from dkdc.datalake.utils import check_docker, ensure_postgres_running
+
         check_docker()
         ensure_postgres_running()
     except Exception as e:
@@ -157,8 +145,3 @@ def main(
     except Exception as e:
         console.print(f"❌ Failed to launch: {e}")
         raise typer.Exit(1)
-
-
-# Entry point
-if __name__ == "__main__":
-    app()

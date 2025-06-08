@@ -1,32 +1,34 @@
 import subprocess
 import time
-from pathlib import Path
 
 import ibis
 from rich.console import Console
 
+from dkdc.config import (
+    BACKUP_LOCAL_PATH,
+    BACKUP_TEMP_PATH,
+    DEFAULT_METADATA_SCHEMA,
+    DOCKER_INSTALL_URL,
+    DOCKER_POSTGRES_IMAGE,
+    DOCKER_RESTART_POLICY,
+    DUCKDB_INSTALL_URL,
+    DUCKLAKE_EXTENSION,
+    MAX_POSTGRES_STARTUP_ATTEMPTS,
+    METADATA_SCHEMAS,
+    POSTGRES_CONTAINER_NAME,
+    POSTGRES_DATA_DIR,
+    POSTGRES_DATA_PATH,
+    POSTGRES_DB,
+    POSTGRES_EXTENSION,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_STARTUP_TIMEOUT_MSG,
+    POSTGRES_USER,
+)
+
 # Configuration
 console = Console()
-
-# Constants: File paths
-# WARNING: if you update these, you need to update `./bin/backup.sh` and similar
-POSTGRES_DATA_PATH = Path.home() / "lake" / "data"
-POSTGRES_DATA_DIR = Path.home() / "lake" / "metadata"
-
-# Constants: Postgres configuration
-# WARNING: if you update these, you need to update `./bin/backup.sh` and similar
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = 5432
-POSTGRES_DB = "dkdc"
-POSTGRES_USER = "dkdc"
-POSTGRES_PASSWORD = "dkdc"
-POSTGRES_CONTAINER_NAME = "dkdc-dl-catalog"
-MAX_POSTGRES_STARTUP_ATTEMPTS = 30
-POSTGRES_STARTUP_TIMEOUT_MSG = "Postgres failed to become ready in 15 seconds"
-
-# Constants: Schema configuration
-METADATA_SCHEMAS = ["dev", "stage", "prod"]
-DEFAULT_METADATA_SCHEMA = METADATA_SCHEMAS[0]
 
 
 def check_duckdb() -> None:
@@ -37,7 +39,7 @@ def check_duckdb() -> None:
             raise FileNotFoundError
     except FileNotFoundError:
         console.print("❌ Missing prerequisite:")
-        console.print("  - duckdb CLI: curl https://install.duckdb.org | sh")
+        console.print(f"  - duckdb CLI: {DUCKDB_INSTALL_URL}")
         console.print("Please install duckdb CLI and try again.")
         raise
 
@@ -50,9 +52,7 @@ def check_docker():
             raise FileNotFoundError
     except FileNotFoundError:
         console.print("❌ Missing prerequisite:")
-        console.print(
-            "  - docker: https://docs.docker.com/desktop/setup/install/mac-install"
-        )
+        console.print(f"  - docker: {DOCKER_INSTALL_URL}")
         console.print("Please install docker and try again.")
         raise
 
@@ -77,7 +77,7 @@ def ensure_postgres_running():
             console.print("✅ Postgres container already running")
             # Test connection to ensure it's ready
             try:
-                con = get_connection(postgres=True)
+                con = get_postgres_connection()
                 con.raw_sql("SELECT 1")
                 console.print("✅ Postgres is ready!")
                 return
@@ -118,7 +118,7 @@ def ensure_postgres_running():
                 "--name",
                 POSTGRES_CONTAINER_NAME,
                 "--restart",
-                "unless-stopped",
+                DOCKER_RESTART_POLICY,
                 "-e",
                 f"POSTGRES_DB={POSTGRES_DB}",
                 "-e",
@@ -129,7 +129,7 @@ def ensure_postgres_running():
                 f"{POSTGRES_PORT}:{POSTGRES_PORT}",
                 "-v",
                 f"{POSTGRES_DATA_DIR.absolute()}:/var/lib/postgresql/data",
-                "postgres:latest",
+                DOCKER_POSTGRES_IMAGE,
             ],
             check=True,
             capture_output=True,
@@ -152,7 +152,7 @@ def ensure_postgres_running():
     for i in range(MAX_POSTGRES_STARTUP_ATTEMPTS):
         try:
             # Try to connect to Postgres via ducklake
-            con = get_connection(postgres=True)
+            con = get_postgres_connection()
             con.raw_sql("SELECT 1")
             console.print("✅ Postgres is ready!")
             return
@@ -206,25 +206,18 @@ def _attach_schema_sql(schema: str) -> tuple[str, str]:
     return metadata_sql, data_sql
 
 
-def get_connection(
-    postgres: bool = False, metadata_schema: str = DEFAULT_METADATA_SCHEMA
-):
+def get_postgres_connection(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
     """Create and return a DuckDB connection with Postgres catalog attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
 
-    if postgres:
-        con = ibis.postgres.connect(
-            host=POSTGRES_HOST,
-            port=POSTGRES_PORT,
-            database=POSTGRES_DB,
-            schema=metadata_schema,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-        )
-
-    con = ibis.duckdb.connect()
-    con.raw_sql(get_single_schema_sql_commands(metadata_schema))
-
+    con = ibis.postgres.connect(
+        host=POSTGRES_HOST,
+        port=POSTGRES_PORT,
+        database=POSTGRES_DB,
+        schema=metadata_schema,
+        user=POSTGRES_USER,
+        password=POSTGRES_PASSWORD,
+    )
     return con
 
 
@@ -235,8 +228,8 @@ def get_single_schema_sql_commands(
     metadata_sql, data_sql = _attach_schema_sql(metadata_schema)
 
     return f"""
-INSTALL ducklake;
-INSTALL postgres;
+INSTALL {DUCKLAKE_EXTENSION};
+INSTALL {POSTGRES_EXTENSION};
 
 {metadata_sql}
 
@@ -249,8 +242,8 @@ USE data_{metadata_schema};
 def get_multi_schema_sql_commands(default_schema: str = DEFAULT_METADATA_SCHEMA) -> str:
     """Generate SQL commands for multi-schema connection with all schemas attached."""
     commands = [
-        "INSTALL ducklake;",
-        "INSTALL postgres;",
+        f"INSTALL {DUCKLAKE_EXTENSION};",
+        f"INSTALL {POSTGRES_EXTENSION};",
         "",
     ]
 
@@ -265,15 +258,15 @@ def get_multi_schema_sql_commands(default_schema: str = DEFAULT_METADATA_SCHEMA)
     return "\n".join(commands)
 
 
-def get_multi_schema_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
+def get_duckdb_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
     """Create and return a DuckDB connection with all schemas attached."""
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
 
     con = ibis.duckdb.connect()
 
     # Install extensions
-    con.raw_sql("INSTALL ducklake;")
-    con.raw_sql("INSTALL postgres;")
+    con.raw_sql(f"INSTALL {DUCKLAKE_EXTENSION};")
+    con.raw_sql(f"INSTALL {POSTGRES_EXTENSION};")
 
     # Attach all schemas
     for schema in METADATA_SCHEMAS:
@@ -318,7 +311,7 @@ def backup_metadata() -> None:
                 "-d",
                 POSTGRES_DB,
                 "-f",
-                "/tmp/metadata_backup.sql",
+                BACKUP_TEMP_PATH,
             ],
             check=True,
             capture_output=True,
@@ -329,8 +322,8 @@ def backup_metadata() -> None:
             [
                 "docker",
                 "cp",
-                f"{POSTGRES_CONTAINER_NAME}:/tmp/metadata_backup.sql",
-                "./metadata_backup.sql",
+                f"{POSTGRES_CONTAINER_NAME}:{BACKUP_TEMP_PATH}",
+                BACKUP_LOCAL_PATH,
             ],
             check=True,
             capture_output=True,

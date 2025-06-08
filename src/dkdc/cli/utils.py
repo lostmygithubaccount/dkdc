@@ -14,18 +14,10 @@ from rich.progress import (
 from rich.text import Text
 from rich.theme import Theme
 
+from dkdc.config import COLORS
+
 # Custom theme with violet/purple neon + cyan accents
-DKDC_THEME = Theme(
-    {
-        "primary": "#8b5cf6",  # violet
-        "secondary": "#06b6d4",  # cyan
-        "success": "#10b981",  # emerald
-        "warning": "#f59e0b",  # amber
-        "error": "#ef4444",  # red
-        "muted": "#6b7280",  # gray
-        "accent": "#a855f7",  # purple
-    }
-)
+DKDC_THEME = Theme(COLORS)
 
 # Global console instance with custom theme
 console = Console(theme=DKDC_THEME)

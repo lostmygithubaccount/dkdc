@@ -3,17 +3,21 @@ import fnmatch
 import io
 import os
 import zipfile
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import List, Union
 
 import ibis
 import ibis.expr.datatypes as dt
 
-from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
+from dkdc.config import (
+    BACKUP_FILENAME_TEMPLATE,
+    DEFAULT_METADATA_SCHEMA,
+    FILES_TABLE_NAME,
+)
 
 # Constants
-TABLE_NAME = "files"
+TABLE_NAME = FILES_TABLE_NAME
 TABLE_SCHEMA = ibis.schema(
     {
         "path": str,
@@ -60,7 +64,7 @@ def _add_file(
     """Internal function to add file data directly. Returns the filename."""
     ensure_files_table(con)
 
-    now = datetime.now()
+    now = datetime.now(UTC)
     file_data = {
         "path": [path],
         "filename": [filename],
@@ -136,7 +140,7 @@ def backup_directory(
     zip_data = zip_buffer.getvalue()
 
     # Use directory name with .zip extension
-    zip_filename = f"backup_directory_{directory_path.name}.zip"
+    zip_filename = BACKUP_FILENAME_TEMPLATE.format(name=directory_path.name)
     path = str(directory_path.parent)
 
     return _add_file(con, path, zip_filename, zip_data)
