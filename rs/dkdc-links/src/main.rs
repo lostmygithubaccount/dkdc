@@ -2,11 +2,11 @@ use anyhow::Result;
 use clap::Parser;
 use std::sync::Arc;
 
-use dkdc_rs::config::{config_it, init_config, load_config, print_config};
-use dkdc_rs::open::open_things;
+use dkdc_links::config::{config_it, init_config, load_config, print_config};
+use dkdc_links::open::open_things;
 
 #[derive(Parser, Debug)]
-#[command(name = "dkdc-rs")]
+#[command(name = "dkdc-links")]
 #[command(about = "bookmarks in your terminal")]
 #[command(version)]
 struct Args {

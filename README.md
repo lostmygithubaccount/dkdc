@@ -1,7 +1,3 @@
 # dkdc
 
-***The monorepo for me.***
-
-## Overview
-
-This is source code for all personal projects, grouped together for use with AI.
+***The monorepo for [me](websites/dkdc.dev/content/pages/about.md).***

@@ -1,14 +1,14 @@
 [package]
-name = "dkdc-rs"
+name = "dkdc-links"
 version = "0.1.0"
 edition = "2021"
 authors = ["Cody"]
-description = "bookmarks in your terminal"
+description = "links in your terminal"
 repository = "https://github.com/lostmygithubaccount/dkdc"
 license = "MIT"
 
 [[bin]]
-name = "dkdc-rs"
+name = "dkdc-links"
 path = "src/main.rs"
 
 [dependencies]
