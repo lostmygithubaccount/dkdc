@@ -9,8 +9,7 @@ from typing import List, Union
 
 import ibis
 import ibis.expr.datatypes as dt
-
-from dkdc_dl.utils import DEFAULT_METADATA_SCHEMA
+from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
 
 # Constants
 TABLE_NAME = "files"
@@ -19,6 +18,7 @@ TABLE_SCHEMA = ibis.schema(
         "path": str,
         "filename": str,
         "data": dt.binary,
+        "size": int,
         "updated_at": dt.timestamp,
     }
 )
@@ -64,6 +64,7 @@ def _add_file(
         "path": [path],
         "filename": [filename],
         "data": [data],
+        "size": [len(data)],
         "updated_at": [now],
     }
 

@@ -88,7 +88,7 @@ drive = "https://drive.google.com"
 ## Installation
 
 ```bash
-cargo install --path packages/dkdc-rs
+cargo install --path rs
 ```
 
 This installs the `dkdc-rs` binary, which can be used as:

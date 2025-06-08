@@ -3,8 +3,7 @@ from datetime import datetime
 
 import ibis
 import ibis.expr.datatypes as dt
-
-from dkdc_dl.utils import DEFAULT_METADATA_SCHEMA
+from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
 
 # Constants
 TABLE_NAME = "secrets"

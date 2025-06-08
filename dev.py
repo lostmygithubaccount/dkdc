@@ -18,8 +18,11 @@ import subprocess
 
 import ibis
 import typer
-from dkdc_dl import files, secrets
-from dkdc_dl.utils import (
+from IPython import start_ipython
+from rich.console import Console
+
+from dkdc.datalake import files, secrets
+from dkdc.datalake.utils import (
     DEFAULT_METADATA_SCHEMA,
     backup_metadata,
     check_docker,
@@ -30,8 +33,6 @@ from dkdc_dl.utils import (
     get_multi_schema_sql_commands,
     stop_postgres,
 )
-from IPython import start_ipython
-from rich.console import Console
 
 # Configuration
 console = Console()
