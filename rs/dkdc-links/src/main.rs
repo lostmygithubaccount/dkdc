@@ -6,7 +6,7 @@ use dkdc_links::open::open_links;
 
 #[derive(Parser, Debug)]
 #[command(name = "dkdc-links")]
-#[command(about = "bookmarks in your terminal")]
+#[command(about = "Bookmarks in your terminal")]
 #[command(version)]
 struct Args {
     /// Configure dkdc

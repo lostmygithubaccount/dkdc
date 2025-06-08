@@ -1,9 +1,9 @@
 [package]
 name = "dkdc-links"
-version = "0.5.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Cody"]
-description = "links in your terminal"
+description = "Bookmarks in your terminal"
 repository = "https://github.com/lostmygithubaccount/dkdc"
 license = "MIT"
 
