@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 from typing import Optional
 
+import ibis
 import typer
 
 from dkdc.cli.utils import (
@@ -29,7 +30,7 @@ def get_file_from_datalake(con, filename: str) -> Optional[bytes]:
         files_table.filter(
             (files_table["path"] == "./files") & (files_table["filename"] == filename)
         )
-        .order_by("updated_at")
+        .order_by(ibis.desc("updated_at"))
         .limit(1)
         .to_pyarrow()
         .to_pylist()
@@ -143,7 +144,7 @@ def list() -> None:
                 files_table.filter(files_table["path"] == "./files")
                 .group_by("filename")
                 .aggregate(updated_at=files_table["updated_at"].max())
-                .order_by("updated_at")
+                .order_by(ibis.desc("updated_at"))
                 .to_pyarrow()
                 .to_pylist()
             )
