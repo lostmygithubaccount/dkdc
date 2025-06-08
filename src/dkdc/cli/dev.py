@@ -85,11 +85,6 @@ def dev_main(
     exit_after_setup: bool = typer.Option(
         False, "--exit", help="Exit after setup without starting REPL"
     ),
-    backup_metadata_flag: bool = typer.Option(
-        False,
-        "--backup-metadata",
-        help="Create metadata backup as metadata_backup.sql and exit",
-    ),
 ):
     """Development environment CLI with DuckLake and Postgres."""
     from dkdc.config import DEFAULT_METADATA_SCHEMA
@@ -106,17 +101,6 @@ def dev_main(
             stop_postgres()
         except Exception:
             pass
-        raise typer.Exit(0)
-
-    # Handle --backup-metadata flag - create backup and exit
-    if backup_metadata_flag:
-        from dkdc.datalake.utils import backup_metadata
-
-        try:
-            backup_metadata()
-        except Exception as e:
-            console.print(f"❌ Backup failed: {e}")
-            raise typer.Exit(1)
         raise typer.Exit(0)
 
     # Always ensure postgres is running

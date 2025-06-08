@@ -34,8 +34,6 @@ SECRETS_TABLE_NAME = "secrets"
 FILES_TABLE_NAME = "files"
 
 # Backup configuration
-BACKUP_TEMP_PATH = "/tmp/metadata_backup.sql"
-BACKUP_LOCAL_PATH = "./metadata_backup.sql"
 BACKUP_FILENAME_TEMPLATE = "backup_directory_{name}.zip"
 
 # CLI color theme

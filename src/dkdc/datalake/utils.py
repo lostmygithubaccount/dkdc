@@ -5,8 +5,6 @@ import ibis
 from rich.console import Console
 
 from dkdc.config import (
-    BACKUP_LOCAL_PATH,
-    BACKUP_TEMP_PATH,
     DEFAULT_METADATA_SCHEMA,
     DOCKER_INSTALL_URL,
     DOCKER_POSTGRES_IMAGE,
@@ -278,61 +276,3 @@ def get_duckdb_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
     con.raw_sql(f"USE data_{default_schema};")
 
     return con
-
-
-def backup_metadata() -> None:
-    """Backup Postgres metadata using pg_dump via docker exec."""
-    check_docker()
-    console.print("📦 Creating metadata backup...")
-
-    try:
-        # Check if container is running
-        result = subprocess.run(
-            ["docker", "inspect", "-f", "{{.State.Running}}", POSTGRES_CONTAINER_NAME],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-
-        if result.stdout.strip() != "true":
-            console.print("❌ Postgres container is not running")
-            console.print("💡 Run './dev.py' first to start the container")
-            raise RuntimeError("Postgres container not running")
-
-        # Run pg_dump in the container and save to metadata_backup.sql
-        subprocess.run(
-            [
-                "docker",
-                "exec",
-                POSTGRES_CONTAINER_NAME,
-                "pg_dump",
-                "-U",
-                POSTGRES_USER,
-                "-d",
-                POSTGRES_DB,
-                "-f",
-                BACKUP_TEMP_PATH,
-            ],
-            check=True,
-            capture_output=True,
-        )
-
-        # Copy the backup file from container to host
-        subprocess.run(
-            [
-                "docker",
-                "cp",
-                f"{POSTGRES_CONTAINER_NAME}:{BACKUP_TEMP_PATH}",
-                BACKUP_LOCAL_PATH,
-            ],
-            check=True,
-            capture_output=True,
-        )
-
-        console.print("✅ Metadata backup created: metadata_backup.sql")
-
-    except subprocess.CalledProcessError as e:
-        console.print(f"❌ Failed to create backup: {e}")
-        if e.stderr:
-            console.print(f"Error details: {e.stderr}")
-        raise
