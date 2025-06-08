@@ -28,9 +28,10 @@ def launch_sql_mode(metadata_schema: str):
 
     print_header("dkdc dev (SQL)", "Connected with multi-schema access")
     print_key_value("Default database", f"data_{metadata_schema}")
-    
+
     # Print banner before entering DuckDB
     from dkdc.cli.utils import console
+
     console.print(DKDC_BANNER, style="primary")
 
     subprocess.run(["duckdb", "-cmd", sql_cmd], check=False)
@@ -77,6 +78,7 @@ def launch_python_mode(metadata_schema: str):
 
     # Print banner before entering IPython
     from dkdc.cli.utils import console
+
     console.print(DKDC_BANNER, style="primary")
 
     # Start IPython with our namespace
@@ -113,8 +115,10 @@ def dev_main(
         from dkdc.datalake.utils import stop_postgres
 
         try:
-            with spinner_task("Stopping Postgres container...", "Postgres container stopped"):
-                stop_postgres()
+            with spinner_task(
+                "Stopping Postgres container...", "Postgres container stopped"
+            ):
+                stop_postgres(quiet=True)
         except Exception as e:
             print_error("Failed to stop Postgres", str(e))
         raise typer.Exit(0)
@@ -123,12 +127,18 @@ def dev_main(
     try:
         from dkdc.datalake.utils import check_docker, ensure_postgres_running
 
-        with operation_progress("Setting up development environment...", "Development environment ready") as progress:
-            progress.update(progress.task_ids[0], description="Checking Docker availability...")
+        with operation_progress(
+            "Setting up development environment...", "Development environment ready"
+        ) as progress:
+            progress.update(
+                progress.task_ids[0], description="Checking Docker availability..."
+            )
             check_docker()
 
-            progress.update(progress.task_ids[0], description="Starting Postgres container...")
-            ensure_postgres_running()
+            progress.update(
+                progress.task_ids[0], description="Starting Postgres container..."
+            )
+            ensure_postgres_running(quiet=True)
 
             progress.update(progress.task_ids[0], description="Finalizing setup...")
 

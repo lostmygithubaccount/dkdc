@@ -94,7 +94,9 @@ def create_spinner_progress() -> Progress:
 
 
 @contextmanager
-def spinner_task(description: str, success_message: Optional[str] = None) -> Generator[None, None, None]:
+def spinner_task(
+    description: str, success_message: Optional[str] = None
+) -> Generator[None, None, None]:
     """Context manager for spinner tasks that cleans up and shows success message."""
     with create_spinner_progress() as progress:
         progress.add_task(description)
@@ -138,10 +140,12 @@ def print_divider(text: Optional[str] = None, style: str = "muted") -> None:
 
 
 @contextmanager
-def operation_progress(description: str, success_message: str) -> Generator[Progress, None, None]:
+def operation_progress(
+    description: str, success_message: str
+) -> Generator[Progress, None, None]:
     """Context manager for multi-step operations with clean completion."""
     with create_spinner_progress() as progress:
-        task = progress.add_task(description)
+        progress.add_task(description)
         try:
             yield progress
             print_success(success_message)

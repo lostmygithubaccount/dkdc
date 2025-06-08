@@ -55,9 +55,10 @@ def check_docker():
         raise
 
 
-def ensure_postgres_running():
+def ensure_postgres_running(quiet: bool = False):
     """Ensure Postgres container is running and ready."""
-    console.print("📦 Checking Postgres container...")
+    if not quiet:
+        console.print("📦 Checking Postgres container...")
 
     # Ensure both lake directories exist
     POSTGRES_DATA_PATH.mkdir(parents=True, exist_ok=True)
@@ -72,16 +73,19 @@ def ensure_postgres_running():
             text=True,
         )
         if result.stdout.strip() == "true":
-            console.print("✅ Postgres container already running")
+            if not quiet:
+                console.print("✅ Postgres container already running")
             # Test connection to ensure it's ready
             try:
                 con = get_postgres_connection()
                 con.raw_sql("SELECT 1")
-                console.print("✅ Postgres is ready!")
+                if not quiet:
+                    console.print("✅ Postgres is ready!")
                 return
             except Exception as e:
-                console.print(f"⚠️ Container running but not responding: {e}")
-                console.print("Will restart container...")
+                if not quiet:
+                    console.print(f"⚠️ Container running but not responding: {e}")
+                    console.print("Will restart container...")
                 # Stop and remove the unresponsive container
                 subprocess.run(
                     ["docker", "stop", POSTGRES_CONTAINER_NAME],
@@ -95,13 +99,17 @@ def ensure_postgres_running():
                 )
         else:
             # Container exists but not running, remove it
-            console.print("🔄 Existing container found but not running, removing...")
+            if not quiet:
+                console.print(
+                    "🔄 Existing container found but not running, removing..."
+                )
             subprocess.run(
                 ["docker", "rm", POSTGRES_CONTAINER_NAME],
                 check=True,
                 capture_output=True,
             )
-            console.print("✅ Existing container removed")
+            if not quiet:
+                console.print("✅ Existing container removed")
     except subprocess.CalledProcessError:
         # Container doesn't exist, which is fine
         pass
@@ -133,40 +141,46 @@ def ensure_postgres_running():
             capture_output=True,
             text=True,
         )
-        console.print("✅ Postgres container started")
+        if not quiet:
+            console.print("✅ Postgres container started")
     except subprocess.CalledProcessError as e:
-        console.print(f"❌ Failed to start Postgres container: {e}")
-        if e.stderr:
-            console.print(f"Error details: {e.stderr}")
-        if e.stdout:
-            console.print(f"Output: {e.stdout}")
-        console.print(
-            "💡 Try running './dev.py --down' first to clean up any existing containers"
-        )
+        if not quiet:
+            console.print(f"❌ Failed to start Postgres container: {e}")
+            if e.stderr:
+                console.print(f"Error details: {e.stderr}")
+            if e.stdout:
+                console.print(f"Output: {e.stdout}")
+            console.print(
+                "💡 Try running './dev.py --down' first to clean up any existing containers"
+            )
         raise
 
     # Wait for Postgres to be ready by trying to connect
-    console.print("⏳ Waiting for Postgres to be ready...")
+    if not quiet:
+        console.print("⏳ Waiting for Postgres to be ready...")
     for i in range(MAX_POSTGRES_STARTUP_ATTEMPTS):
         try:
             # Try to connect to Postgres via ducklake
             con = get_postgres_connection()
             con.raw_sql("SELECT 1")
-            console.print("✅ Postgres is ready!")
+            if not quiet:
+                console.print("✅ Postgres is ready!")
             return
         except Exception as e:
             if i < MAX_POSTGRES_STARTUP_ATTEMPTS - 1:
                 time.sleep(0.5)
             else:
-                console.print(f"❌ {POSTGRES_STARTUP_TIMEOUT_MSG}")
-                console.print(f"❌ Last error: {e}")
+                if not quiet:
+                    console.print(f"❌ {POSTGRES_STARTUP_TIMEOUT_MSG}")
+                    console.print(f"❌ Last error: {e}")
                 raise
 
 
-def stop_postgres():
+def stop_postgres(quiet: bool = False):
     """Stop and remove the Postgres container."""
     check_docker()
-    console.print("🛑 Stopping Postgres container...")
+    if not quiet:
+        console.print("🛑 Stopping Postgres container...")
 
     try:
         # Stop the container
@@ -175,7 +189,8 @@ def stop_postgres():
             check=True,
             capture_output=True,
         )
-        console.print("✅ Postgres container stopped")
+        if not quiet:
+            console.print("✅ Postgres container stopped")
 
         # Remove the container
         subprocess.run(
@@ -183,15 +198,18 @@ def stop_postgres():
             check=True,
             capture_output=True,
         )
-        console.print("✅ Postgres container removed")
+        if not quiet:
+            console.print("✅ Postgres container removed")
 
     except subprocess.CalledProcessError as e:
         if "No such container" in str(e.stderr):
-            console.print("✅ Postgres container was not running")
+            if not quiet:
+                console.print("✅ Postgres container was not running")
         else:
-            console.print(f"❌ Failed to stop Postgres container: {e}")
-            if e.stderr:
-                console.print(f"Error details: {e.stderr}")
+            if not quiet:
+                console.print(f"❌ Failed to stop Postgres container: {e}")
+                if e.stderr:
+                    console.print(f"Error details: {e.stderr}")
             raise
 
 

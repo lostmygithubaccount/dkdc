@@ -10,7 +10,6 @@ from dkdc.cli.utils import (
     print_error,
     print_header,
     print_key_value,
-    print_success,
 )
 
 backup_app = typer.Typer(
@@ -43,16 +42,24 @@ def backup_default(
     print_key_value("Source", directory_path)
 
     try:
-        with operation_progress("Creating backup archive...", "Backup completed successfully") as progress:
-            progress.update(progress.task_ids[0], description="Initializing backup process...")
+        with operation_progress(
+            "Creating backup archive...", "Backup completed successfully"
+        ) as progress:
+            progress.update(
+                progress.task_ids[0], description="Initializing backup process..."
+            )
 
             from dkdc.datalake.files import backup_directory
             from dkdc.datalake.utils import get_duckdb_connection
 
-            progress.update(progress.task_ids[0], description="Connecting to datalake...")
+            progress.update(
+                progress.task_ids[0], description="Connecting to datalake..."
+            )
             con = get_duckdb_connection()
 
-            progress.update(progress.task_ids[0], description="Creating backup archive...")
+            progress.update(
+                progress.task_ids[0], description="Creating backup archive..."
+            )
             zip_filename = backup_directory(con, directory_path)
 
             progress.update(progress.task_ids[0], description="Finalizing backup...")
