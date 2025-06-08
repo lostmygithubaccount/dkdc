@@ -59,3 +59,19 @@ DOCKER_INSTALL_URL = "https://docs.docker.com/desktop/setup/install/mac-install"
 # SQL extensions
 DUCKLAKE_EXTENSION = "ducklake"
 POSTGRES_EXTENSION = "postgres"
+
+# ASCII art banner
+DKDC_BANNER = r"""
+▓█████▄  ██ ▄█▀▓█████▄  ▄████▄  
+▒██▀ ██▌ ██▄█▒ ▒██▀ ██▌▒██▀ ▀█  
+░██   █▌▓███▄░ ░██   █▌▒▓█    ▄ 
+░▓█▄   ▌▓██ █▄ ░▓█▄   ▌▒▓▓▄ ▄██▒
+░▒████▓ ▒██▒ █▄░▒████▓ ▒ ▓███▀ ░
+ ▒▒▓  ▒ ▒ ▒▒ ▓▒ ▒▒▓  ▒ ░ ░▒ ▒  ░
+ ░ ▒  ▒ ░ ░▒ ▒░ ░ ▒  ▒   ░  ▒   
+ ░ ░  ░ ░ ░░ ░  ░ ░  ░ ░        
+   ░    ░  ░      ░    ░ ░      
+ ░              ░      ░
+
+develop knowledge, develop code
+"""

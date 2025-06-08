@@ -6,7 +6,7 @@ from typing import Optional
 import typer
 
 from dkdc.cli.utils import (
-    create_spinner_progress,
+    operation_progress,
     print_error,
     print_header,
     print_key_value,
@@ -39,25 +39,24 @@ def backup_default(
         print_error("Invalid target", f"'{directory_path}' is not a directory")
         raise typer.Exit(1)
 
-    print_header("Directory Backup", "Creating backup in datalake")
+    print_header("Backup directory", "Creating backup in datalake")
     print_key_value("Source", directory_path)
 
     try:
-        with create_spinner_progress() as progress:
-            task = progress.add_task("Initializing backup process...")
+        with operation_progress("Creating backup archive...", "Backup completed successfully") as progress:
+            progress.update(progress.task_ids[0], description="Initializing backup process...")
 
             from dkdc.datalake.files import backup_directory
-            from dkdc.datalake.utils import get_connection
+            from dkdc.datalake.utils import get_duckdb_connection
 
-            progress.update(task, description="Connecting to datalake...")
-            con = get_connection()
+            progress.update(progress.task_ids[0], description="Connecting to datalake...")
+            con = get_duckdb_connection()
 
-            progress.update(task, description="Creating backup archive...")
+            progress.update(progress.task_ids[0], description="Creating backup archive...")
             zip_filename = backup_directory(con, directory_path)
 
-            progress.update(task, description="Finalizing backup...")
+            progress.update(progress.task_ids[0], description="Finalizing backup...")
 
-        print_success("Backup completed successfully")
         print_key_value("Archive", zip_filename, value_style="success")
 
     except Exception as e:

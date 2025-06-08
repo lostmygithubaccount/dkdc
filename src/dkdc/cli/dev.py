@@ -3,24 +3,35 @@
 import subprocess
 
 import typer
-from rich.console import Console
 
-console = Console()
+from dkdc.cli.utils import (
+    operation_progress,
+    print_error,
+    print_header,
+    print_info,
+    print_key_value,
+    print_success,
+    spinner_task,
+)
+
 dev_app = typer.Typer(name="dev", invoke_without_command=True, no_args_is_help=False)
 
 
 def launch_sql_mode(metadata_schema: str):
     """Launch DuckDB CLI with Postgres catalog attached."""
+    from dkdc.config.constants import DKDC_BANNER
     from dkdc.datalake.utils import check_duckdb, get_multi_schema_sql_commands
 
     check_duckdb()
 
     sql_cmd = get_multi_schema_sql_commands(metadata_schema)
 
-    console.print("📦 Available: dl catalog, ducklake extension")
-    console.print(f"🏷️ METADATA_SCHEMA={metadata_schema}")
-    console.print("🔗 Connected to all schemas: dev, stage, prod")
-    console.print(f"📋 Default schema: data_{metadata_schema}")
+    print_header("dkdc dev (SQL)", "Connected with multi-schema access")
+    print_key_value("Default database", f"data_{metadata_schema}")
+    
+    # Print banner before entering DuckDB
+    from dkdc.cli.utils import console
+    console.print(DKDC_BANNER, style="primary")
 
     subprocess.run(["duckdb", "-cmd", sql_cmd], check=False)
 
@@ -31,6 +42,7 @@ def launch_python_mode(metadata_schema: str):
     from IPython import start_ipython
 
     from dkdc.config import IBIS_INTERACTIVE, IBIS_MAX_COLUMNS, IBIS_MAX_ROWS
+    from dkdc.config.constants import DKDC_BANNER
     from dkdc.datalake import files, secrets
     from dkdc.datalake.utils import get_duckdb_connection, get_postgres_connection
 
@@ -59,10 +71,13 @@ def launch_python_mode(metadata_schema: str):
         "secrets": secrets,
     }
 
-    console.print(f"📦 Available: {', '.join(namespace.keys())}")
-    console.print(f"🏷️ METADATA_SCHEMA={metadata_schema}")
-    console.print("🔗 Connected to all schemas: dev, stage, prod")
-    console.print(f"📋 Default schema: data_{metadata_schema}")
+    print_header("dkdc dev (Python)", "Ready with data connections")
+    print_key_value("Namespace", ", ".join(namespace.keys()))
+    print_key_value("Default catalog", f"data_{metadata_schema}")
+
+    # Print banner before entering IPython
+    from dkdc.cli.utils import console
+    console.print(DKDC_BANNER, style="primary")
 
     # Start IPython with our namespace
     start_ipython(argv=["--no-banner"], user_ns=namespace)
@@ -98,28 +113,36 @@ def dev_main(
         from dkdc.datalake.utils import stop_postgres
 
         try:
-            stop_postgres()
-        except Exception:
-            pass
+            with spinner_task("Stopping Postgres container...", "Postgres container stopped"):
+                stop_postgres()
+        except Exception as e:
+            print_error("Failed to stop Postgres", str(e))
         raise typer.Exit(0)
 
     # Always ensure postgres is running
     try:
         from dkdc.datalake.utils import check_docker, ensure_postgres_running
 
-        check_docker()
-        ensure_postgres_running()
+        with operation_progress("Setting up development environment...", "Development environment ready") as progress:
+            progress.update(progress.task_ids[0], description="Checking Docker availability...")
+            check_docker()
+
+            progress.update(progress.task_ids[0], description="Starting Postgres container...")
+            ensure_postgres_running()
+
+            progress.update(progress.task_ids[0], description="Finalizing setup...")
+
     except Exception as e:
-        console.print(f"❌ Setup failed: {e}")
+        print_error("Setup failed", str(e))
         raise typer.Exit(1)
 
     # Handle --exit flag
     if exit_after_setup:
-        console.print("✅ Setup complete, exiting as requested")
+        print_success("Setup complete, exiting as requested")
         raise typer.Exit(0)
 
-    mode_emoji = "🦆" if sql else "🐍"
-    console.print(f"dev: {mode_emoji} (language) 🐘 (postgres)")
+    mode = "SQL (DuckDB)" if sql else "Python (IPython)"
+    print_info(f"Launching {mode} development environment")
 
     try:
         if sql:
@@ -127,5 +150,5 @@ def dev_main(
         else:
             launch_python_mode(metadata_schema)
     except Exception as e:
-        console.print(f"❌ Failed to launch: {e}")
+        print_error("Failed to launch environment", str(e))
         raise typer.Exit(1)

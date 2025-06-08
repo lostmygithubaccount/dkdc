@@ -1,6 +1,7 @@
 """Utilities for CLI console output with Rich styling."""
 
-from typing import Any, Optional
+from contextlib import contextmanager
+from typing import Any, Generator, Optional
 
 from rich.console import Console
 from rich.panel import Panel
@@ -88,8 +89,22 @@ def create_spinner_progress() -> Progress:
         SpinnerColumn(),
         TextColumn("[bold primary]{task.description}"),
         console=console,
-        transient=False,
+        transient=True,
     )
+
+
+@contextmanager
+def spinner_task(description: str, success_message: Optional[str] = None) -> Generator[None, None, None]:
+    """Context manager for spinner tasks that cleans up and shows success message."""
+    with create_spinner_progress() as progress:
+        progress.add_task(description)
+        try:
+            yield
+            if success_message:
+                print_success(success_message)
+        except Exception as e:
+            print_error(f"Failed: {description.lower()}", str(e))
+            raise
 
 
 def confirm_action(message: str, default: bool = False) -> bool:
@@ -120,3 +135,16 @@ def print_divider(text: Optional[str] = None, style: str = "muted") -> None:
         console.rule(text, style=style)
     else:
         console.rule(style=style)
+
+
+@contextmanager
+def operation_progress(description: str, success_message: str) -> Generator[Progress, None, None]:
+    """Context manager for multi-step operations with clean completion."""
+    with create_spinner_progress() as progress:
+        task = progress.add_task(description)
+        try:
+            yield progress
+            print_success(success_message)
+        except Exception as e:
+            print_error(f"Failed: {description.lower()}", str(e))
+            raise

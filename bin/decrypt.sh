@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# decrypt.sh: Decrypt files encrypted with backup.sh
-
 set -euo pipefail
 
 # Colors for output

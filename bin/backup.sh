@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# backup.sh: Create encrypted metadata backup
-
 set -euo pipefail
 
 # Colors for output
