@@ -39,6 +39,12 @@ Backup a directory to your datalake:
 dkdc backup
 ```
 
+Work in a virtual filesystem:
+
+```bash
+dkdc files
+```
+
 ## Development
 
 Clone the repository:
