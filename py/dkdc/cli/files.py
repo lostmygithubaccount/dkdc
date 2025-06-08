@@ -144,7 +144,7 @@ def list() -> None:
                 files_table.filter(files_table["path"] == "./files")
                 .group_by("filename")
                 .aggregate(updated_at=files_table["updated_at"].max())
-                .order_by(ibis.desc("updated_at"))
+                .order_by("updated_at")
                 .to_pyarrow()
                 .to_pylist()
             )

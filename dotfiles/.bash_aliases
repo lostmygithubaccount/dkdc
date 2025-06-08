@@ -147,7 +147,7 @@ function dotfiles() {
 }
 
 function files() {
-  cd $HOME/code/lostmygithubaccount/files
+  dkdc files list
 }
 
 function p() {
