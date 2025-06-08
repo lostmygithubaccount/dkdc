@@ -1,0 +1,65 @@
+# history
+*.history
+
+# mac
+.DS_STORE
+
+# vim
+*.swp
+
+# vscode
+.vscode
+
+# secrets
+.env
+
+# venvs
+venv
+venvs
+.venv
+.venvs
+
+# worktrees
+trees
+
+# tmp
+.tmp
+tmp
+
+# data
+data
+*.csv*
+*.ddb*
+*.parquet
+
+# python
+.ipynb_checkpoints
+.ruff_cache
+__pycache__
+*.pyc
+*.pyo
+
+# rust
+target/
+
+# ascend
+ascend-out
+
+# logs
+logs
+
+# personal conventions
+out.txt
+out.csv
+out.json
+out2.json
+out3.json
+out4.json
+temp/
+temp.py
+temp.sh
+temp.txt
+temp.ipynb
+temp.md
+temp.json
+

@@ -53,12 +53,12 @@ pub fn config_it() -> Result<()> {
     let config_path = config_path()?;
     let editor = std::env::var("EDITOR").unwrap_or_else(|_| "vi".to_string());
 
-    println!("opening {} with {}...", config_path.display(), editor);
+    println!("Opening {} with {}...", config_path.display(), editor);
 
     let status = std::process::Command::new(&editor)
         .arg(&config_path)
         .status()
-        .with_context(|| format!("editor {} not found in PATH", editor))?;
+        .with_context(|| format!("Editor {} not found in PATH", editor))?;
 
     if !status.success() {
         anyhow::bail!("Editor exited with non-zero status");
