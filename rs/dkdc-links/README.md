@@ -21,30 +21,29 @@ cargo install dkdc-links
 ```
 
 > [!TIP]
-> You may want to alias `dkdc-links` to `links` or similar.
+> Consider aliasing `dkdc-links` to `links` or similar.
 
 ## Usage
 
-Use `dkdc-links --help` for more information.
-
-To edit your links:
-
-```bash
-dkdc-links --config
-```
-
-To view your links:
+To view links and aliases:
 
 ```bash
 dkdc-links
 ```
 
-To open a links:
+To edit links and aliases:
 
 ```bash
-dkdc-links [aliases and/or links to open]
+dkdc-links --config
 ```
 
-> [!TIP]
-> You can open multiple links in one command.
+To open links and aliases:
 
+> [!TIP]
+> You can open multiple links/aliases in one command.
+
+```bash
+dkdc-links [links/aliases]
+```
+
+Use `dkdc-links --help` for more information.

@@ -1,6 +1,6 @@
 [package]
 name = "dkdc-links"
-version = "1.1.1"
+version = "1.1.2"
 edition = "2021"
 authors = ["Cody"]
 description = "Bookmarks in your terminal"
