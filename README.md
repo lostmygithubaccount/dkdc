@@ -73,7 +73,7 @@ uv run dkdc dev
 
 Code is organized:
 
-- [`src/`](src): Python package source code
+- [`py/`](py): Python package source code
 - [`rs/`](rs): Rust source code
 - [`go/`](go): Go source code
 - [`bin/`](bin): Repository utilities
