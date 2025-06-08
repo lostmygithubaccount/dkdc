@@ -1,6 +1,6 @@
 # dkdc
 
-***Don't know, don't care***.
+***don't know, don't care***.
 
 > [!WARNING]
 > ***Work in progress***.
