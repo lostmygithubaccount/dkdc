@@ -181,6 +181,61 @@ def list() -> None:
         raise typer.Exit(1)
 
 
+@files_app.command()
+def add(
+    file_path: str = typer.Argument(help="Path to the file to add to the datalake"),
+    filename: str = typer.Option(
+        None,
+        "--filename",
+        help="Override the filename in the datalake (defaults to actual filename)",
+    ),
+    path: str = typer.Option(
+        None,
+        "--path",
+        help="Virtual path in the datalake (defaults to './files')",
+    ),
+) -> None:
+    """Add a file to the datalake."""
+    from pathlib import Path
+
+    from dkdc.datalake.files import add_file
+    from dkdc.datalake.utils import get_duckdb_connection
+
+    file_path_obj = Path(file_path).expanduser()
+
+    if not file_path_obj.exists():
+        print_error("File not found", f"'{file_path}' does not exist")
+        raise typer.Exit(1)
+
+    if not file_path_obj.is_file():
+        print_error("Invalid target", f"'{file_path}' is not a file")
+        raise typer.Exit(1)
+
+    print_header("Add file", "Adding file to datalake")
+    print_key_value("Source", file_path_obj)
+
+    try:
+        with operation_progress(
+            "Adding file...", "File added successfully"
+        ) as progress:
+            progress.update(
+                progress.task_ids[0], description="Connecting to datalake..."
+            )
+            con = get_duckdb_connection()
+
+            progress.update(progress.task_ids[0], description="Adding file...")
+            saved_filename = add_file(con, file_path_obj, path=path, filename=filename)
+
+            progress.update(progress.task_ids[0], description="Finalizing...")
+
+        print_key_value("Filename", saved_filename, value_style="success")
+        print_key_value("Path", path or "./files", value_style="accent")
+
+    except Exception as e:
+        print_error("Add operation failed", str(e))
+        raise typer.Exit(1)
+
+
 @files_app.command(name="open")
 def open_cmd(
     filename: str = typer.Argument(

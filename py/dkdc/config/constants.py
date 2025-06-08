@@ -32,6 +32,7 @@ ENV_DEFAULT_METADATA_SCHEMA = "DKDC_DL_DEFAULT_METADATA_SCHEMA"
 # Table names
 SECRETS_TABLE_NAME = "secrets"
 FILES_TABLE_NAME = "files"
+ARCHIVES_TABLE_NAME = "archives"
 
 # Backup configuration
 ARCHIVE_FILENAME_TEMPLATE = "archive_directory_{name}.zip"

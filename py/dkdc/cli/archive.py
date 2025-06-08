@@ -27,6 +27,11 @@ def archive_default(
         "--path",
         help="Override the archive path in the datalake",
     ),
+    filename: str = typer.Option(
+        None,
+        "--filename",
+        help="Override the archive filename",
+    ),
 ) -> None:
     """Archive a directory to the datalake."""
     directory_path = Path(directory).resolve()
@@ -50,7 +55,7 @@ def archive_default(
                 progress.task_ids[0], description="Initializing archive process..."
             )
 
-            from dkdc.datalake.files import backup_directory
+            from dkdc.datalake.archives import backup_directory
             from dkdc.datalake.utils import get_duckdb_connection
 
             progress.update(
@@ -59,11 +64,17 @@ def archive_default(
             con = get_duckdb_connection()
 
             progress.update(progress.task_ids[0], description="Creating archive...")
-            zip_filename = backup_directory(con, directory_path)
+            zip_filename = backup_directory(
+                con, directory_path, archive_path=path, archive_filename=filename
+            )
 
             progress.update(progress.task_ids[0], description="Finalizing archive...")
 
         print_key_value("Archive", zip_filename, value_style="success")
+        if path:
+            print_key_value("Path", path, value_style="accent")
+        if filename:
+            print_key_value("Filename", filename, value_style="accent")
 
     except Exception as e:
         print_error("Archive failed", str(e))
