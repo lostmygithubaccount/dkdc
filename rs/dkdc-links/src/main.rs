@@ -1,6 +1,5 @@
 use anyhow::Result;
 use clap::Parser;
-use std::sync::Arc;
 
 use dkdc_links::config::{config_it, init_config, load_config, print_config};
 use dkdc_links::open::open_links;
@@ -14,16 +13,11 @@ struct Args {
     #[arg(short, long)]
     config: bool,
 
-    /// Maximum number of workers for parallel processing (0 = use all CPUs)
-    #[arg(short, long, default_value = "1")]
-    max_workers: usize,
-
     /// Things to open
     links: Vec<String>,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let args = Args::parse();
 
     // Initialize config (creates default if doesn't exist)
@@ -36,14 +30,14 @@ async fn main() -> Result<()> {
     }
 
     // Load config
-    let config = Arc::new(load_config()?);
+    let config = load_config()?;
 
     // If no arguments, print config
     if args.links.is_empty() {
         print_config(&config)?;
     } else {
         // Open the links
-        open_links(args.links, args.max_workers, config).await?;
+        open_links(args.links, &config)?;
     }
 
     Ok(())

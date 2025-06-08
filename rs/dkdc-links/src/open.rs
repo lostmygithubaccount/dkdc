@@ -1,6 +1,4 @@
 use anyhow::{Context, Result};
-use std::sync::Arc;
-use tokio::sync::Semaphore;
 
 use crate::config::Config;
 
@@ -27,46 +25,18 @@ fn open_it(link: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn open_links(
-    links: Vec<String>,
-    max_workers: usize,
-    config: Arc<Config>,
-) -> Result<()> {
-    let num_cpus = num_cpus::get();
-    let max_workers = if max_workers == 0 || max_workers > num_cpus {
-        num_cpus
-    } else {
-        max_workers
-    };
-
-    let semaphore = Arc::new(Semaphore::new(max_workers));
-    let mut handles = vec![];
-
+pub fn open_links(links: Vec<String>, config: &Config) -> Result<()> {
     for link in links {
-        let permit = semaphore.clone().acquire_owned().await?;
-        let config = config.clone();
-
-        let handle = tokio::spawn(async move {
-            let _permit = permit;
-
-            match alias_or_link_to_uri(&link, &config) {
-                Ok(uri) => {
-                    if let Err(e) = open_it(&uri) {
-                        eprintln!("[dkdc] failed to open {}: {}", link, e);
-                    }
-                }
-                Err(e) => {
-                    eprintln!("[dkdc] skipping {}: {}", link, e);
+        match alias_or_link_to_uri(&link, config) {
+            Ok(uri) => {
+                if let Err(e) = open_it(&uri) {
+                    eprintln!("[dkdc] failed to open {}: {}", link, e);
                 }
             }
-        });
-
-        handles.push(handle);
-    }
-
-    // Wait for all tasks to complete
-    for handle in handles {
-        handle.await?;
+            Err(e) => {
+                eprintln!("[dkdc] skipping {}: {}", link, e);
+            }
+        }
     }
 
     Ok(())
