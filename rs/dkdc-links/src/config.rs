@@ -21,8 +21,7 @@ link = "https://github.com/lostmygithubaccount/dkdc"
 "#;
 
 pub fn config_path() -> Result<PathBuf> {
-    let home_dir = std::env::var("HOME")
-        .context("Failed to get HOME environment variable")?;
+    let home_dir = std::env::var("HOME").context("Failed to get HOME environment variable")?;
     Ok(PathBuf::from(home_dir)
         .join(".config")
         .join("dkdc")
