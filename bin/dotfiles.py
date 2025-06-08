@@ -299,17 +299,35 @@ def main(
 
     # Check what needs to be done
     nvim_existing, nvim_to_clone = check_nvim_extensions()
-    files_to_sync = [] if skip_copy else get_relative_files(DOTFILES_DIR)
-
-    # Display plans
+    all_files = [] if skip_copy else get_relative_files(DOTFILES_DIR)
+    
+    # Filter to only files that actually need syncing
+    files_to_sync = []
     if not skip_copy:
-        if not files_to_sync:
-            console.print("[yellow]No files found to sync[/yellow]")
-        else:
-            console.print(f"Found [bold]{len(files_to_sync)}[/bold] files to process")
-            display_sync_plan(files_to_sync)
+        for file_path in all_files:
+            src = DOTFILES_DIR / file_path
+            dst = HOME_DIR / file_path
+            if not dst.exists() or files_are_different(src, dst):
+                files_to_sync.append(file_path)
 
-    if not skip_clone:
+    # Early exit if nothing to do
+    has_files_to_sync = not skip_copy and files_to_sync
+    has_nvim_to_clone = not skip_clone and nvim_to_clone
+    
+    if not has_files_to_sync and not has_nvim_to_clone and not (skip_copy and skip_clone):
+        console.print("✅ [green]Everything is already up to date[/green]")
+        if not skip_copy and not files_to_sync:
+            console.print("   • All dotfiles are current")
+        if not skip_clone and not nvim_to_clone:
+            console.print("   • All neovim extensions installed")
+        raise typer.Exit(0)
+
+    # Display plans only if there's work to do
+    if has_files_to_sync:
+        console.print(f"Found [bold]{len(files_to_sync)}[/bold] files to process")
+        display_sync_plan(files_to_sync)
+
+    if has_nvim_to_clone:
         display_nvim_plan(nvim_existing, nvim_to_clone)
 
     if dry_run:

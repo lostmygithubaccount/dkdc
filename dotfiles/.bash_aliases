@@ -6,9 +6,6 @@ else
 fi
 
 # Exports
-## YOLO
-export PGPASSWORD="product"
-
 ## Path
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
@@ -25,8 +22,10 @@ export PYTHONDONTWRITEBYTECODE=1
 export OLLAMA_HOME="$HOME/.ollama"
 
 ## Locations
-export DEV=$HOME/code/ascend-io/ascend-dev
-export DKDC=$HOME/code/lostmygithubaccount/dkdc
+export AIO=$HOME/code/ascend-io
+export DEV=$AIO/ascend-dev
+export GHH=$HOME/code/lostmygithubaccount
+export DKDC=$GHH/dkdc
 
 ## Homebrew
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -120,26 +119,23 @@ function docs() {
 }
 
 function d() {
-    cd $HOME/code/ascend-io/ascend-dev
+    cd $DEV
 }
 
 function ghh() {
-    cd $HOME/code/lostmygithubaccount
+    cd $GHH
 }
 
 function websites () {
-    gch
     cd $DKDC/websites
 }
 
 function dkdc.dev () {
-    websites
-    cd dkdc.dev
+    cd $DKDC/websites/dkdc.dev
 }
 
 function dkdc.io () {
-    websites
-    cd dkdc.io
+    cd $DKDC/websites/dkdc.io
 }
 
 function dotfiles() {
@@ -147,15 +143,15 @@ function dotfiles() {
 }
 
 function files() {
-  dkdc files list
+  dkdc files
 }
 
 function p() {
-  cd $HOME/code/ascend-io/product
+  cd $AIO/product
 }
 
 function workspaces() {
-  cd $HOME/code/ascend-io/ascend-dev/workspaces
+  cd $DEV/workspaces
 }
 
 function ws() {
