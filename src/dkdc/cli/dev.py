@@ -26,7 +26,7 @@ def launch_sql_mode(metadata_schema: str):
 
     sql_cmd = get_multi_schema_sql_commands(metadata_schema)
 
-    print_header("dkdc dev (SQL)", "Connected with multi-schema access")
+    print_header("dkdc dev (SQL)", "Connected with attachments to DuckLake databases")
     print_key_value("Default database", f"data_{metadata_schema}")
 
     # Print banner before entering DuckDB
@@ -72,7 +72,10 @@ def launch_python_mode(metadata_schema: str):
         "secrets": secrets,
     }
 
-    print_header("dkdc dev (Python)", "Ready with data connections")
+    print_header(
+        "dkdc dev (Python)",
+        "Connected with attachments to DuckLake databases (catalogs)",
+    )
     print_key_value("Namespace", ", ".join(namespace.keys()))
     print_key_value("Default catalog", f"data_{metadata_schema}")
 
