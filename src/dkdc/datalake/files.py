@@ -9,6 +9,7 @@ from typing import List, Union
 
 import ibis
 import ibis.expr.datatypes as dt
+
 from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
 
 # Constants

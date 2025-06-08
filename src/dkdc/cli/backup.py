@@ -1,0 +1,65 @@
+"""Backup functionality for the dkdc CLI."""
+
+from pathlib import Path
+from typing import Optional
+
+import typer
+
+from dkdc.cli.utils import (
+    create_spinner_progress,
+    print_error,
+    print_header,
+    print_key_value,
+    print_success,
+)
+
+backup_app = typer.Typer(
+    name="backup", invoke_without_command=True, no_args_is_help=False
+)
+
+
+@backup_app.callback()
+def backup_default(
+    directory: Optional[str] = typer.Argument(
+        None,
+        help="Directory to backup (defaults to current directory)",
+    ),
+) -> None:
+    """Backup a directory to the datalake."""
+    if directory is None:
+        directory = "."
+
+    directory_path = Path(directory).resolve()
+
+    if not directory_path.exists():
+        print_error("Directory not found", f"'{directory_path}' does not exist")
+        raise typer.Exit(1)
+
+    if not directory_path.is_dir():
+        print_error("Invalid target", f"'{directory_path}' is not a directory")
+        raise typer.Exit(1)
+
+    print_header("Directory Backup", "Creating backup in datalake")
+    print_key_value("Source", directory_path)
+
+    try:
+        with create_spinner_progress() as progress:
+            task = progress.add_task("Initializing backup process...")
+
+            from dkdc.datalake.files import backup_directory
+            from dkdc.datalake.utils import get_connection
+
+            progress.update(task, description="Connecting to datalake...")
+            con = get_connection()
+
+            progress.update(task, description="Creating backup archive...")
+            zip_filename = backup_directory(con, directory_path)
+
+            progress.update(task, description="Finalizing backup...")
+
+        print_success("Backup completed successfully")
+        print_key_value("Archive", zip_filename, value_style="success")
+
+    except Exception as e:
+        print_error("Backup failed", str(e))
+        raise typer.Exit(1)

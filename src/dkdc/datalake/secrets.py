@@ -3,6 +3,7 @@ from datetime import datetime
 
 import ibis
 import ibis.expr.datatypes as dt
+
 from dkdc.datalake.utils import DEFAULT_METADATA_SCHEMA
 
 # Constants

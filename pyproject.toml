@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-dkdc = "dkdc:main"
+dkdc = "dkdc.cli.main:app"
 
 [build-system]
 requires = ["hatchling"]
