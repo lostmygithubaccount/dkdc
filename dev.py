@@ -18,7 +18,7 @@ import subprocess
 
 import ibis
 import typer
-from dkdc_dl import secrets
+from dkdc_dl import files, secrets
 from dkdc_dl.utils import (
     DEFAULT_METADATA_SCHEMA,
     backup_metadata,
@@ -76,6 +76,7 @@ def launch_python_mode(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
         "catalog_con": catalog_con,
         # dkdc submodules
         "utils": ibis.util,
+        "files": files,
         "secrets": secrets,
     }
 
