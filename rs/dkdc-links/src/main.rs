@@ -3,7 +3,7 @@ use clap::Parser;
 use std::sync::Arc;
 
 use dkdc_links::config::{config_it, init_config, load_config, print_config};
-use dkdc_links::open::open_things;
+use dkdc_links::open::open_links;
 
 #[derive(Parser, Debug)]
 #[command(name = "dkdc-links")]
@@ -19,7 +19,7 @@ struct Args {
     max_workers: usize,
 
     /// Things to open
-    things: Vec<String>,
+    links: Vec<String>,
 }
 
 #[tokio::main]
@@ -39,11 +39,11 @@ async fn main() -> Result<()> {
     let config = Arc::new(load_config()?);
 
     // If no arguments, print config
-    if args.things.is_empty() {
+    if args.links.is_empty() {
         print_config(&config)?;
     } else {
-        // Open the things
-        open_things(args.things, args.max_workers, config).await?;
+        // Open the links
+        open_links(args.links, args.max_workers, config).await?;
     }
 
     Ok(())

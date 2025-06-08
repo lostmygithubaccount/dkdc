@@ -9,15 +9,15 @@ pub struct Config {
     #[serde(default)]
     pub aliases: HashMap<String, String>,
     #[serde(default)]
-    pub things: HashMap<String, String>,
+    pub links: HashMap<String, String>,
 }
 
 const DEFAULT_CONFIG: &str = r#"# dkdc config file
 [aliases]
-a = "thing"
-alias = "thing"
-[things]
-thing = "https://github.com/lostmygithubaccount/dkdc"
+a = "link"
+alias = "link"
+[links]
+link = "https://github.com/lostmygithubaccount/dkdc"
 "#;
 
 pub fn config_path() -> Result<PathBuf> {
@@ -64,7 +64,7 @@ pub fn config_it() -> Result<()> {
 }
 
 pub fn print_config(config: &Config) -> Result<()> {
-    let sections = vec![("aliases", &config.aliases), ("things", &config.things)];
+    let sections = vec![("aliases", &config.aliases), ("links", &config.links)];
 
     for (section_name, section_data) in sections {
         if section_data.is_empty() {
