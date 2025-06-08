@@ -300,7 +300,7 @@ def main(
     # Check what needs to be done
     nvim_existing, nvim_to_clone = check_nvim_extensions()
     all_files = [] if skip_copy else get_relative_files(DOTFILES_DIR)
-    
+
     # Filter to only files that actually need syncing
     files_to_sync = []
     if not skip_copy:
@@ -313,8 +313,12 @@ def main(
     # Early exit if nothing to do
     has_files_to_sync = not skip_copy and files_to_sync
     has_nvim_to_clone = not skip_clone and nvim_to_clone
-    
-    if not has_files_to_sync and not has_nvim_to_clone and not (skip_copy and skip_clone):
+
+    if (
+        not has_files_to_sync
+        and not has_nvim_to_clone
+        and not (skip_copy and skip_clone)
+    ):
         console.print("✅ [green]Everything is already up to date[/green]")
         if not skip_copy and not files_to_sync:
             console.print("   • All dotfiles are current")
