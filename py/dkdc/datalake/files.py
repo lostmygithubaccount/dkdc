@@ -11,7 +11,7 @@ import ibis
 import ibis.expr.datatypes as dt
 
 from dkdc.config import (
-    BACKUP_FILENAME_TEMPLATE,
+    ARCHIVE_FILENAME_TEMPLATE,
     DEFAULT_METADATA_SCHEMA,
     FILES_TABLE_NAME,
 )
@@ -112,7 +112,7 @@ def backup_directory(
     con: ibis.BaseBackend,
     directory_path: Union[str, Path],
 ) -> str:
-    """Backup a directory as a zip file, respecting gitignore files. Returns the zip filename."""
+    """Archive a directory as a zip file, respecting gitignore files. Returns the zip filename."""
     directory_path = Path(directory_path).expanduser()
 
     # Load gitignore patterns
@@ -140,7 +140,7 @@ def backup_directory(
     zip_data = zip_buffer.getvalue()
 
     # Use directory name with .zip extension
-    zip_filename = BACKUP_FILENAME_TEMPLATE.format(name=directory_path.name)
+    zip_filename = ARCHIVE_FILENAME_TEMPLATE.format(name=directory_path.name)
     path = str(directory_path.parent)
 
     return _add_file(con, path, zip_filename, zip_data)

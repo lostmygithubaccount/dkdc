@@ -1,4 +1,4 @@
-"""Backup functionality for the dkdc CLI."""
+"""Archive functionality for the dkdc CLI."""
 
 from pathlib import Path
 
@@ -11,19 +11,24 @@ from dkdc.cli.utils import (
     print_key_value,
 )
 
-backup_app = typer.Typer(
-    name="backup", invoke_without_command=True, no_args_is_help=False
+archive_app = typer.Typer(
+    name="archive", invoke_without_command=True, no_args_is_help=False
 )
 
 
-@backup_app.callback()
-def backup_default(
+@archive_app.callback()
+def archive_default(
     directory: str = typer.Argument(
         ".",
-        help="Directory to backup (defaults to current directory)",
+        help="Directory to archive (defaults to current directory)",
+    ),
+    path: str = typer.Option(
+        None,
+        "--path",
+        help="Override the archive path in the datalake",
     ),
 ) -> None:
-    """Backup a directory to the datalake."""
+    """Archive a directory to the datalake."""
     directory_path = Path(directory).resolve()
 
     if not directory_path.exists():
@@ -34,15 +39,15 @@ def backup_default(
         print_error("Invalid target", f"'{directory_path}' is not a directory")
         raise typer.Exit(1)
 
-    print_header("Backup directory", "Creating backup in datalake")
+    print_header("Archive directory", "Creating archive in datalake")
     print_key_value("Source", directory_path)
 
     try:
         with operation_progress(
-            "Creating backup archive...", "Backup completed successfully"
+            "Creating archive...", "Archive completed successfully"
         ) as progress:
             progress.update(
-                progress.task_ids[0], description="Initializing backup process..."
+                progress.task_ids[0], description="Initializing archive process..."
             )
 
             from dkdc.datalake.files import backup_directory
@@ -53,15 +58,13 @@ def backup_default(
             )
             con = get_duckdb_connection()
 
-            progress.update(
-                progress.task_ids[0], description="Creating backup archive..."
-            )
+            progress.update(progress.task_ids[0], description="Creating archive...")
             zip_filename = backup_directory(con, directory_path)
 
-            progress.update(progress.task_ids[0], description="Finalizing backup...")
+            progress.update(progress.task_ids[0], description="Finalizing archive...")
 
         print_key_value("Archive", zip_filename, value_style="success")
 
     except Exception as e:
-        print_error("Backup failed", str(e))
+        print_error("Archive failed", str(e))
         raise typer.Exit(1)

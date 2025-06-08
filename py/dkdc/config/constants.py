@@ -34,7 +34,7 @@ SECRETS_TABLE_NAME = "secrets"
 FILES_TABLE_NAME = "files"
 
 # Backup configuration
-BACKUP_FILENAME_TEMPLATE = "backup_directory_{name}.zip"
+ARCHIVE_FILENAME_TEMPLATE = "archive_directory_{name}.zip"
 
 # CLI color theme
 COLORS = {

@@ -60,7 +60,7 @@ Set up the development environment:
 Run code checks:
 
 ```bash
-./bin/check.py
+./bin/check.sh
 ```
 
 Run the development REPL:
