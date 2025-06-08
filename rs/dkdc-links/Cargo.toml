@@ -1,10 +1,10 @@
 [package]
 name = "dkdc-links"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 authors = ["Cody"]
 description = "Bookmarks in your terminal"
-repository = "https://github.com/lostmygithubaccount/dkdc"
+repository = "https://github.com/lostmygithubaccount/dkdc/tree/main/rs/dkdc-links"
 license = "MIT"
 
 [[bin]]
@@ -16,5 +16,4 @@ clap = { version = "4.5", features = ["derive"] }
 toml = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 open = "5.1"
-dirs = "5.0"
 anyhow = "1.0"
