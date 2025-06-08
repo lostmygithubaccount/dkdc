@@ -15,7 +15,7 @@ BUCKET="gs://dkdc-dl"
 LAKE_DATA_DIR="$HOME/lake/data"
 
 # Postgres configuration (must match utils.py)
-POSTGRES_CONTAINER_NAME="dkdc-dl-catalog"
+POSTGRES_CONTAINER_NAME="dkdc-dl-metadata"
 POSTGRES_USER="dkdc"
 POSTGRES_DB="dkdc"
 
@@ -43,7 +43,7 @@ echo -e "${GREEN}✅ gcloud authentication confirmed${NC}"
 
 # Ensure Postgres container is running
 echo -e "${YELLOW}🐘 Ensuring Postgres container is ready...${NC}"
-if ! ./dev.py --exit; then
+if ! uv run dkdc dev --exit; then
     echo -e "${RED}❌ Failed to start Postgres container${NC}"
     exit 1
 fi
