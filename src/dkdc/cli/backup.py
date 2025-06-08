@@ -1,7 +1,6 @@
 """Backup functionality for the dkdc CLI."""
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -19,15 +18,12 @@ backup_app = typer.Typer(
 
 @backup_app.callback()
 def backup_default(
-    directory: Optional[str] = typer.Argument(
-        None,
+    directory: str = typer.Argument(
+        ".",
         help="Directory to backup (defaults to current directory)",
     ),
 ) -> None:
     """Backup a directory to the datalake."""
-    if directory is None:
-        directory = "."
-
     directory_path = Path(directory).resolve()
 
     if not directory_path.exists():

@@ -1,4 +1,4 @@
-"""Development environment CLI with DuckLake and Postgres."""
+"""Development management."""
 
 import subprocess
 
@@ -109,7 +109,7 @@ def dev_main(
         False, "--exit", help="Exit after setup without starting REPL"
     ),
 ):
-    """Development environment CLI with DuckLake and Postgres."""
+    """Enter a development REPL (IPython or DuckDB)."""
     from dkdc.config import DEFAULT_METADATA_SCHEMA
 
     # Set default schema if not provided

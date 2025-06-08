@@ -1,2 +1,9 @@
+# Secrets/shared state
 .env
+
+# Database backups
 *backup*.sql*
+
+# Build output
+dist
+target

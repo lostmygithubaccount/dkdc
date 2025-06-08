@@ -20,4 +20,5 @@ if ! command -v uv &> /dev/null; then
     run_command "curl -LsSf https://astral.sh/uv/install.sh | sh"
 fi
 
+run_command "rm -rf .venv"
 run_command "uv sync"
