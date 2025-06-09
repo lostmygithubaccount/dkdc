@@ -14,10 +14,13 @@ pub struct Config {
 
 const DEFAULT_CONFIG: &str = r#"# dkdc-links config file
 [aliases]
-a = "link"
-alias = "link"
+alias1 = "link1"
+a1 = "link1"
+alias2 = "link2"
+a2 = "link2"
 [links]
-link = "https://github.com/lostmygithubaccount/dkdc"
+link1 = "https://crates.io/crates/dkdc-links"
+link2 = "https://github.com/lostmygithubaccount/dkdc/tree/rs/dkdc-links"
 "#;
 
 pub fn config_path() -> Result<PathBuf> {

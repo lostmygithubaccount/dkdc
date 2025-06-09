@@ -33,11 +33,8 @@ dkdc-links
 
 To open aliases and links:
 
-> [!TIP]
-> You can open multiple aliases/links in one command.
-
 ```bash
-dkdc-links a alias link
+dkdc-links alias1 link1
 ```
 
 To edit aliases and links:
