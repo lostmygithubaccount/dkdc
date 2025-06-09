@@ -55,7 +55,7 @@ def archive_default(
                 progress.task_ids[0], description="Initializing archive process..."
             )
 
-            from dkdc.datalake.archives import backup_directory
+            from dkdc.datalake.archives import archive_directory
             from dkdc.datalake.utils import get_duckdb_connection
 
             progress.update(
@@ -64,7 +64,7 @@ def archive_default(
             con = get_duckdb_connection()
 
             progress.update(progress.task_ids[0], description="Creating archive...")
-            zip_filename = backup_directory(
+            zip_filename = archive_directory(
                 con, directory_path, archive_path=path, archive_filename=filename
             )
 

@@ -33,10 +33,10 @@ Enter a dev REPL connected to your datalake:
 dkdc dev
 ```
 
-Backup a directory to your datalake:
+Archive a directory to your datalake:
 
 ```bash
-dkdc backup
+dkdc archive
 ```
 
 Work in a virtual filesystem:
@@ -84,6 +84,7 @@ Code is organized:
 - [`go/`](go): Go source code
 - [`bin/`](bin): Repository utilities
 - [`tasks/`](tasks): Markdown tasks
+- [`dotfiles/`](dotfiles): Dotfiles
 - [`websites/`](websites): Static websites
 
 ## Rust CLIs

@@ -1,0 +1,1 @@
+- duplicate old `dev ws` commands w/ new config and such

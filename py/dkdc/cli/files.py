@@ -3,10 +3,14 @@
 import os
 import subprocess
 import tempfile
+import threading
+import time
+from pathlib import Path
 from typing import Optional
 
 import ibis
 import typer
+from watchfiles import watch
 
 from dkdc.cli.utils import (
     operation_progress,
@@ -53,8 +57,13 @@ def save_file_to_datalake(con, filename: str, content: bytes) -> None:
     _add_file(con, "./files", filename, content)
 
 
-def open_file(con, filename: str) -> None:
-    """Open a file from the virtual files/ directory in your editor."""
+def open_file(con: ibis.BaseBackend, filename: str) -> None:
+    """Open a file from the virtual files/ directory in your editor.
+
+    Args:
+        con: Database connection for the datalake
+        filename: Name of the file to open/edit
+    """
     # Get editor from environment
     editor = os.environ.get("EDITOR", "vim")
 
@@ -73,9 +82,13 @@ def open_file(con, filename: str) -> None:
             progress.update(progress.task_ids[0], description=f"Loading {filename}...")
             content = get_file_from_datalake(con, filename)
 
-            # Create temporary file
+            # Create temporary file with same extension for proper syntax highlighting
+            file_extension = Path(filename).suffix
             with tempfile.NamedTemporaryFile(
-                mode="w+b", suffix=f"_{filename}", delete=False
+                mode="w+b",
+                suffix=f"_{filename}" if not file_extension else file_extension,
+                prefix=f"dkdc_{Path(filename).stem}_",
+                delete=False,
             ) as temp_file:
                 temp_path = temp_file.name
 
@@ -94,6 +107,36 @@ def open_file(con, filename: str) -> None:
                 progress.task_ids[0], description=f"Opening {filename} in {editor}..."
             )
 
+        # Track the last saved content to avoid duplicate saves
+        last_saved_content = content or b""
+        save_lock = threading.Lock()
+        auto_save_count = 0
+
+        # Function to watch for file changes
+        def watch_file_changes() -> None:
+            """Monitor temporary file for changes and auto-save to datalake."""
+            nonlocal last_saved_content, auto_save_count
+            try:
+                for changes in watch(temp_path):
+                    # Read the current content
+                    with open(temp_path, "rb") as f:
+                        current_content = f.read()
+
+                    # Only save if content actually changed
+                    with save_lock:
+                        if current_content != last_saved_content:
+                            save_file_to_datalake(con, filename, current_content)
+                            last_saved_content = current_content
+                            auto_save_count += 1
+                            # Don't print while editor is active - it interferes with terminal
+            except Exception:
+                # Watcher will stop when file is deleted or editor closes
+                pass
+
+        # Start file watcher in background thread
+        watcher_thread = threading.Thread(target=watch_file_changes, daemon=True)
+        watcher_thread.start()
+
         # Open in editor (this will block until editor closes)
         result = subprocess.run([editor, temp_path], check=False)
 
@@ -101,24 +144,50 @@ def open_file(con, filename: str) -> None:
             print_error("Editor failed", f"Editor exited with code {result.returncode}")
             raise typer.Exit(1)
 
-        # Read the modified content
-        with open(temp_path, "rb") as temp_file:
-            new_content = temp_file.read()
+        # Give the watcher a moment to catch any last-second saves
+        time.sleep(0.1)
 
-        # Save back to datalake if content changed
-        if new_content != (content or b""):
-            with operation_progress(
-                "Saving changes to datalake...", "Changes saved successfully"
-            ):
-                save_file_to_datalake(con, filename, new_content)
+        # Read the final content
+        with open(temp_path, "rb") as temp_file:
+            final_content = temp_file.read()
+
+        # Save final changes if any (in case the last write wasn't caught)
+        with save_lock:
+            if final_content != last_saved_content:
+                with operation_progress(
+                    "Saving final changes to datalake...", "Changes saved successfully"
+                ):
+                    save_file_to_datalake(con, filename, final_content)
+                    auto_save_count += 1
+
+            # Report save statistics
+            if auto_save_count > 0:
+                if auto_save_count == 1:
+                    print_key_value(
+                        "Saved", f"./files/{filename} (1 time)", value_style="success"
+                    )
+                else:
+                    print_key_value(
+                        "Saved",
+                        f"./files/{filename} ({auto_save_count} times)",
+                        value_style="success",
+                    )
+            elif final_content == (content or b""):
+                print_success("No changes detected")
+            else:
+                # Content changed but wasn't saved yet
                 print_key_value("Saved", f"./files/{filename}", value_style="success")
-        else:
-            print_success("No changes detected")
 
         # Clean up temporary file
         os.unlink(temp_path)
 
     except Exception as e:
+        # Ensure temp file is cleaned up even on error
+        if "temp_path" in locals() and os.path.exists(temp_path):
+            try:
+                os.unlink(temp_path)
+            except Exception:
+                pass
         print_error("File operation failed", str(e))
         raise typer.Exit(1)
 

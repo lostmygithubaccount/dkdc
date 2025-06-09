@@ -93,7 +93,7 @@ def _should_ignore(file_path: str, patterns: List[str]) -> bool:
     return False
 
 
-def backup_directory(
+def archive_directory(
     con: ibis.BaseBackend,
     directory_path: Union[str, Path],
     archive_path: Optional[str] = None,

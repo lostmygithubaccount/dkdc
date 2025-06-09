@@ -1,0 +1,1 @@
+- replicate old `dev commit` behavior
