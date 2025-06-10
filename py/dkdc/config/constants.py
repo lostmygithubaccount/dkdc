@@ -4,7 +4,7 @@ from pathlib import Path
 
 # Database connection configuration
 POSTGRES_HOST = "localhost"
-POSTGRES_PORT = 5432
+POSTGRES_PORT = 3113
 POSTGRES_DB = "dkdc"
 POSTGRES_USER = "dkdc"
 POSTGRES_PASSWORD = "dkdc"

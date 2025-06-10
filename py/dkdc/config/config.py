@@ -2,10 +2,10 @@
 
 import os
 import subprocess
+import tomllib
 from pathlib import Path
 from typing import Any, Dict
 
-import tomllib
 import typer
 
 
@@ -22,7 +22,7 @@ def get_default_config() -> str:
 [ducklake]
 # DuckLake configuration
 host = "localhost"
-port = 5432
+port = 3113
 database = "dkdc"
 username = "dkdc"
 password = "dkdc"
