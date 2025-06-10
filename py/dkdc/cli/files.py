@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 import ibis
+import pyperclip
 import typer
 from watchfiles import watch
 
@@ -177,6 +178,19 @@ def open_file(con: ibis.BaseBackend, filename: str) -> None:
             else:
                 # Content changed but wasn't saved yet
                 print_key_value("Saved", f"./files/{filename}", value_style="success")
+
+        # Copy final content to clipboard as backup only if content changed from original
+        if final_content != (content or b""):
+            try:
+                final_content_str = final_content.decode("utf-8")
+                pyperclip.copy(final_content_str)
+                print_key_value(
+                    "Backup", "Content copied to clipboard", value_style="accent"
+                )
+            except Exception as e:
+                print_key_value(
+                    "Backup", f"Failed to copy to clipboard: {e}", value_style="warning"
+                )
 
         # Clean up temporary file
         os.unlink(temp_path)

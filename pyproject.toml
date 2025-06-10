@@ -11,6 +11,7 @@ dependencies = [
     "ipython>=9.3.0",
     "panel>=1.7.1",
     "plotly>=6.1.2",
+    "pyperclip>=1.9.0",
     "rich>=14.0.0",
     "typer>=0.16.0",
     "watchfiles>=1.0.5",
@@ -36,3 +37,10 @@ include = [
     "LICENSE",
     "pyproject.toml",
 ]
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+
+[[tool.uv.index]]
+url = "https://us-python.pkg.dev/ascend-io-ops-artifacts/private-pypi/simple"
+default = true

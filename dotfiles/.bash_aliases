@@ -375,6 +375,11 @@ function gA() {
   git add -A
 }
 
+# lol
+function cc() {
+  git commit
+}
+
 function qs() {
   git add . && git commit -m 'qs'
 }
