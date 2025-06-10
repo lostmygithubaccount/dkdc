@@ -100,7 +100,7 @@ def ensure_postgres_running() -> None:
             "-e",
             f"POSTGRES_PASSWORD={POSTGRES_PASSWORD}",
             "-p",
-            f"{POSTGRES_PORT}:{POSTGRES_PORT}",
+            f"{POSTGRES_PORT}:5432",
             "-v",
             f"{POSTGRES_DATA_DIR.absolute()}:/var/lib/postgresql/data",
             DOCKER_POSTGRES_IMAGE,
