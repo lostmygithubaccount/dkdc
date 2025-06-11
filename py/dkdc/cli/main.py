@@ -9,7 +9,7 @@ from dkdc.cli.files import files_app
 from dkdc.config.config import open_config
 
 # Configuration
-app = typer.Typer(name="dkdc")
+app = typer.Typer(name="dkdc", add_completion=False)
 
 app.add_typer(archive_app, name="archive")
 app.add_typer(dev_app, name="dev")
