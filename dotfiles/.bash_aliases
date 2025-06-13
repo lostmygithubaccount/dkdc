@@ -183,6 +183,10 @@ function c() {
     clear
 }
 
+function cdesk() {
+    rm -r $HOME/Desktop/*
+}
+
 function s() {
     duckdb "$@"
 }
