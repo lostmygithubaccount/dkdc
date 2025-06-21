@@ -31,7 +31,7 @@ from dkdc.config.constants import SQLITE_METADATA_PATH
 console = Console()
 backup_app = typer.Typer(
     name="backup",
-    help="Backup and restore operations",
+    help="Backup and restore commands.",
     invoke_without_command=True,
     no_args_is_help=False,
 )
