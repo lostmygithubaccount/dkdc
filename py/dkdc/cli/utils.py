@@ -166,54 +166,18 @@ def check_and_report_duckdb() -> None:
         raise RuntimeError("duckdb CLI not found")
 
 
-def check_and_report_docker() -> None:
-    """Check if docker is available and print installation help if not."""
-    from dkdc.config import DOCKER_INSTALL_URL
-    from dkdc.datalake.utils import check_docker
-
-    if not check_docker():
-        print_error("Missing prerequisite")
-        console.print(f"  - docker: {DOCKER_INSTALL_URL}")
-        console.print("Please install docker and try again.")
-        raise RuntimeError("Docker not found")
-
-
-def ensure_postgres_with_feedback(quiet: bool = False) -> None:
-    """Ensure Postgres container is running with user feedback."""
-    from dkdc.datalake.utils import ensure_postgres_running
+def ensure_setup_with_feedback(quiet: bool = False) -> None:
+    """Ensure database setup with user feedback."""
+    from dkdc.datalake.utils import ensure_setup
 
     if not quiet:
-        console.print("📦 Checking Postgres container...")
+        console.print("🗃️ Setting up database...")
 
     try:
-        ensure_postgres_running()
+        ensure_setup()
         if not quiet:
-            console.print("✅ Postgres is ready!")
+            console.print("✅ Database is ready!")
     except Exception as e:
         if not quiet:
-            print_error("Failed to start Postgres container", str(e))
-            console.print(
-                "💡 Try running './dev.py --down' first to clean up any existing containers"
-            )
+            print_error("Failed to set up database", str(e))
         raise
-
-
-def stop_postgres_with_feedback(quiet: bool = False) -> None:
-    """Stop and remove the Postgres container with user feedback."""
-    from dkdc.datalake.utils import stop_postgres
-
-    if not quiet:
-        console.print("🛑 Stopping Postgres container...")
-
-    try:
-        stop_postgres()
-        if not quiet:
-            console.print("✅ Postgres container stopped and removed")
-    except RuntimeError as e:
-        if "No such container" in str(e):
-            if not quiet:
-                console.print("✅ Postgres container was not running")
-        else:
-            if not quiet:
-                print_error("Failed to stop Postgres container", str(e))
-            raise

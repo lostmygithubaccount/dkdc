@@ -11,7 +11,6 @@ import ibis
 from dkdc.config import (
     ARCHIVE_FILENAME_TEMPLATE,
     ARCHIVES_TABLE_NAME,
-    DEFAULT_METADATA_SCHEMA,
 )
 from dkdc.datalake.files import (
     FILE_TABLE_SCHEMA,
@@ -25,11 +24,9 @@ TABLE_SCHEMA = FILE_TABLE_SCHEMA
 
 
 # Functions
-def ensure_archives_table(
-    con: ibis.BaseBackend, metadata_schema: str = DEFAULT_METADATA_SCHEMA
-) -> None:
-    """Ensure the archives table exists in the specified schema."""
-    ensure_file_table(con, TABLE_NAME, metadata_schema=metadata_schema)
+def ensure_archives_table(con: ibis.BaseBackend) -> None:
+    """Ensure the archives table exists."""
+    ensure_file_table(con, TABLE_NAME)
 
 
 def _add_archive(

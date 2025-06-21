@@ -7,7 +7,6 @@ import ibis
 import ibis.expr.datatypes as dt
 
 from dkdc.config import (
-    DEFAULT_METADATA_SCHEMA,
     FILES_TABLE_NAME,
 )
 
@@ -32,15 +31,13 @@ def ensure_file_table(
     con: ibis.BaseBackend,
     table_name: str,
     table_schema: Optional[ibis.Schema] = None,
-    metadata_schema: str = DEFAULT_METADATA_SCHEMA,
 ) -> None:
-    """Ensure a file-based table exists in the specified schema.
+    """Ensure a file-based table exists.
 
     Args:
         con: Database connection
         table_name: Name of the table to ensure exists
         table_schema: Optional custom schema. If None, uses FILE_TABLE_SCHEMA.
-        metadata_schema: Metadata schema name
     """
     if table_schema is None:
         table_schema = FILE_TABLE_SCHEMA
@@ -114,11 +111,9 @@ def add_file_to_table(
 
 
 # Legacy Functions: Maintained for backward compatibility
-def ensure_files_table(
-    con: ibis.BaseBackend, metadata_schema: str = DEFAULT_METADATA_SCHEMA
-) -> None:
-    """Ensure the files table exists in the specified schema."""
-    ensure_file_table(con, TABLE_NAME, metadata_schema=metadata_schema)
+def ensure_files_table(con: ibis.BaseBackend) -> None:
+    """Ensure the files table exists."""
+    ensure_file_table(con, TABLE_NAME)
 
 
 def add_file(

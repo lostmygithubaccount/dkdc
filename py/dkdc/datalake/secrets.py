@@ -3,7 +3,7 @@ from typing import Optional
 
 import ibis
 
-from dkdc.config import DEFAULT_METADATA_SCHEMA, SECRETS_TABLE_NAME
+from dkdc.config import SECRETS_TABLE_NAME
 from dkdc.datalake.files import (
     FILE_TABLE_SCHEMA,
     _add_file_to_table,
@@ -16,11 +16,9 @@ TABLE_SCHEMA = FILE_TABLE_SCHEMA
 
 
 # Functions
-def ensure_secrets_table(
-    con: ibis.BaseBackend, metadata_schema: str = DEFAULT_METADATA_SCHEMA
-) -> None:
-    """Ensure the secrets table exists in the specified schema."""
-    ensure_file_table(con, TABLE_NAME, metadata_schema=metadata_schema)
+def ensure_secrets_table(con: ibis.BaseBackend) -> None:
+    """Ensure the secrets table exists."""
+    ensure_file_table(con, TABLE_NAME)
 
 
 def add_secret(

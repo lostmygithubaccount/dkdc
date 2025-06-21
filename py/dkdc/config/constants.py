@@ -2,32 +2,11 @@
 
 from pathlib import Path
 
-# Database connection configuration
-POSTGRES_HOST = "localhost"
-POSTGRES_PORT = 3113
-POSTGRES_DB = "dkdc"
-POSTGRES_USER = "dkdc"
-POSTGRES_PASSWORD = "dkdc"
-POSTGRES_CONTAINER_NAME = "dkdc-postgres"
-
-# Connection timeouts and retries
-MAX_POSTGRES_STARTUP_ATTEMPTS = 30
-POSTGRES_STARTUP_TIMEOUT_MSG = "Postgres failed to become ready in 15 seconds"
-
-# File system paths
-POSTGRES_DATA_PATH = Path.home() / "lake" / "data"
-POSTGRES_DATA_DIR = Path.home() / "lake" / "metadata"
-
-# Schema configuration
-METADATA_SCHEMAS = ["dev", "stage", "prod"]
-DEFAULT_METADATA_SCHEMA = METADATA_SCHEMAS[0]  # "dev"
-
-# Docker configuration
-DOCKER_POSTGRES_IMAGE = "postgres:latest"
-DOCKER_RESTART_POLICY = "unless-stopped"
-
-# Environment variables
-ENV_DEFAULT_METADATA_SCHEMA = "DKDC_DL_DEFAULT_METADATA_SCHEMA"
+# Database configuration
+SQLITE_METADATA_PATH = Path.home() / "lake" / "metadata.db"
+DATA_PATH = Path.home() / "lake" / "data"
+METADATA_DB_NAME = "metadata"
+DATA_DB_NAME = "data"
 
 # Table names
 SECRETS_TABLE_NAME = "secrets"
@@ -55,11 +34,10 @@ IBIS_MAX_COLUMNS = None
 
 # Installation URLs
 DUCKDB_INSTALL_URL = "curl https://install.duckdb.org | sh"
-DOCKER_INSTALL_URL = "https://docs.docker.com/desktop/setup/install/mac-install"
 
 # SQL extensions
 DUCKLAKE_EXTENSION = "ducklake"
-POSTGRES_EXTENSION = "postgres"
+SQLITE_EXTENSION = "sqlite"
 
 # ASCII art banner
 DKDC_BANNER = r"""
