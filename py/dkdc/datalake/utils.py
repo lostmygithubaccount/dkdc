@@ -155,9 +155,9 @@ def _attach_schema_sql(schema: str) -> tuple[str, str]:
     """Generate SQL for attaching metadata and data connections for a schema."""
     metadata_sql = f"ATTACH 'host={POSTGRES_HOST} port={POSTGRES_PORT} dbname={POSTGRES_DB} user={POSTGRES_USER} password={POSTGRES_PASSWORD}' AS metadata_{schema} (TYPE postgres, SCHEMA {schema}, READ_ONLY);"
 
-    data_sql = f"ATTACH 'ducklake:postgres:host={POSTGRES_HOST} port={POSTGRES_PORT} dbname={POSTGRES_DB} user={POSTGRES_USER} password={POSTGRES_PASSWORD}' AS data_{schema} (DATA_PATH '{POSTGRES_DATA_PATH}', METADATA_SCHEMA {schema}, ENCRYPTED);"
+    datablob_sql = f"ATTACH 'ducklake:postgres:host={POSTGRES_HOST} port={POSTGRES_PORT} dbname={POSTGRES_DB} user={POSTGRES_USER} password={POSTGRES_PASSWORD}' AS data_{schema} (DATA_PATH '{POSTGRES_DATA_PATH}', METADATA_SCHEMA {schema}, ENCRYPTED);"
 
-    return metadata_sql, data_sql
+    return metadata_sql, datablob_sql
 
 
 def get_postgres_connection(metadata_schema: str = DEFAULT_METADATA_SCHEMA):
@@ -179,7 +179,7 @@ def get_single_schema_sql_commands(
     metadata_schema: str = DEFAULT_METADATA_SCHEMA,
 ) -> str:
     """Generate SQL commands for single schema connection."""
-    metadata_sql, data_sql = _attach_schema_sql(metadata_schema)
+    metadata_sql, datablob_sql = _attach_schema_sql(metadata_schema)
 
     return f"""
 INSTALL {DUCKLAKE_EXTENSION};
@@ -187,7 +187,7 @@ INSTALL {POSTGRES_EXTENSION};
 
 {metadata_sql}
 
-{data_sql}
+{datablob_sql}
 
 USE data_{metadata_schema};
     """.strip()
@@ -203,8 +203,8 @@ def get_multi_schema_sql_commands(default_schema: str = DEFAULT_METADATA_SCHEMA)
 
     # Add attachment commands for all schemas
     for schema in METADATA_SCHEMAS:
-        metadata_sql, data_sql = _attach_schema_sql(schema)
-        commands.extend([metadata_sql, "", data_sql, ""])
+        metadata_sql, datablob_sql = _attach_schema_sql(schema)
+        commands.extend([metadata_sql, "", datablob_sql, ""])
 
     # Set default schema
     commands.append(f"USE data_{default_schema};")
@@ -224,9 +224,9 @@ def get_duckdb_connection(default_schema: str = DEFAULT_METADATA_SCHEMA):
 
     # Attach all schemas
     for schema in METADATA_SCHEMAS:
-        metadata_sql, data_sql = _attach_schema_sql(schema)
+        metadata_sql, datablob_sql = _attach_schema_sql(schema)
         con.raw_sql(metadata_sql)
-        con.raw_sql(data_sql)
+        con.raw_sql(datablob_sql)
 
     # Use the default schema
     con.raw_sql(f"USE data_{default_schema};")

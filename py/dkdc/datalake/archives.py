@@ -3,30 +3,25 @@ import fnmatch
 import io
 import os
 import zipfile
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
 import ibis
-import ibis.expr.datatypes as dt
 
 from dkdc.config import (
     ARCHIVE_FILENAME_TEMPLATE,
     ARCHIVES_TABLE_NAME,
     DEFAULT_METADATA_SCHEMA,
 )
+from dkdc.datalake.files import (
+    FILE_TABLE_SCHEMA,
+    _add_file_to_table,
+    ensure_file_table,
+)
 
 # Constants
 TABLE_NAME = ARCHIVES_TABLE_NAME
-TABLE_SCHEMA = ibis.schema(
-    {
-        "path": str,
-        "filename": str,
-        "data": dt.binary,
-        "size": int,
-        "updated_at": dt.timestamp,
-    }
-)
+TABLE_SCHEMA = FILE_TABLE_SCHEMA
 
 
 # Functions
@@ -34,32 +29,17 @@ def ensure_archives_table(
     con: ibis.BaseBackend, metadata_schema: str = DEFAULT_METADATA_SCHEMA
 ) -> None:
     """Ensure the archives table exists in the specified schema."""
-    # Check if table exists
-    if TABLE_NAME not in con.list_tables():
-        # Create the archives table
-        con.create_table(TABLE_NAME, schema=TABLE_SCHEMA)
+    ensure_file_table(con, TABLE_NAME, metadata_schema=metadata_schema)
 
 
 def _add_archive(
     con: ibis.BaseBackend,
-    path: str,
+    filepath: str,
     filename: str,
-    data: bytes,
+    filedata: bytes,
 ) -> str:
     """Internal function to add archive data directly. Returns the filename."""
-    ensure_archives_table(con)
-
-    now = datetime.now(UTC)
-    archive_data = {
-        "path": [path],
-        "filename": [filename],
-        "data": [data],
-        "size": [len(data)],
-        "updated_at": [now],
-    }
-
-    con.insert(TABLE_NAME, archive_data)
-    return filename
+    return _add_file_to_table(con, TABLE_NAME, filepath, filename, filedata)
 
 
 def _load_gitignore_patterns(directory_path: Path) -> List[str]:
@@ -141,8 +121,29 @@ def archive_directory(
 
     # Use provided archive_path or default to parent directory
     if archive_path is not None:
-        path = str(archive_path)
+        filepath = str(archive_path)
     else:
-        path = str(directory_path.parent)
+        filepath = str(directory_path.parent)
 
-    return _add_archive(con, path, zip_filename, zip_data)
+    return _add_archive(con, filepath, zip_filename, zip_data)
+
+
+# Archive Retrieval Functions
+def get_archive(
+    con: ibis.BaseBackend,
+    filename: str,
+    filepath: Optional[str] = None,
+) -> Optional[bytes]:
+    """Retrieve an archive from the archives table.
+
+    Args:
+        con: Database connection
+        filename: Name of the archive file to retrieve
+        filepath: Optional filepath filter. If None, searches all paths.
+
+    Returns:
+        Archive data as bytes or None if not found
+    """
+    from dkdc.datalake.files import get_file_data_from_table
+
+    return get_file_data_from_table(con, TABLE_NAME, filename, filepath)

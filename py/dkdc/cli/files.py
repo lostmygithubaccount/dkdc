@@ -26,28 +26,9 @@ files_app = typer.Typer(name="files")
 
 def get_file_from_datalake(con, filename: str) -> Optional[bytes]:
     """Retrieve the most recent version of a file from the datalake."""
-    from dkdc.datalake.files import TABLE_NAME, ensure_files_table
+    from dkdc.datalake.files import get_file_data
 
-    ensure_files_table(con)
-
-    files_table = con.table(TABLE_NAME)
-    # TODO: some nasty Ibis/DuckDB/DuckLake bug here
-    # Using the `.cache()` to work around it
-    # Calling the `.order_by()` fucks shit up
-    result = (
-        files_table.filter((ibis._["filename"] == filename))
-        .cache()
-        .filter(ibis._["path"] == "./files")
-        .order_by(ibis._["updated_at"].desc())
-        .limit(1)
-        .to_pyarrow()
-        .to_pylist()
-    )
-
-    if not result:
-        return None
-
-    return result[0]["data"]
+    return get_file_data(con, filename)
 
 
 def save_file_to_datalake(con, filename: str, content: bytes) -> None:
@@ -230,10 +211,10 @@ def list() -> None:
 
             # Get the most recent version of each file
             result = (
-                files_table.filter(files_table["path"] == "./files")
+                files_table.filter(files_table["filepath"] == "./files")
                 .group_by("filename")
-                .aggregate(updated_at=files_table["updated_at"].max())
-                .order_by("updated_at")
+                .aggregate(fileupdated=files_table["fileupdated"].max())
+                .order_by("fileupdated")
                 .to_pyarrow()
                 .to_pylist()
             )
@@ -249,13 +230,13 @@ def list() -> None:
 
         for file_info in result:
             filename = file_info["filename"]
-            updated_at = file_info["updated_at"]
+            fileupdated = file_info["fileupdated"]
 
             # Format timestamp
-            if isinstance(updated_at, datetime):
-                formatted_time = updated_at.strftime("%Y-%m-%d %H:%M")
+            if isinstance(fileupdated, datetime):
+                formatted_time = fileupdated.strftime("%Y-%m-%d %H:%M")
             else:
-                formatted_time = str(updated_at)
+                formatted_time = str(fileupdated)
 
             print(f"- {filename} ({formatted_time})")
 
@@ -307,7 +288,9 @@ def add(
             con = get_duckdb_connection()
 
             progress.update(progress.task_ids[0], description="Adding file...")
-            saved_filename = add_file(con, file_path_obj, path=path, filename=filename)
+            saved_filename = add_file(
+                con, file_path_obj, filepath=path, filename=filename
+            )
 
             progress.update(progress.task_ids[0], description="Finalizing...")
 
@@ -330,6 +313,226 @@ def open_cmd(
 
     con = get_duckdb_connection()
     open_file(con, filename)
+
+
+@files_app.command("dump")
+def dump_files(
+    path: str = typer.Argument(
+        "temp/files",
+        help="Directory path to dump files to (default: temp/files)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed progress",
+    ),
+) -> None:
+    """Dump all files from the datalake to a local directory.
+
+    Creates the directory if it doesn't exist and overwrites existing files.
+    """
+    from pathlib import Path
+
+    from rich.console import Console
+
+    from dkdc.datalake.files import TABLE_NAME, ensure_files_table
+    from dkdc.datalake.utils import get_duckdb_connection
+
+    console = Console()
+    dump_path = Path(path).expanduser()
+
+    try:
+        with operation_progress(
+            "📦 Dumping files from datalake...", "✓ Files dumped successfully"
+        ) as progress:
+            progress.update(
+                progress.task_ids[0], description="Connecting to datalake..."
+            )
+            con = get_duckdb_connection()
+            ensure_files_table(con)
+
+            progress.update(progress.task_ids[0], description="Querying files...")
+
+            files_table = con.table(TABLE_NAME)
+
+            # Get the most recent version of each file
+            result = (
+                files_table.filter(files_table["filepath"] == "./files")
+                .group_by("filename")
+                .aggregate(
+                    fileupdated=files_table["fileupdated"].max(),
+                    filesize=files_table["filesize"].max(),
+                )
+                .order_by("filename")
+                .to_pyarrow()
+                .to_pylist()
+            )
+
+            if not result:
+                console.print("\n[yellow]🔍 No files found in datalake[/yellow]\n")
+                return
+
+            # Create dump directory
+            dump_path.mkdir(parents=True, exist_ok=True)
+
+            progress.update(
+                progress.task_ids[0],
+                description=f"Dumping {len(result)} files to {dump_path}...",
+            )
+
+            # Dump each file
+            dumped_count = 0
+            total_size = 0
+
+            for file_info in result:
+                filename = file_info["filename"]
+
+                # Get the actual file data
+                file_data = get_file_from_datalake(con, filename)
+
+                if file_data:
+                    file_path = dump_path / filename
+                    file_path.write_bytes(file_data)
+                    dumped_count += 1
+                    total_size += len(file_data)
+
+                    if verbose:
+                        console.print(f"  📄 {filename} ({len(file_data):,} bytes)")
+
+        # Summary
+        console.print(
+            f"\n[green]✓[/green] Dumped [cyan]{dumped_count}[/cyan] files to [cyan]{dump_path}[/cyan]"
+        )
+        size_str = (
+            f"{total_size:,} bytes"
+            if total_size < 1024 * 1024
+            else f"{total_size/1024/1024:.1f} MB"
+        )
+        console.print(f"  Total size: [yellow]{size_str}[/yellow]\n")
+
+    except Exception as e:
+        print_error("Dump operation failed", str(e))
+        raise typer.Exit(1)
+
+
+@files_app.command("restore")
+def restore_files(
+    path: str = typer.Argument(
+        help="Directory path to restore files from",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed progress",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        "-f",
+        help="Overwrite existing files without confirmation",
+    ),
+) -> None:
+    """Restore files from a local directory to the datalake.
+
+    Adds each file in the directory to the datalake.
+    """
+    from pathlib import Path
+
+    from rich.console import Console
+
+    from dkdc.datalake.files import add_file
+    from dkdc.datalake.utils import get_duckdb_connection
+
+    console = Console()
+    restore_path = Path(path).expanduser()
+
+    if not restore_path.exists():
+        console.print(f"\n[red]✗ Directory not found:[/red] {restore_path}\n")
+        raise typer.Exit(1)
+
+    if not restore_path.is_dir():
+        console.print(f"\n[red]✗ Not a directory:[/red] {restore_path}\n")
+        raise typer.Exit(1)
+
+    try:
+        # Get list of files to restore
+        files_to_restore = [f for f in restore_path.iterdir() if f.is_file()]
+
+        if not files_to_restore:
+            console.print(f"\n[yellow]🔍 No files found in {restore_path}[/yellow]\n")
+            return
+
+        # Confirm restore
+        if not force:
+            console.print(
+                f"\n[yellow]⚠️  Restore {len(files_to_restore)} files to datalake?[/yellow]"
+            )
+            from rich.prompt import Confirm
+
+            if not Confirm.ask("   Continue?", default=True):
+                console.print("\n[dim]Cancelled[/dim]\n")
+                raise typer.Exit(0)
+
+        with operation_progress(
+            f"📥 Restoring {len(files_to_restore)} files...",
+            "✓ Files restored successfully",
+        ) as progress:
+            progress.update(
+                progress.task_ids[0], description="Connecting to datalake..."
+            )
+            con = get_duckdb_connection()
+
+            # Restore each file
+            restored_count = 0
+            total_size = 0
+            errors = []
+
+            for i, file_path in enumerate(files_to_restore):
+                progress.update(
+                    progress.task_ids[0],
+                    description=f"Restoring {file_path.name}... ({i+1}/{len(files_to_restore)})",
+                )
+
+                try:
+                    saved_filename = add_file(con, file_path)
+                    file_size = file_path.stat().st_size
+                    restored_count += 1
+                    total_size += file_size
+
+                    if verbose:
+                        console.print(f"  📄 {saved_filename} ({file_size:,} bytes)")
+
+                except Exception as e:
+                    errors.append((file_path.name, str(e)))
+                    if verbose:
+                        console.print(f"  [red]✗[/red] {file_path.name}: {e}")
+
+        # Summary
+        console.print(
+            f"\n[green]✓[/green] Restored [cyan]{restored_count}[/cyan] files to datalake"
+        )
+        size_str = (
+            f"{total_size:,} bytes"
+            if total_size < 1024 * 1024
+            else f"{total_size/1024/1024:.1f} MB"
+        )
+        console.print(f"  Total size: [yellow]{size_str}[/yellow]")
+
+        if errors:
+            console.print(f"\n[red]⚠️  {len(errors)} files failed:[/red]")
+            for filename, error in errors[:5]:  # Show first 5 errors
+                console.print(f"  - {filename}: {error}")
+            if len(errors) > 5:
+                console.print(f"  ... and {len(errors) - 5} more")
+
+        console.print()
+
+    except Exception as e:
+        if "Cancelled" not in str(e):
+            print_error("Restore operation failed", str(e))
+        raise typer.Exit(1)
 
 
 @files_app.callback(invoke_without_command=True)

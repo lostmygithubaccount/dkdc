@@ -63,7 +63,7 @@ Set up the development environment:
 ./bin/setup.sh
 ```
 
-Run code checks:
+Run code checks (lint & format):
 
 ```bash
 ./bin/check.sh
