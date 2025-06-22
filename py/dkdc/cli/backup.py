@@ -26,7 +26,7 @@ from dkdc.cli.utils import (
     print_warning,
     spinner_task,
 )
-from dkdc.config.constants import SQLITE_METADATA_PATH
+from dkdc.config.constants import DATA_PATH, SQLITE_METADATA_PATH
 
 console = Console()
 backup_app = typer.Typer(
@@ -38,7 +38,7 @@ backup_app = typer.Typer(
 
 # Configuration
 BUCKET = "gs://dkdc-dl"
-LAKE_DATA_DIR = Path.home() / "lake" / "data"
+LAKE_DATA_DIR = DATA_PATH
 
 # Passphrase configuration with colors and static salts
 PASSPHRASE_CONFIG = {

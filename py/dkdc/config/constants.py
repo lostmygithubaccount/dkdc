@@ -13,33 +13,46 @@ def get_dkdc_dir() -> Path:
 
 
 def migrate_legacy_lake_directory() -> None:
-    """Migrate legacy ~/lake directory to ~/.dkdc/lake if it exists.
+    """Migrate legacy lake directories to ~/.dkdc/dkdclake if they exist.
+
+    Handles migration from:
+    1. ~/lake -> ~/.dkdc/dkdclake (original location)
+    2. ~/.dkdc/lake -> ~/.dkdc/dkdclake (intermediate location)
 
     TODO: Remove this migration code on major version bump (v1.0.0+)
     """
-    legacy_lake_path = Path.home() / "lake"
+    # Define possible legacy paths in order of priority
+    legacy_paths = [
+        Path.home() / "lake",  # Original location
+        get_dkdc_dir() / "lake",  # Intermediate location
+    ]
+
     new_dkdc_dir = get_dkdc_dir()
-    new_lake_path = new_dkdc_dir / "lake"
+    new_lake_path = new_dkdc_dir / "dkdclake"
 
-    # Only migrate if legacy path exists and new path doesn't
-    if legacy_lake_path.exists() and not new_lake_path.exists():
-        typer.echo(
-            f"🔄 Migrating data from {legacy_lake_path} to {new_lake_path}...",
-            color="yellow",
-        )
+    # Find the first existing legacy path
+    for legacy_path in legacy_paths:
+        if legacy_path.exists() and not new_lake_path.exists():
+            typer.echo(
+                f"🔄 Migrating data from {legacy_path} to {new_lake_path}...",
+                color="yellow",
+            )
 
-        # Ensure the new directory structure exists
-        new_dkdc_dir.mkdir(parents=True, exist_ok=True)
+            # Ensure the new directory structure exists
+            new_dkdc_dir.mkdir(parents=True, exist_ok=True)
 
-        # Move the entire lake directory
-        shutil.move(str(legacy_lake_path), str(new_lake_path))
+            # Move the entire lake directory
+            shutil.move(str(legacy_path), str(new_lake_path))
 
-        typer.echo(f"✅ Successfully migrated data to {new_lake_path}", color="green")
+            typer.echo(
+                f"✅ Successfully migrated data to {new_lake_path}", color="green"
+            )
+            break  # Only migrate from the first found legacy path
 
 
 # Database configuration
-SQLITE_METADATA_PATH = get_dkdc_dir() / "lake" / "metadata.db"
-DATA_PATH = get_dkdc_dir() / "lake" / "data"
+SQLITE_METADATA_PATH = get_dkdc_dir() / "dkdclake" / "metadata.db"
+DATA_PATH = get_dkdc_dir() / "dkdclake" / "data"
 METADATA_DB_NAME = "metadata"
 DATA_DB_NAME = "data"
 
