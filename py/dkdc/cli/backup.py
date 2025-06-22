@@ -62,7 +62,7 @@ def get_passphrase_letter(index: int) -> str:
     """Get passphrase letter for given index."""
     if index >= len(PASSPHRASE_LETTERS):
         raise ValueError(
-            f"Passphrase index {index} exceeds maximum of {len(PASSPHRASE_LETTERS)-1}"
+            f"Passphrase index {index} exceeds maximum of {len(PASSPHRASE_LETTERS) - 1}"
         )
     return PASSPHRASE_LETTERS[index]
 

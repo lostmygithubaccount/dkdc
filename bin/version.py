@@ -11,9 +11,9 @@ Bump version in pyproject.toml.
 """
 
 import re
+import tomllib
 from pathlib import Path
 
-import tomllib
 import typer
 from rich.console import Console
 

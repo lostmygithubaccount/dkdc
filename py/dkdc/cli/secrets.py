@@ -112,7 +112,7 @@ def list_secrets(
                 size_str = (
                     f"{filesize} bytes"
                     if filesize < 1024
-                    else f"{filesize/1024:.1f} KB"
+                    else f"{filesize / 1024:.1f} KB"
                 )
                 table.add_row(secretkey, formatted_time, size_str, "./secrets")
             else:

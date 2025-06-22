@@ -407,7 +407,7 @@ def dump_files(
         size_str = (
             f"{total_size:,} bytes"
             if total_size < 1024 * 1024
-            else f"{total_size/1024/1024:.1f} MB"
+            else f"{total_size / 1024 / 1024:.1f} MB"
         )
         console.print(f"  Total size: [yellow]{size_str}[/yellow]\n")
 
@@ -492,7 +492,7 @@ def restore_files(
             for i, file_path in enumerate(files_to_restore):
                 progress.update(
                     progress.task_ids[0],
-                    description=f"Restoring {file_path.name}... ({i+1}/{len(files_to_restore)})",
+                    description=f"Restoring {file_path.name}... ({i + 1}/{len(files_to_restore)})",
                 )
 
                 try:
@@ -516,7 +516,7 @@ def restore_files(
         size_str = (
             f"{total_size:,} bytes"
             if total_size < 1024 * 1024
-            else f"{total_size/1024/1024:.1f} MB"
+            else f"{total_size / 1024 / 1024:.1f} MB"
         )
         console.print(f"  Total size: [yellow]{size_str}[/yellow]")
 

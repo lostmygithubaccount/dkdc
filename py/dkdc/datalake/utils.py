@@ -23,9 +23,19 @@ def check_duckdb() -> bool:
 
 
 def ensure_setup() -> None:
-    """Ensure directories exist."""
+    """Ensure directories exist and metadata database is initialized."""
     DATA_PATH.mkdir(parents=True, exist_ok=True)
     SQLITE_METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # Initialize metadata.db if it doesn't exist
+    if not SQLITE_METADATA_PATH.exists():
+        # Create a minimal SQLite database
+        import sqlite3
+
+        conn = sqlite3.connect(str(SQLITE_METADATA_PATH))
+        conn.execute("CREATE TABLE IF NOT EXISTS _meta (id INTEGER PRIMARY KEY)")
+        conn.commit()
+        conn.close()
 
 
 def get_metadata_connection():
