@@ -9,6 +9,7 @@ from dkdc.cli.dev import dev_app
 from dkdc.cli.files import files_app
 from dkdc.cli.secrets import secrets_app
 from dkdc.config.config import open_config
+from dkdc.config.constants import migrate_legacy_lake_directory
 
 # Configuration
 app = typer.Typer(name="dkdc", add_completion=False)
@@ -31,6 +32,9 @@ def cli_callback(
     ),
 ) -> None:
     """dkdc: don't know, don't care."""
+    # Run migration check on every CLI invocation
+    migrate_legacy_lake_directory()
+
     if config:
         open_config()
         return

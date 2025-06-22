@@ -2,17 +2,18 @@
 
 import os
 import subprocess
-import tomllib
 from pathlib import Path
 from typing import Any, Dict
 
+import tomllib
 import typer
+
+from .constants import get_dkdc_dir
 
 
 def get_config_path() -> Path:
     """Get the path to the dkdc config file."""
-    home_dir = Path.home()
-    return home_dir / ".config" / "dkdc" / "config.toml"
+    return get_dkdc_dir() / "config.toml"
 
 
 def get_default_config() -> str:
@@ -29,8 +30,8 @@ password = "dkdc"
 schema = "dev"
 
 # File paths
-data_path = "~/lake/data"
-metadata_path = "~/lake/metadata"
+data_path = "~/.dkdc/lake/data"
+metadata_path = "~/.dkdc/lake/metadata"
 
 # Docker settings
 container_name = "dkdc-postgres"

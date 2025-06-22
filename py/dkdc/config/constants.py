@@ -1,10 +1,45 @@
 """Configuration constants for dkdc."""
 
+import shutil
 from pathlib import Path
 
+import typer
+
+
+# DKDC directory path
+def get_dkdc_dir() -> Path:
+    """Get the path to the dkdc directory."""
+    return Path.home() / ".dkdc"
+
+
+def migrate_legacy_lake_directory() -> None:
+    """Migrate legacy ~/lake directory to ~/.dkdc/lake if it exists.
+
+    TODO: Remove this migration code on major version bump (v1.0.0+)
+    """
+    legacy_lake_path = Path.home() / "lake"
+    new_dkdc_dir = get_dkdc_dir()
+    new_lake_path = new_dkdc_dir / "lake"
+
+    # Only migrate if legacy path exists and new path doesn't
+    if legacy_lake_path.exists() and not new_lake_path.exists():
+        typer.echo(
+            f"🔄 Migrating data from {legacy_lake_path} to {new_lake_path}...",
+            color="yellow",
+        )
+
+        # Ensure the new directory structure exists
+        new_dkdc_dir.mkdir(parents=True, exist_ok=True)
+
+        # Move the entire lake directory
+        shutil.move(str(legacy_lake_path), str(new_lake_path))
+
+        typer.echo(f"✅ Successfully migrated data to {new_lake_path}", color="green")
+
+
 # Database configuration
-SQLITE_METADATA_PATH = Path.home() / "lake" / "metadata.db"
-DATA_PATH = Path.home() / "lake" / "data"
+SQLITE_METADATA_PATH = get_dkdc_dir() / "lake" / "metadata.db"
+DATA_PATH = get_dkdc_dir() / "lake" / "data"
 METADATA_DB_NAME = "metadata"
 DATA_DB_NAME = "data"
 
