@@ -441,6 +441,10 @@ function temp() {
   v temp.md
 }
 
+function vtemp() {
+    dkdc files open temp.md
+}
+
 function rand() {
     openssl rand -base64 32
 }
