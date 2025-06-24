@@ -166,15 +166,7 @@ precmd() {
     
     if [[ -n $_command_start_time ]]; then
         local elapsed=$(( SECONDS - _command_start_time ))
-        if [[ $elapsed -ge 3600 ]]; then
-            _last_command_duration=$(printf "%dh %dm %d" $((elapsed/3600)) $((elapsed%3600/60)) $((elapsed%60)))
-        elif [[ $elapsed -ge 60 ]]; then
-            _last_command_duration=$(printf "%dm %d" $((elapsed/60)) $((elapsed%60)))
-        elif [[ $elapsed -ge 1 ]]; then
-            _last_command_duration=$(printf "%d" $elapsed)
-        else
-            _last_command_duration="0"
-        fi
+        _last_command_duration=$(printf "%d" $elapsed)
         unset _command_start_time
     fi
 }
