@@ -43,7 +43,6 @@ compinit
 
 # Enable version control info (fast mode - with change indicators)
 autoload -Uz vcs_info
-precmd() { vcs_info }
 zstyle ':vcs_info:git:*' formats '%b%c%u'
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' unstagedstr '%F{160}*%f'  # Darker red for better contrast on pink
@@ -53,8 +52,10 @@ zstyle ':vcs_info:*' stagedstr '%F{30}+%f'     # Darker cyan for better contrast
 setopt PROMPT_SUBST
 
 # Modern gradient powerline colors  
-local bg_time='%K{240}'       # Dark grey background for timestamp
+local bg_time='%K{236}'       # Darker grey background for timestamp
 local fg_time='%F{255}'       # White text
+local bg_elapsed='%K{240}'    # Grey background for elapsed time
+local fg_elapsed='%F{255}'    # White text
 local bg_user='%K{99}'        # Purple background
 local fg_user='%F{255}'       # White text
 local bg_path='%K{135}'       # Bright magenta background  
@@ -149,12 +150,49 @@ get_timestamp() {
     TZ=UTC date '+%Y/%m/%d %H:%M:%S'
 }
 
+# Command timing
+typeset -g _command_start_time
+typeset -g _last_command_duration
+
+# Hook to record command start time
+preexec() {
+    _command_start_time=$SECONDS
+    _last_command_duration=""  # Clear previous duration when new command starts
+}
+
+# Hook to calculate elapsed time after command completes
+precmd() {
+    vcs_info  # Keep existing vcs_info functionality
+    
+    if [[ -n $_command_start_time ]]; then
+        local elapsed=$(( SECONDS - _command_start_time ))
+        if [[ $elapsed -ge 3600 ]]; then
+            _last_command_duration=$(printf "%dh %dm %d" $((elapsed/3600)) $((elapsed%3600/60)) $((elapsed%60)))
+        elif [[ $elapsed -ge 60 ]]; then
+            _last_command_duration=$(printf "%dm %d" $((elapsed/60)) $((elapsed%60)))
+        elif [[ $elapsed -ge 1 ]]; then
+            _last_command_duration=$(printf "%d" $elapsed)
+        else
+            _last_command_duration="0"
+        fi
+        unset _command_start_time
+    fi
+}
+
+# Get the stored elapsed time
+get_elapsed_time() {
+    if [[ -n $_last_command_duration ]]; then
+        echo "$_last_command_duration"
+    fi
+}
+
 # Build the modern gradient powerline prompt (single line + newline prompt)
 PROMPT='$(container_indicator)'                                                          # Container indicator
 PROMPT+="${bg_user}${fg_user} %n@%m ${reset}%F{99}${sep_right}${reset}"               # Purple user@hostname segment  
 PROMPT+="${bg_path}${fg_path} \$(fish_style_pwd) ${reset}%F{135}${sep_right}${reset}" # Magenta path segment
 PROMPT+="\$(git_prompt_info)"                                                          # Cyan/pink git segment
-PROMPT+="${bg_time}${fg_time} \$(get_timestamp) ${reset}%F{240}${sep_right}${reset}"  # Grey timestamp segment at end
+PROMPT+="${bg_time}${fg_time} \$(get_timestamp) ${reset}%F{236}${sep_right}${reset}"  # Darker grey timestamp segment
+PROMPT+="\$([ -n \"\$(get_elapsed_time)\" ] && echo \"${bg_elapsed}${fg_elapsed} \$(get_elapsed_time) ${reset}%F{240}${sep_right}${reset}\")"  # Grey elapsed time segment
 PROMPT+=$'\n'                                                                          # Newline
 PROMPT+="%F{99}❯%f "                                                                   # Violet prompt character
 
