@@ -150,6 +150,10 @@ function p() {
   cd $AIO/product
 }
 
+function init {
+  cd $AIO/product/initiatives
+}
+
 function workspaces() {
   cd $DEV/workspaces
 }
