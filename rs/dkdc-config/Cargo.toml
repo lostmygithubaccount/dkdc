@@ -1,0 +1,12 @@
+[package]
+name = "dkdc-config"
+version = "0.1.0"
+edition = "2021"
+description = "Configuration management for dkdc (don't know, don't care)"
+license = "MIT"
+
+[dependencies]
+anyhow = "1.0"
+toml = "0.8"
+
+[dev-dependencies]
