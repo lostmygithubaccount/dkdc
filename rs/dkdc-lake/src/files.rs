@@ -1,8 +1,8 @@
+use crate::Lake;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use duckdb::params;
 use dkdc_config::FILES_TABLE_NAME;
-use crate::Lake;
+use duckdb::params;
 
 pub struct File {
     pub filepath: String,
@@ -27,16 +27,16 @@ impl Lake {
         self.execute(&sql)?;
         Ok(())
     }
-    
+
     pub fn add_file(&self, filepath: &str, filename: &str, data: &[u8]) -> Result<()> {
         self.create_files_table()?;
-        
+
         let sql = format!(
             "INSERT INTO {} (filepath, filename, filedata, filesize, fileupdated)
              VALUES (?, ?, ?, ?, ?)",
             FILES_TABLE_NAME
         );
-        
+
         let mut stmt = self.prepare(&sql)?;
         stmt.execute(params![
             filepath,
@@ -45,10 +45,10 @@ impl Lake {
             data.len() as i64,
             Utc::now().to_rfc3339(),
         ])?;
-        
+
         Ok(())
     }
-    
+
     pub fn get_file(&self, filepath: &str, filename: &str) -> Result<Option<File>> {
         let sql = format!(
             "SELECT filepath, filename, filedata, filesize, fileupdated
@@ -58,23 +58,29 @@ impl Lake {
              LIMIT 1",
             FILES_TABLE_NAME
         );
-        
+
         let mut stmt = self.prepare(&sql)?;
         let mut rows = stmt.query(params![filepath, filename])?;
-        
+
         if let Some(row) = rows.next()? {
             Ok(Some(File {
                 filepath: row.get(0)?,
                 filename: row.get(1)?,
                 filedata: row.get(2)?,
                 filesize: row.get(3)?,
-                fileupdated: Utc::now(), // TODO: Parse timestamp properly
+                fileupdated: {
+                    // DuckDB returns timestamps as microseconds since epoch
+                    let micros: i64 = row.get(4)?;
+                    let secs = micros / 1_000_000;
+                    let nanos = ((micros % 1_000_000) * 1000) as u32;
+                    DateTime::from_timestamp(secs, nanos).unwrap_or_else(Utc::now)
+                },
             }))
         } else {
             Ok(None)
         }
     }
-    
+
     pub fn list_files(&self, filepath: &str) -> Result<Vec<String>> {
         let sql = format!(
             "SELECT DISTINCT filename
@@ -83,27 +89,27 @@ impl Lake {
              ORDER BY filename",
             FILES_TABLE_NAME
         );
-        
+
         let mut stmt = self.prepare(&sql)?;
         let mut rows = stmt.query(params![filepath])?;
-        
+
         let mut files = Vec::new();
         while let Some(row) = rows.next()? {
             files.push(row.get(0)?);
         }
-        
+
         Ok(files)
     }
-    
+
     pub fn delete_file(&self, filepath: &str, filename: &str) -> Result<()> {
         let sql = format!(
             "DELETE FROM {} WHERE filepath = ? AND filename = ?",
             FILES_TABLE_NAME
         );
-        
+
         let mut stmt = self.prepare(&sql)?;
         stmt.execute(params![filepath, filename])?;
-        
+
         Ok(())
     }
 }

@@ -2,20 +2,32 @@
 name = "dkdc-cli"
 version = "0.1.0"
 edition = "2021"
-description = "CLI for dkdc (don't know, don't care)"
+description = "CLI for dkdc (don't know, don't care) - encrypted data lake management"
 license = "MIT"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
+keywords = ["datalake", "encryption", "duckdb", "cli", "storage"]
+categories = ["command-line-utilities", "database", "cryptography"]
+
+[lib]
+name = "dkdc_cli"
+path = "src/lib.rs"
 
 [[bin]]
 name = "dkdc"
 path = "src/main.rs"
 
 [dependencies]
-dkdc-config = { path = "../dkdc-config" }
-dkdc-lake = { path = "../dkdc-lake" }
-dkdc-dev = { path = "../dkdc-dev" }
-dkdc-files = { path = "../dkdc-files" }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
+dkdc-dev = { version = "0.1.0", path = "../dkdc-dev" }
+dkdc-files = { version = "0.1.0", path = "../dkdc-files" }
+dkdc-archive = { version = "0.1.0", path = "../dkdc-archive" }
 clap = { version = "4.5", features = ["derive"] }
 anyhow = "1.0"
 chrono = "0.4"
+rpassword = "7.3"
+clipboard = "0.5"
+serde_json = "1.0"
 
 [dev-dependencies]

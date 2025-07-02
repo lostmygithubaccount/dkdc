@@ -1,21 +1,88 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
+
+/// Configuration file structure
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct ConfigFile {
+    #[serde(default)]
+    pub general: GeneralConfig,
+    #[serde(default)]
+    pub dev: DevConfig,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GeneralConfig {
+    #[serde(default = "default_editor")]
+    pub editor: String,
+}
+
+impl Default for GeneralConfig {
+    fn default() -> Self {
+        Self {
+            editor: default_editor(),
+        }
+    }
+}
+
+fn default_editor() -> String {
+    std::env::var("EDITOR").unwrap_or_else(|_| "nano".to_string())
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct DevConfig {
+    #[serde(default)]
+    pub packages: Vec<String>,
+}
 
 #[derive(Clone)]
 pub struct Config {
     dkdc_dir: PathBuf,
+    config_file: Option<ConfigFile>,
 }
 
 impl Config {
     pub fn new() -> Result<Self> {
         let home = std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE"))?;
         let dkdc_dir = PathBuf::from(home).join(".dkdc");
-        Ok(Self { dkdc_dir })
+        let mut config = Self {
+            dkdc_dir,
+            config_file: None,
+        };
+
+        // Try to load config file
+        config.reload_config_file();
+
+        Ok(config)
     }
 
     pub fn from_path(dkdc_dir: PathBuf) -> Self {
-        Self { dkdc_dir }
+        let mut config = Self {
+            dkdc_dir,
+            config_file: None,
+        };
+        config.reload_config_file();
+        config
+    }
+
+    /// Reload configuration file from disk
+    pub fn reload_config_file(&mut self) {
+        let config_path = self.config_file_path();
+        if config_path.exists() {
+            match fs::read_to_string(&config_path) {
+                Ok(content) => match toml::from_str(&content) {
+                    Ok(config) => self.config_file = Some(config),
+                    Err(_) => self.config_file = Some(ConfigFile::default()),
+                },
+                Err(_) => self.config_file = Some(ConfigFile::default()),
+            }
+        }
+    }
+
+    /// Get the loaded config file (or default)
+    pub fn file(&self) -> ConfigFile {
+        self.config_file.clone().unwrap_or_default()
     }
 
     pub fn dkdc_dir(&self) -> &Path {
@@ -47,6 +114,18 @@ impl Config {
         }
     }
 
+    pub fn config_file_path(&self) -> PathBuf {
+        let config_dir = if let Ok(xdg_config) = std::env::var("XDG_CONFIG_HOME") {
+            PathBuf::from(xdg_config)
+        } else if let Ok(home) = std::env::var("HOME") {
+            PathBuf::from(home).join(".config")
+        } else {
+            self.dkdc_dir.clone()
+        };
+
+        config_dir.join("dkdc").join("config.toml")
+    }
+
     pub fn ensure_directories(&self) -> Result<()> {
         fs::create_dir_all(&self.dkdc_dir)?;
         fs::create_dir_all(self.lake_dir())?;
@@ -74,18 +153,6 @@ pub const SQLITE_EXTENSION: &str = "sqlite";
 
 pub const ARCHIVE_FILENAME_TEMPLATE: &str = "archive_directory_{name}.zip";
 
-pub struct Colors;
-
-impl Colors {
-    pub const PRIMARY: &'static str = "#8b5cf6";
-    pub const SECONDARY: &'static str = "#06b6d4";
-    pub const SUCCESS: &'static str = "#10b981";
-    pub const WARNING: &'static str = "#f59e0b";
-    pub const ERROR: &'static str = "#ef4444";
-    pub const MUTED: &'static str = "#6b7280";
-    pub const ACCENT: &'static str = "#a855f7";
-}
-
 pub const DKDC_BANNER: &str = r#"
 ▓█████▄  ██ ▄█▀▓█████▄  ▄████▄  
 ▒██▀ ██▌ ██▄█▒ ▒██▀ ██▌▒██▀ ▀█  
@@ -101,6 +168,7 @@ pub const DKDC_BANNER: &str = r#"
 develop knowledge, develop code
 "#;
 
+// Keep this banner for v1.0 release - will switch to it when we hit v1
 #[allow(dead_code)]
 pub const DKDC_BANNER_V1: &str = r#"
 ██████╗ ██╗  ██╗██████╗  ██████╗

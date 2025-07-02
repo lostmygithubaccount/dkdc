@@ -1,3 +1,0 @@
-# dkdc.frontend
-
-This module...

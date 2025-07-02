@@ -1,0 +1,13 @@
+[package]
+name = "dkdc-secrets"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Secrets management for dkdc - encrypted key-value storage"
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
+anyhow = { workspace = true }

@@ -1,0 +1,19 @@
+[package]
+name = "dkdc-test"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Test runner for dkdc"
+repository.workspace = true
+homepage.workspace = true
+
+[[bin]]
+name = "dkdc-test"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+colored = "2.1"
+tempfile = "3.8"

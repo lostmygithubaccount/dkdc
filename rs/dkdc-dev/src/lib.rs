@@ -46,8 +46,7 @@ impl Dev {
 
         println!("{}", DKDC_BANNER);
         println!("\n=== dkdc dev (SQL) ===");
-        println!("Connected to DuckLake database");
-        println!("Database: my_ducklake\n");
+        println!("Connected to DuckLake database\n");
 
         let sql_commands = self.lake.get_sql_commands();
 
@@ -66,128 +65,118 @@ impl Dev {
     pub fn launch_python(&self) -> Result<()> {
         // Ensure Python environment is set up
         self.ensure_python_env()?;
-        
+
+        // Ensure metadata database exists
+        self.config.ensure_metadata_db()?;
+
         println!("{}", DKDC_BANNER);
         println!("\n=== dkdc dev (Python) ===");
         println!("Connected to DuckLake database");
-        println!("Database: my_ducklake");
-        println!("Namespace: ibis, con, metacon, files, secrets\n");
-        
+
         // Get the SQL commands for DuckLake setup
         let sql_commands = self.lake.get_sql_commands();
-        
+
         // Launch IPython with our setup
         self.launch_ipython_with_duckdb(&sql_commands)?;
-        
+
         Ok(())
     }
-    
-    fn ensure_python_env(&self) -> Result<()> {
+
+    pub fn ensure_python_env(&self) -> Result<()> {
         let venv_path = self.config.venv_path();
-        
+
+        // Check if uv is available
+        if !self.check_uv_available()? {
+            anyhow::bail!(
+                "uv not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh"
+            );
+        }
+
+        // Create virtual environment if it doesn't exist
         if !venv_path.exists() {
-            println!("Setting up Python environment...");
-            
-            // Check if uv is available
-            let uv_check = Command::new("which")
-                .arg("uv")
-                .output()?;
-                
-            if !uv_check.status.success() {
-                anyhow::bail!("uv not found. Install with: curl -LsSf https://astral.sh/uv/install.sh | sh");
-            }
-            
-            // Create virtual environment
+            println!("Creating Python environment...");
+            self.create_venv(&venv_path)?;
+        }
+
+        // Install required packages
+        println!("Setting up Python packages...");
+        self.install_packages(&venv_path)?;
+
+        Ok(())
+    }
+
+    fn check_uv_available(&self) -> Result<bool> {
+        Ok(Command::new("which")
+            .arg("uv")
+            .output()
+            .map(|output| output.status.success())
+            .unwrap_or(false))
+    }
+
+    fn create_venv(&self, venv_path: &std::path::Path) -> Result<()> {
+        let status = Command::new("uv")
+            .args(["venv", venv_path.to_str().unwrap()])
+            .status()?;
+
+        if !status.success() {
+            anyhow::bail!("Failed to create virtual environment");
+        }
+
+        Ok(())
+    }
+
+    fn install_packages(&self, venv_path: &std::path::Path) -> Result<()> {
+        const PACKAGES: &[&str] = &["ipython", "duckdb==1.3.1", "ibis-framework[duckdb,sqlite]"];
+
+        for package in PACKAGES {
             let status = Command::new("uv")
-                .args(&["venv", venv_path.to_str().unwrap()])
+                .args([
+                    "pip",
+                    "install",
+                    "--python",
+                    venv_path.to_str().unwrap(),
+                    package,
+                ])
                 .status()?;
-                
+
             if !status.success() {
-                anyhow::bail!("Failed to create virtual environment");
-            }
-            
-            println!("Installing required packages...");
-            
-            let packages = vec!["ipython", "duckdb", "ibis-framework[duckdb]"];
-            
-            for package in packages {
-                println!("  Installing {}...", package);
-                let status = Command::new("uv")
-                    .args(&["pip", "install", "--python", venv_path.to_str().unwrap(), package])
-                    .status()?;
-                    
-                if !status.success() {
-                    anyhow::bail!("Failed to install {}", package);
-                }
+                anyhow::bail!("Failed to install {}", package);
             }
         }
-        
+
         Ok(())
     }
-    
+
     fn launch_ipython_with_duckdb(&self, sql_commands: &str) -> Result<()> {
         let python_path = self.config.python_path();
-        
-        // Create a Python script that sets up the environment and launches IPython
-        let setup_script = format!(
-            r#"
-import ibis
-import duckdb
-from IPython import start_ipython
+        let metadata_path = self.config.metadata_path();
 
-# Create ibis connection (in-memory)
-con = ibis.duckdb.connect()
-
-# Get the raw DuckDB connection
-con_duckdb = con.con
-
-# Execute SQL commands to set up DuckLake
-sql_commands = '''{}'''
-for cmd in sql_commands.strip().split(';'):
-    if cmd.strip():
-        con.raw_sql(cmd.strip())
-
-# Configure ibis
-ibis.options.interactive = True
-ibis.options.repr.interactive.max_rows = 40
-
-# Set ibis as default backend
-ibis.set_backend(con)
-
-# Create metadata connection placeholder
-metacon = None  # TODO: Connect to metadata SQLite
-
-# Prepare namespace
-namespace = {{
-    'ibis': ibis,
-    'con': con,
-    'duckdb': duckdb,
-    'con_duckdb': con_duckdb,
-    'metacon': metacon,
-}}
-
-# Add dkdc modules placeholder
-# TODO: Add files and secrets modules
-
-# Start IPython with our namespace
-start_ipython(argv=['--no-banner'], user_ns=namespace)
-"#,
-            sql_commands
+        // Create the setup code that will be executed via IPython's -c flag
+        let setup_code = format!(
+            r#"import ibis; import duckdb; con = ibis.duckdb.connect(); con_duckdb = con.con; sql_commands = '''{}'''; [con.raw_sql(cmd.strip()) for cmd in sql_commands.strip().split(';') if cmd.strip()]; metacon = ibis.sqlite.connect('{}'); ibis.options.interactive = True; ibis.options.repr.interactive.max_rows = 40; ibis.set_backend(con); 
+try:
+    import dkdc
+    from dkdc import files, secrets
+except ImportError:
+    files = None; secrets = None; dkdc = None
+namespace = {{'ibis': ibis, 'con': con, 'duckdb': duckdb, 'con_duckdb': con_duckdb, 'metacon': metacon}}
+if dkdc:
+    namespace.update({{'dkdc': dkdc, 'files': files, 'secrets': secrets}})
+print('\nNamespace objects: con, con_duckdb, metacon, ibis, duckdb' + (', dkdc, files, secrets' if dkdc else ''))
+print('Type "help(object)" for help on any object\n')"#,
+            sql_commands,
+            metadata_path.display()
         );
-        
-        // Write the script to a temporary file
-        let temp_script = self.config.dkdc_dir().join("dev_setup.py");
-        std::fs::write(&temp_script, setup_script)?;
-        
-        // Launch Python with the script
+
+        // Launch IPython directly with the setup code
         let status = Command::new(python_path)
-            .arg(temp_script)
+            .args(["-m", "IPython", "--no-banner", "-i", "-c", &setup_code])
             .status()?;
-            
+
         if !status.success() {
             anyhow::bail!("IPython exited with error");
         }
-        
+
         Ok(())
     }
 }

@@ -1,0 +1,11 @@
+[package]
+name = "dkdc-common"
+version = "0.1.0"
+edition = "2021"
+description = "Common utilities for dkdc"
+license = "MIT"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
+
+[dependencies]
+anyhow = "1.0"

@@ -1,1 +1,0 @@
-# dkdc frontend dependencies

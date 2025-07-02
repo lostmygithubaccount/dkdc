@@ -4,15 +4,14 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
 description = "File management for dkdc virtual filesystem"
 
-[[bin]]
-name = "dkdc-files"
-path = "src/main.rs"
-
 [dependencies]
-dkdc-config = { path = "../dkdc-config" }
-dkdc-lake = { path = "../dkdc-lake" }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 chrono = { workspace = true }
+tempfile = "3.8"

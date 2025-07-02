@@ -4,15 +4,12 @@ version = "0.1.0"
 edition = "2021"
 description = "Development REPL functionality for dkdc"
 license = "MIT"
-
-[[bin]]
-name = "dkdc-dev"
-path = "src/main.rs"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
 
 [dependencies]
-dkdc-config = { path = "../dkdc-config" }
-dkdc-lake = { path = "../dkdc-lake" }
-clap = { version = "4.5", features = ["derive"] }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
 anyhow = "1.0"
 
 [dev-dependencies]

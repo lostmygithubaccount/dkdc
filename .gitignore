@@ -5,5 +5,22 @@
 *backup*.sql*
 
 # Build output
-dist
-target
+dist/
+target/
+*.so
+*.whl
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Project specific
+.dkdc/

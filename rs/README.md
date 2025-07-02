@@ -8,6 +8,10 @@ The codebase is organized into several focused crates:
 
 ### Core Libraries
 
+- **[dkdc-common](./dkdc-common/)**: Shared utilities
+  - Version management
+  - Common types and functions
+
 - **[dkdc-config](./dkdc-config/)**: Configuration management
   - Centralized path handling
   - Platform-specific configuration
@@ -21,8 +25,23 @@ The codebase is organized into several focused crates:
 
 - **[dkdc-dev](./dkdc-dev/)**: Development REPL functionality
   - SQL mode via DuckDB CLI
-  - Python mode via embedded interpreter (future)
+  - Python mode via IPython
   - Database setup and initialization
+
+- **[dkdc-files](./dkdc-files/)**: File management operations
+  - Virtual filesystem CRUD operations
+  - Temporary file handling
+  - Directory dumping/restoring
+
+- **[dkdc-secrets](./dkdc-secrets/)**: Secrets management
+  - Encrypted key-value storage
+  - Multiple export formats
+  - Clipboard integration
+
+- **[dkdc-archive](./dkdc-archive/)**: Directory archiving
+  - ZIP archive creation
+  - Gitignore support
+  - Storage in data lake
 
 ### CLI Applications
 
@@ -38,6 +57,14 @@ The codebase is organized into several focused crates:
 - **[dkdc-files](./dkdc-files/)**: Standalone file management
   - Can be installed and used independently  
   - Same functionality as `dkdc files` subcommands
+
+### Python Integration
+
+- **[dkdc-py](./dkdc-py/)**: Python extension module
+  - PyO3-based bindings for all Rust functionality
+  - Compiles to `_dkdc` module imported by Python
+  - Enables the Python package to use Rust code directly
+  - No subprocess calls - native Python/Rust interop
 
 ## Building
 
@@ -85,15 +112,17 @@ Key benefits:
 
 ## Integration with Python
 
-The Rust CLI is designed to be used as a backend for the Python wrapper:
-- Python CLI will call the Rust binary for most operations
-- Shared configuration ensures compatibility
-- Future: Direct Python bindings via PyO3
+The Rust implementation is fully integrated with Python through the `dkdc-py` crate:
 
-## Future Work
+- **Direct Integration**: Python imports the compiled `_dkdc` extension module
+- **No Subprocesses**: All calls are native Python→Rust function calls
+- **Type Safety**: PyO3 handles conversions between Python and Rust types
+- **Single Distribution**: Python wheel includes both Python code and compiled extension
+- **Development**: Use `uv run maturin develop` to rebuild the extension during development
 
-- [ ] PyO3 integration for embedded Python interpreter
-- [ ] Complete implementation of all CLI commands
-- [ ] Progress indicators and improved UI
-- [ ] Direct Python bindings as alternative to CLI wrapper
-- [ ] Performance benchmarks vs Python implementation
+This architecture means Python users get:
+1. Native Rust performance
+2. Standard Python package experience
+3. No need to install Rust toolchain
+4. Identical functionality to standalone Rust CLI
+

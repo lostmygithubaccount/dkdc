@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
+# Setup development environment
 
-# Set strict mode
 set -euo pipefail
 
-function run_command() {
-    local command="$1"
-    echo "Running: $command"
-    eval "$command"
-}
+echo "🚀 Setting up dkdc development environment..."
+echo ""
 
+# Check for uv
 if ! command -v uv &> /dev/null; then
-    echo "uv not found, installing..."
+    echo "📦 Installing uv..."
     
     if ! command -v curl &> /dev/null; then
-        echo "Error: curl is required to install uv but is not installed"
+        echo "❌ Error: curl is required to install uv but is not installed"
         exit 1
     fi
     
-    run_command "curl -LsSf https://astral.sh/uv/install.sh | sh"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo ""
 fi
 
-run_command "rm -rf .venv"
-run_command "uv sync"
+# Create fresh virtual environment
+echo "🐍 Creating virtual environment..."
+rm -rf .venv
+uv venv
+
+# Sync dependencies
+echo "📦 Installing dependencies..."
+uv sync
+
+# Build the project
+echo ""
+./bin/build.sh

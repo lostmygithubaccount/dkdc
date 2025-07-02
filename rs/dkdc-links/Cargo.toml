@@ -4,7 +4,8 @@ version = "1.1.4"
 edition = "2021"
 authors = ["Cody"]
 description = "Bookmarks in your terminal"
-repository = "https://github.com/lostmygithubaccount/dkdc/tree/main/rs/dkdc-links"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
 license = "MIT"
 
 [[bin]]

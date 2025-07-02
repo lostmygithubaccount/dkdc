@@ -2,10 +2,14 @@
 name = "dkdc-lake"
 version = "0.1.0"
 edition = "2021"
+description = "Data lake management for dkdc (don't know, don't care)"
+license = "MIT"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
 
 [dependencies]
 duckdb = { version = "1.1", features = ["bundled"] }
-dkdc-config = { path = "../dkdc-config" }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
 anyhow = "1.0"
 chrono = "0.4"
 

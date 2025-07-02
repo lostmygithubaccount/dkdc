@@ -1,0 +1,20 @@
+[package]
+name = "dkdc-py"
+version = "0.50.0"
+edition = "2021"
+description = "Python bindings for dkdc"
+license = "MIT"
+
+[lib]
+name = "_dkdc"
+crate-type = ["cdylib"]
+
+[dependencies]
+dkdc-common = { version = "0.1.0", path = "../dkdc-common" }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
+dkdc-dev = { version = "0.1.0", path = "../dkdc-dev" }
+dkdc-files = { version = "0.1.0", path = "../dkdc-files" }
+dkdc-cli = { version = "0.1.0", path = "../dkdc-cli" }
+pyo3 = { version = "0.22", features = ["extension-module"] }
+anyhow = "1.0"

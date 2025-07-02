@@ -1,3 +1,0 @@
-# dkdc.shell
-
-This module...

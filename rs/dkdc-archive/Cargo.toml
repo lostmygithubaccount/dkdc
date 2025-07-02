@@ -1,0 +1,21 @@
+[package]
+name = "dkdc-archive"
+version = "0.1.0"
+edition = "2021"
+description = "Archive management CLI for dkdc"
+license = "MIT"
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
+
+[[bin]]
+name = "dkdc-archive"
+path = "src/main.rs"
+
+[dependencies]
+dkdc-common = { version = "0.1.0", path = "../dkdc-common" }
+dkdc-config = { version = "0.1.0", path = "../dkdc-config" }
+dkdc-lake = { version = "0.1.0", path = "../dkdc-lake" }
+clap = { version = "4.5", features = ["derive"] }
+anyhow = "1.0"
+zip = { version = "4.2", default-features = false, features = ["deflate"] }
+walkdir = "2.5"

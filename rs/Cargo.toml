@@ -1,5 +1,18 @@
 [workspace]
-members = ["dkdc-config", "dkdc-lake", "dkdc-dev", "dkdc-cli", "dkdc-files"]
+members = [
+    "dkdc-common",
+    "dkdc-config", 
+    "dkdc-lake",
+    "dkdc-dev",
+    "dkdc-cli",
+    "dkdc-files",
+    "dkdc-archive",
+    "dkdc-secrets",
+    "dkdc-links",
+    "dkdc-release",
+    "dkdc-test",
+]
+exclude = ["dkdc-py"]
 resolver = "2"
 
 [workspace.package]
@@ -7,6 +20,8 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 authors = ["dkdc contributors"]
+repository = "https://github.com/lostmygithubaccount/dkdc"
+homepage = "https://github.com/lostmygithubaccount/dkdc"
 
 [workspace.dependencies]
 anyhow = "1.0"
