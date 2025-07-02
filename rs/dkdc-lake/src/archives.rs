@@ -20,8 +20,6 @@ impl Lake {
     }
 
     pub fn add_archive(&self, name: &str, data: &[u8]) -> Result<()> {
-        self.create_archives_table()?;
-
         let sql = format!(
             "INSERT INTO {} (filepath, filename, filedata, filesize, fileupdated)
              VALUES (?, ?, ?, ?, ?)",

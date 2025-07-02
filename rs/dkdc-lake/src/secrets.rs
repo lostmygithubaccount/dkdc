@@ -20,8 +20,6 @@ impl Lake {
     }
 
     pub fn set_secret(&self, name: &str, value: &[u8]) -> Result<()> {
-        self.create_secrets_table()?;
-
         let sql = format!(
             "INSERT INTO {} (filepath, filename, filedata, filesize, fileupdated)
              VALUES (?, ?, ?, ?, ?)",

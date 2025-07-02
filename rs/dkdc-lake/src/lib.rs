@@ -44,11 +44,6 @@ impl Lake {
         let data_path = config.data_path();
 
         connection.execute_batch(&format!(
-            "ATTACH '{}' AS metadata;",
-            metadata_path.display()
-        ))?;
-
-        connection.execute_batch(&format!(
             "ATTACH 'ducklake:sqlite:{}' AS data (DATA_PATH '{}', ENCRYPTED);",
             metadata_path.display(),
             data_path.display()
@@ -56,7 +51,20 @@ impl Lake {
 
         connection.execute_batch("USE data;")?;
 
-        Ok(Self { connection, config })
+        let lake = Self { connection, config };
+
+        // Bootstrap all required tables
+        lake.bootstrap_tables()?;
+
+        Ok(lake)
+    }
+
+    /// Bootstrap all required tables
+    fn bootstrap_tables(&self) -> Result<()> {
+        self.create_files_table()?;
+        self.create_secrets_table()?;
+        self.create_archives_table()?;
+        Ok(())
     }
 
     pub fn connection(&self) -> &Connection {
@@ -84,13 +92,11 @@ impl Lake {
             r#"INSTALL {};
 INSTALL {};
 
-ATTACH '{}' AS metadata;
 ATTACH 'ducklake:sqlite:{}' AS data (DATA_PATH '{}', ENCRYPTED);
 
 USE data;"#,
             DUCKLAKE_EXTENSION,
             SQLITE_EXTENSION,
-            metadata_path.display(),
             metadata_path.display(),
             data_path.display()
         )

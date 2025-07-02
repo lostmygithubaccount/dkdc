@@ -29,8 +29,6 @@ impl Lake {
     }
 
     pub fn add_file(&self, filepath: &str, filename: &str, data: &[u8]) -> Result<()> {
-        self.create_files_table()?;
-
         let sql = format!(
             "INSERT INTO {} (filepath, filename, filedata, filesize, fileupdated)
              VALUES (?, ?, ?, ?, ?)",

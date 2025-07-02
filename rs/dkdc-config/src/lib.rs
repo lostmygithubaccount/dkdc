@@ -135,11 +135,8 @@ impl Config {
 
     pub fn ensure_metadata_db(&self) -> Result<()> {
         self.ensure_directories()?;
-
-        if !self.metadata_path().exists() {
-            fs::File::create(self.metadata_path())?;
-        }
-
+        // DuckLake will automatically create the SQLite metadata.db file
+        // when we attach it, so we don't need to pre-create it
         Ok(())
     }
 }
