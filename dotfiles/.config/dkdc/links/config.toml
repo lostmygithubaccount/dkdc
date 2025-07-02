@@ -38,6 +38,8 @@ adb = "azuredatabricks"
 dbx = "azuredatabricks"
 snow = "snowflake"
 
+incident = "incidents"
+
 [links]
 # websites
 cal = "https://calendar.google.com"
@@ -138,3 +140,5 @@ codespaces = "https://github.com/codespaces"
 digitalocean = "https://cloud.digitalocean.com"
 
 ducklake = "https://ducklake.select"
+
+incidents = "https://ascendio.grafana.net/a/grafana-irm-app/incidents?q=state%3Aactive"
