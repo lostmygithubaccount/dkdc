@@ -41,6 +41,11 @@ export BASECAMP="ascend-io/basecamp"
 autoload -Uz compinit
 compinit
 
+# kubectl autocomplete
+if command -v kubectl >/dev/null 2>&1; then
+    source <(kubectl completion zsh)
+fi
+
 # Enable version control info (fast mode - with change indicators)
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' formats '%b%c%u'
