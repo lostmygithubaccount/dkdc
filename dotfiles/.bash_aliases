@@ -292,6 +292,10 @@ function l() {
   less "$@"
 }
 
+function cat() {
+    bat --color=always "$@"
+}
+
 function tree() {
   command tree -F -I venv -I .git -I target -I dist -I target -I ascend-out "$@"
 }
