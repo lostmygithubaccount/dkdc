@@ -24,7 +24,7 @@ logo_text = "dkdc.dev"
 # Put all your custom variables here
 author = "Cody"
 
-default_og_image = "static/favicon.png"
+default_og_image = "favicon.png"
 favicon = "/favicon.png"
 favicon_mimetype = "image/png"
 

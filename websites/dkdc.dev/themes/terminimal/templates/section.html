@@ -28,6 +28,11 @@
 
     {%- if config.extra.favicon %}
         <link rel="shortcut icon" type="{{ config.extra.favicon_mimetype | default(value="image/x-icon") | safe }}" href="{{ config.extra.favicon | safe }}">
+        <link rel="icon" type="{{ config.extra.favicon_mimetype | default(value="image/x-icon") | safe }}" href="{{ config.extra.favicon | safe }}">
+        <link rel="apple-touch-icon" href="{{ config.extra.favicon | safe }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ config.extra.favicon | safe }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ config.extra.favicon | safe }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ config.extra.favicon | safe }}">
     {% endif -%}
 
     {%- block extra_head %}
