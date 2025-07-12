@@ -18,6 +18,7 @@ chat = "copilot"
 music = "youtubemusic"
 cloud = "digitalocean"
 router = "mobilerouter"
+static = "netlify"
 
 do = "digitalocean"
 
@@ -144,3 +145,4 @@ ducklake = "https://ducklake.select"
 incidents = "https://ascendio.grafana.net/a/grafana-irm-app/incidents?q=state%3Aactive"
 
 discord = "https://discord.com/channels/909674491309850675/1376911883486888048"
+netlify = "https://app.netlify.com"

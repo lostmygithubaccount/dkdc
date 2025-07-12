@@ -1,3 +1,4 @@
+{% import "urls.html" as url_macros -%}
 <!DOCTYPE html>
 <html>
   <head>
@@ -16,16 +17,16 @@
         rel="stylesheet"
         type="text/css"
         media="all"
-        href="{{ get_url(path='style.css', cachebust=true) }}"
+        href="{{ url_macros::rel_url(path='style.css', cachebust=true) }}"
       />
     {% endblock head %}
 
     {% block rss %}
       {% if config.feed_filenames is containing("rss.xml") %}
-        <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ get_url(path="rss.xml", trailing_slash=false) }}">
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ url_macros::rel_url(path="rss.xml", trailing_slash=false) }}">
       {% endif %}
       {% if config.feed_filenames is containing("atom.xml") %}
-        <link rel="alternate" type="application/atom+xml" title="Atom" href="{{ get_url(path="atom.xml", trailing_slash=false) }}">
+        <link rel="alternate" type="application/atom+xml" title="Atom" href="{{ url_macros::rel_url(path="atom.xml", trailing_slash=false) }}">
       {% endif %}
     {% endblock %}
   </head>
